@@ -1,0 +1,11 @@
+<div v-bind:class="className" v-if="show" v-on:touchmove="$event.stopPropagation()" v-on:click="outside">
+    <div v-bind:class="['content',contentClassName]" ref="content" v-on:click="$event.stopPropagation()">
+        <div v-if="loading" class="loading">
+            <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                <path d="M512 213.333333a298.666667 298.666667 0 1 0 0 597.333334 298.666667 298.666667 0 0 0 0-597.333334z m-384 298.666667a384 384 0 1 1 768 0 384 384 0 0 1-768 0z" fill-opacity=".32" fill="#8a2be2"></path>
+                <path d="M723.2 300.8a298.666667 298.666667 0 0 0-422.4 0 42.666667 42.666667 0 0 1-60.330667-60.330667 384 384 0 0 1 543.061334 0A42.666667 42.666667 0 0 1 723.2 300.8z" fill="#8a2be2"></path>
+            </svg>
+        </div>
+        <slot></slot>
+    </div>
+</div>

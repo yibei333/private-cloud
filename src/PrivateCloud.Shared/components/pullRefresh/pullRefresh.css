@@ -1,0 +1,28 @@
+.pullRefresh {
+    & {
+        height: 100%;
+        -webkit-user-select: none;
+        user-select: none;
+        overflow: hidden;
+    }
+
+    & img {
+        -webkit-user-drag: none;
+    }
+
+    &.pulling {
+        cursor: grabbing;
+    }
+
+    & .pull-refresh-content {
+        height: 100%;
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
+
+    &.pulling-overflow-hidden {
+        cursor: grabbing;
+        overflow-x: hidden;
+        overflow-y: hidden;
+    }
+}

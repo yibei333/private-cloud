@@ -1,0 +1,34 @@
+.container {
+    & {
+        height: 100%;
+        width: 100%;
+        display: grid;
+        box-sizing: border-box;
+    }
+
+    & .container-content {
+        grid-column: 2;
+        height: 100%;
+        overflow: hidden;
+    }
+
+    &.small {
+        grid-template-columns: 0 1fr 0;
+    }
+
+    &.medium {
+        grid-template-columns: 4rem 1fr 4rem;
+    }
+
+    &.large {
+        grid-template-columns: 6rem 1fr 6rem;
+    }
+
+    &.xlarge {
+        grid-template-columns: 8rem 1fr 8rem;
+    }
+
+    &.xxlarge {
+        grid-template-columns: 12rem 1fr 12rem;
+    }
+}

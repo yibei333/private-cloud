@@ -1,0 +1,60 @@
+.about-page {
+    display: grid;
+    grid-template-rows: auto auto 1fr;
+
+    & .goBack {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 1rem;
+        background: var(--primary);
+        color: var(--light);
+        align-items: center;
+        padding: .5rem;
+        position: relative;
+
+        & svg {
+            height: 24px;
+            width: 24px;
+            cursor: pointer;
+            z-index: 1;
+        }
+
+        & svg path {
+            fill: var(--light);
+        }
+
+        & svg:hover path {
+            fill: var(--primary-200);
+        }
+
+        & .name {
+            font-weight: bold;
+            text-align: center;
+            margin-left: -32px;
+        }
+    }
+
+    & .plain-txt {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    & .container{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        & .content{
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: .5rem;
+            background: var(--gray-opacity);
+            color: var(--light);
+            padding: 1rem;
+            border-radius: var(--border-radius);
+        }
+    }
+}

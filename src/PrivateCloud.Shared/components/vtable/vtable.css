@@ -1,0 +1,20 @@
+.vtable {
+    width: 100%;
+    overflow: auto;
+
+    & table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    & th,
+    td {
+        border: 1px solid var(--gray-200);
+        padding: .5rem;
+        text-wrap: nowrap;
+    }
+
+    & tbody tr:hover {
+        background-color: var(--gray-100);
+    }
+}

@@ -1,0 +1,14 @@
+<div v-bind:class="[className,noPadding?'':'pb']">
+    <label v-if="label" v-bind:for="id" class="label">
+        <small v-if="required">*</small>
+        {{label}}
+        <small class="error" v-if="error">({{error}})</small>
+    </label>
+    <div class="input-container">
+        <slot name="pre" v-bind:id="id"></slot>
+        <input v-if="type=='checkbox'" class="input checkbox" v-bind:class="[error?'error':'']" v-bind:placeholder="vplaceholder" v-bind:readonly="readonly" v-bind:disabled="disabled" v-bind:id="id" type="checkbox" v-bind:checked="value" v-on:change="checkChanged($event.target.checked)" v-on:keyup.enter="$emit('enter')" />
+        <xselect v-bind:id="id" v-else-if="type=='select'" v-bind:readonly="readonly" v-bind:disabled="disabled" v-model="value" v-on:change="change" v-bind:options="selectOptions"></xselect>
+        <input v-else class="input" v-bind:class="[error?'error':'']" v-bind:placeholder="vplaceholder" v-bind:readonly="readonly" v-bind:disabled="disabled" v-bind:id="id" v-bind:type="type" v-model="value" v-on:input="change" autocomplete="off" v-on:keyup.enter="$emit('enter')" />
+        <slot name="next" v-bind:id="id"></slot>
+    </div>
+</div>

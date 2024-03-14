@@ -1,0 +1,9 @@
+<dropdown v-bind:readonly="readonly" v-bind:disabled="disabled" v-bind:class="className" ref="select">
+    <template #title>
+        <input v-bind:value="text" readonly v-bind:id="id" v-bind:disabled="disabled" ref="input" class="fullwidth input" />
+    </template>
+
+    <div class="items">
+        <div v-for="item in options" class="item" v-bind:class="[item.value==value?'select':'']" v-on:click="change(item)">{{item.text}}</div>
+    </div>
+</dropdown>

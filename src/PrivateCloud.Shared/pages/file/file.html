@@ -1,0 +1,132 @@
+<template v-if="showRetry">
+    <div class="retry">
+        <h2>请求失败，请重试!</h2>
+        <btn type=danger v-on:click="init(true)">重试</btn>
+    </div>
+</template>
+
+<container v-else>
+    <div class="row-5">
+        <div class="header">
+            <svg v-on:click="goBack" class="goBack" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" height="1" width="1">
+                <path d="M395.21518 513.604544l323.135538-312.373427c19.052938-18.416442 19.052938-48.273447 0-66.660212-19.053961-18.416442-49.910737-18.416442-68.964698 0L291.75176 480.290811c-19.052938 18.416442-19.052938 48.273447 0 66.660212l357.633237 345.688183c9.525957 9.207709 22.01234 13.796214 34.497699 13.796214 12.485359 0 24.971741-4.588505 34.466999-13.82896 19.052938-18.416442 19.052938-48.242747 0-66.660212L395.21518 513.604544z"></path>
+            </svg>
+            <dropdown class="fullheight" ref="addDropdown">
+                <template v-slot:title='state'>
+                    <btn fullheight circle width="34px" height="34px" type="primary">+</btn>
+                </template>
+                <div class="header-add-content">
+                    <btn type="success" v-on:click="showAddFolder">添加文件夹</btn>
+                    <btn type="success" v-on:click="uploadFolder" v-bind:disabled="uploading">上传文件夹</btn>
+                    <btn type="success" v-on:click="uploadFiles" v-bind:disabled="uploading">上传文件</btn>
+                </div>
+            </dropdown>
+            <field v-model="request.name" placeholder="请输入名称搜索" v-on:enter="init(request.name)" noPadding>
+                <template #next>
+                    <btn type="primary" v-on:click="init(request.name)">搜索</btn>
+                </template>
+            </field>
+        </div>
+        <div class="path">
+            <div class="item">
+                <div class="content" v-on:click="jump(true,folder.mediaLibIdPath)"> {{folder.mediaLibName}} </div>
+            </div>
+            <div v-for="item in folder.parents" class="item">
+                <div class="splitor">/</div>
+                <div class="content" v-on:click="jump(true,item.idPath)">{{item.name}}</div>
+            </div>
+            <div v-if="!folder.isRoot" class="item">
+                <div class="splitor">/</div>
+                <div class="content disabled">{{folder.name}}</div>
+            </div>
+            (分页:{{Math.min(request.pageIndex,pageCount)}}/{{pageCount}})
+        </div>
+        <div v-if="uploadingProgress" class="progress upload">
+            <div class="bar" v-bind:style="{width:uploadingProgress+'%'}"></div>
+            <div class="txt">上传进度:{{uploadingProgress}}%</div>
+        </div>
+        <div v-if="downloadingProgress" class="progress download">
+            <div class="bar" v-bind:style="{width:downloadingProgress+'%'}"></div>
+            <div class="txt">下载进度:{{downloadingProgress}}%</div>
+        </div>
+        <pull-refresh v-on:refresh="init" ref="pullRefresh">
+            <infinite-scroll v-if="folderLoaded" v-on:load="loadMore" v-bind:identifier="request.pageIndex" v-on:retry="init" ref="infiniteScroll">
+                <div v-for="item in items" v-bind:class="['file-item',item.encrypting?'encrypting':'']" v-on:click="jump(item.isFolder,item.idPath,item.encrypting)" v-bind:key="item.key">
+                    <div class="thumb">
+                        <svg v-if="item.isFavorited" class="favorite" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M707.584 93.184c-77.312 0-148.992 38.912-196.608 102.912-47.104-64-119.296-102.912-196.608-102.912-139.264 0-252.416 123.904-252.416 275.968 0 90.624 40.448 154.624 73.216 205.824 94.72 148.992 333.312 333.824 343.552 341.504 9.728 7.68 20.992 11.264 32.256 11.264s22.528-3.584 32.256-11.264c10.24-7.68 248.32-193.024 343.552-341.504 32.768-51.2 73.216-115.2 73.216-205.824 0-152.064-113.152-275.968-252.416-275.968z" fill="#ff5500"></path>
+                        </svg>
+                        <vimg v-bind:id-path="item.idPath" v-bind:base-url="http.baseUrl" height="64px" width="64px" v-bind:has-thumb="item.hasThumb" v-bind:has-large-thumb="item.hasLargeThumb" v-bind:is-encrypt="item.isEncrypt" v-bind:icon="item.icon"></vimg>
+                    </div>
+                    <div class="content">
+                        <div class="name">{{item.name}}{{(item.encrypting?'(加密中)':'')}}</div>
+                        <div v-if="!item.isFolder" class="size">{{item.sizeText}}</div>
+                        <div class="time">{{item.time}}</div>
+                    </div>
+                    <div class="operations">
+                        <btn fullheight v-on:click="showOperation(item)" v-bind:disabled="item.encrypting" stop>
+                            <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="40" fill="#1296db">
+                                <path d="M243.2 512m-83.2 0a1.3 1.3 0 1 0 166.4 0 1.3 1.3 0 1 0-166.4 0Z"></path>
+                                <path d="M512 512m-83.2 0a1.3 1.3 0 1 0 166.4 0 1.3 1.3 0 1 0-166.4 0Z"></path>
+                                <path d="M780.8 512m-83.2 0a1.3 1.3 0 1 0 166.4 0 1.3 1.3 0 1 0-166.4 0Z"></path>
+                            </svg>
+                        </btn>
+                    </div>
+                </div>
+            </infinite-scroll>
+        </pull-refresh>
+    </div>
+</container>
+
+<drawer v-model:active="operationShow" v-bind:loading="operationLoading">
+    <div v-for="item in operationOptions" v-bind:class="['item',item.danger?'danger':'']" v-on:click="operate(item)">{{item.name}}</div>
+</drawer>
+
+<modal title="添加文件夹" v-model:show="addFolderShow" size="small" submitText="添加" v-on:submit="addFolder" async>
+    <fields>
+        <field label="名称" v-model="addFolderRequest.name" required></field>
+    </fields>
+</modal>
+
+<modal title="永久链接" v-model:show="foreverRecordShow" submitText="拷贝" v-on:submit="copyToClipboard(foreverRecordUrl)">
+    <div class="plainText">
+        {{foreverRecordUrl}}
+    </div>
+</modal>
+
+<modal title="重命名" v-model:show="renameShow" size="small" v-on:submit="rename" async>
+    <fields>
+        <field label="新名称" v-model="renameRequest.name" required></field>
+    </fields>
+</modal>
+
+<modal title="Key" v-model:show="keyShow" submitText="拷贝" v-on:submit="copyToClipboard(key)">
+    <div class="plainText">
+        {{key}}
+    </div>
+</modal>
+
+<modal title="详情" v-model:show="detailShow" hideSubmit>
+    <fields>
+        <field label="名称" v-model="operateItem.name" readonly>
+            <template #next>
+                <btn v-on:click="copyToClipboard(operateItem.name)">拷贝</btn>
+            </template>
+        </field>
+        <field label="修改时间" v-model="operateItem.time" readonly>
+            <template #next>
+                <btn v-on:click="copyToClipboard(operateItem.time)">拷贝</btn>
+            </template>
+        </field>
+        <field label="大小" v-model="operateItem.sizeText" readonly>
+            <template #next>
+                <btn v-on:click="copyToClipboard(operateItem.sizeText)">拷贝</btn>
+            </template>
+        </field>
+        <field label="绝对路径" v-model="operateItem.absolutePath" readonly>
+            <template #next>
+                <btn v-on:click="copyToClipboard(operateItem.absolutePath)">拷贝</btn>
+            </template>
+        </field>
+    </fields>
+</modal>

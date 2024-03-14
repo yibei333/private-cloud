@@ -1,0 +1,125 @@
+<container>
+    <cols sm-cols="auto auto auto 1fr" gap=".5rem" class="header">
+        <svg v-on:click="goBack" class="goBack" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" height="1" width="1">
+            <path d="M395.21518 513.604544l323.135538-312.373427c19.052938-18.416442 19.052938-48.273447 0-66.660212-19.053961-18.416442-49.910737-18.416442-68.964698 0L291.75176 480.290811c-19.052938 18.416442-19.052938 48.273447 0 66.660212l357.633237 345.688183c9.525957 9.207709 22.01234 13.796214 34.497699 13.796214 12.485359 0 24.971741-4.588505 34.466999-13.82896 19.052938-18.416442 19.052938-48.242747 0-66.660212L395.21518 513.604544z"></path>
+        </svg>
+        <btn type="primary" v-on:click="showAddModal">添加</btn>
+        <btn type="warning" v-on:click="clean" async>清理</btn>
+        <field v-model="queryRequest.name" placeholder="输入名称搜索" v-on:enter="query" noPadding>
+            <template #next>
+                <btn type="success" v-on:click="query" fullheight>搜索</btn>
+            </template>
+        </field>
+    </cols>
+
+    <vtable class="body">
+        <template #thead>
+            <th>行号</th>
+            <th>图片</th>
+            <th>名称</th>
+            <th>路径</th>
+            <th>角色</th>
+            <th>加密</th>
+            <th>任务</th>
+            <th>创建日期</th>
+            <th>操作</th>
+        </template>
+
+        <tr v-for="(item,index) in items">
+            <td>{{index+1}}</td>
+            <td>
+                <img class="thumb" v-if="item.thumb" v-bind:src="item.thumb" />
+                <img class="thumb" v-else v-bind:src="folderBase64">
+            </td>
+            <td>{{item.name}}</td>
+            <td>{{item.path}}</td>
+            <td>{{item.allowedRoles}}</td>
+            <td>{{item.isEncrypt?'是':'否'}}</td>
+            <td>运行中:{{item.runningTaskCount}},失败:{{item.failedTaskCount}}</td>
+            <td>{{new Date(Number.parseFloat(item.createTime)).formatDate()}}</td>
+            <td>
+                <div class="operations">
+                    <btn type="info" size="small" v-on:click="showDetailModal(item)">详情</btn>
+                    <btn type="primary" size="small" v-on:click="showEditModal(item)">编辑</btn>
+                    <btn type="warning" size="small" v-on:click="showEncryptModal(item)">加密</btn>
+                    <btn type="warning" size="small" v-on:click="showDecryptModal(item)">解密</btn>
+                    <btn type="warning" size="small" v-if="item.isEncrypt" v-on:click="showModifyPasswordModal(item)">修改密码</btn>
+                    <btn type="danger" size="small" v-on:click="remove(item)">删除</btn>
+                </div>
+            </td>
+        </tr>
+    </vtable>
+
+    <pagination class="footer" v-model:size="queryRequest.pageSize" v-model:index="queryRequest.pageIndex" v-bind:count="pageData.total" v-bind:page-count="pageData.pageCount" v-on:changed="query"></pagination>
+</container>
+
+<modal title="媒体库详情" v-model:show="detailModalShow" hideSubmit cancleText="关闭">
+    <fields>
+        <div class="uploadField">
+            <label for="detailFieldsThumb" v-on:click="$refs.detailFieldsThumb.focus()">图片</label>
+            <div class="content" id="detailFieldsThumb" ref="detailFieldsThumb" tabindex="1">
+                <img class="thumb" v-if="detail.thumb" v-bind:src="detail.thumb" />
+                <img class="thumb" v-else
+                    src="data:image/png;base64,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">
+            </div>
+        </div>
+        <field label="名称" v-model="detail.name" readonly></field>
+        <field label="路径" v-model="detail.path" readonly></field>
+        <field label="角色" v-model="detail.allowedRoles" readonly></field>
+        <field label="加密" v-bind:modelValue="detail.isEncrypt?'是':'否'" readonly></field>
+        <field label="创建日期" v-bind:modelValue="new Date(Number.parseFloat(detail.createTime)).formatDateTime()" readonly></field>
+    </fields>
+</modal>
+
+<modal async title="添加媒体库" v-model:show="addModalShow" v-on:submit="add">
+    <fields ref="addFields">
+        <div class="uploadField">
+            <label for="addFieldsThumb" v-on:click="$refs.addFieldsThumb.focus()">图片</label>
+            <div class="content" id="addFieldsThumb" ref="addFieldsThumb" tabindex="1">
+                <img class="thumb" v-if="addRequest.thumb" v-bind:src="addRequest.thumb" />
+                <img class="thumb" v-else v-bind:src="folderBase64">
+                <btn v-on:click="upload(addRequest)" type="primary">上传</btn>
+            </div>
+        </div>
+        <field label="路径" v-model="addRequest.path" v-on:change="pathChange(addRequest)"></field>
+        <field label="名称" v-model="addRequest.name"></field>
+        <field label="角色" v-model="addRequest.allowedRoles"></field>
+    </fields>
+</modal>
+
+<modal async title="编辑媒体库" v-model:show="editModalShow" v-on:submit="edit">
+    <fields ref="editFields">
+        <div class="uploadField">
+            <label for="editFieldsThumb" v-on:click="$refs.editFieldsThumb.focus()">图片</label>
+            <div class="content" id="editFieldsThumb" ref="editFieldsThumb" tabindex="1">
+                <img class="thumb" v-if="editRequest.thumb" v-bind:src="editRequest.thumb" />
+                <img class="thumb" v-else v-bind:src="folderBase64">
+                <btn v-on:click="upload(editRequest)" type="primary">上传</btn>
+            </div>
+        </div>
+        <field label="路径" v-model="editRequest.path" readonly></field>
+        <field label="名称" v-model="editRequest.name"></field>
+        <field label="角色" v-model="editRequest.allowedRoles"></field>
+    </fields>
+</modal>
+
+<modal async title="加密" v-model:show="encryptModalShow" v-on:submit="encrypt">
+    <fields ref="encryptFields">
+        <field label="密码" v-model="encryptRequest.password" type="password" required></field>
+        <field label="确认密码" v-if="encryptRequest.showConfirm" v-model="encryptRequest.confirmPassword" type="password" required></field>
+    </fields>
+</modal>
+
+<modal async title="解密" v-model:show="decryptModalShow" v-on:submit="decrypt">
+    <fields ref="decryptFields">
+        <field label="密码" v-model="decryptRequest.password" type="password" required></field>
+    </fields>
+</modal>
+
+<modal async title="修改密码" v-model:show="modifyPasswordModalShow" v-on:submit="modifyPassword">
+    <fields ref="modifyPasswordFields">
+        <field label="密码" v-model="modifyPasswordRequest.password" type="password" required></field>
+        <field label="新密码" v-model="modifyPasswordRequest.newPassword" type="password" required></field>
+        <field label="确认密码" v-model="modifyPasswordRequest.confirmPassword" type="password" required></field>
+    </fields>
+</modal>

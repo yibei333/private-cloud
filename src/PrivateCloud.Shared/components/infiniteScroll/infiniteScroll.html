@@ -1,0 +1,18 @@
+<div v-bind:class="className" ref="container">
+    <slot>
+    </slot>
+   
+    <infinite-loading @infinite="load" ref="loading" v-bind:identifier="id">
+        <template #spinner>
+            <div class="loading">加载中...</div>
+        </template>
+        <template #complete>
+            <div class="complete">~没有更多了~</div>
+        </template>
+        <template #error>
+            <div class="error" v-on:click="retry">
+                请求失败，请点击重试！
+            </div>
+        </template>
+    </infinite-loading>
+</div>

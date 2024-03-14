@@ -1,0 +1,63 @@
+.mediaLibManage-page {
+    & .container-content{
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+    }
+
+    & .header{
+        background: var(--gray-100);
+    }
+
+    & .goBack {
+        height: 24px;
+        width: 24px;
+        cursor: pointer;
+        align-self: center;
+    }
+
+    & .goBack path {
+        fill: var(--primary);
+    }
+
+    & .goBack:hover path {
+        fill: var(--primary-200);
+    }
+
+    & .uploadField {
+        padding-bottom: .5rem;
+    }
+
+    & .uploadField label {
+        display: block;
+        padding-bottom: .5rem;
+        -webkit-user-select: none;
+        user-select: none;
+    }
+
+    & .uploadField .content {
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        border: 1px solid var(--gray-300);
+        border-radius: var(--border-radius);
+        background: var(--light);
+    }
+
+    & .uploadField .content:focus {
+        border: 1px solid var(--primary);
+        outline: none;
+    }
+
+    & .thumb {
+        height: 64px;
+    }
+
+    & .uploadField .content .thumb {
+        padding: .5rem 0;
+    }
+
+    .body .operations{
+        display: flex;
+        gap: .5rem;
+    }
+}

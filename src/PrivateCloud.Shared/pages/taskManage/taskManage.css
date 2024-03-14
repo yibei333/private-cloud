@@ -1,0 +1,34 @@
+.taskManage-page {
+    display: grid;
+    grid-template-rows: auto auto 1fr;
+
+    & .header{
+        display: grid;
+        grid-template-columns: auto 1fr;
+        padding: .5rem;
+        gap: .5rem;
+
+        & .goBack {
+            height: 24px;
+            width: 24px;
+            cursor: pointer;
+            align-self: center;
+        }
+    
+        & .goBack path {
+            fill: var(--primary);
+        }
+    
+        & .goBack:hover path {
+            fill: var(--primary-200);
+        }
+    }
+
+    & iframe {
+        height: calc(100% - 4px);
+        width: 100%;
+        overflow: auto;
+        outline: none;
+        border: none;
+    }
+}

@@ -1,0 +1,21 @@
+<div v-bind:class="[className,isSmall?'small':'']">
+    <div v-if="!isSmall" class='position'>
+        <div class="label">位置:</div>
+        <div class="label">{{start}}-{{end}}/{{count}}</div>
+    </div>
+    <div v-if="!isSmall" class='pagesize'>
+        <div class="label">页长:</div>
+        <select v-bind:value="size" v-on:change="sizeChanged($event.target.value)" name="页长">
+            <option v-for="item in numberSizes" v-bind:value="item">{{item}}</option>
+        </select>
+    </div>
+    <div class='pageindex'>
+        <div class="label" v-if="!isSmall">页码:</div>
+        <btn size="small" type="primary" v-on:click='pre' v-bind:disabled="preDisabled">上一页</btn>
+        <div>
+            <input name="页码" v-bind:disabled="pageCount==1" type="number" min="1" v-bind:max="pageCount" v-model="index" v-on:input="indexChanged" />
+            <div class="label">&nbsp;/&nbsp;{{pageCount}}</div>
+        </div>
+        <btn size="small" type="primary" v-on:click='next' v-bind:disabled="nextDisabled">下一页</btn>
+    </div>
+</div>

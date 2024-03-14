@@ -1,0 +1,15 @@
+<div v-on:click="click($event)" class="img-container">
+    <template v-if="loaded">
+        <img v-bind:class="className" ref="image" v-on:mousedown="mousedown" v-bind:style="{width:width,height:height}" v-bind:src="url" title="thumb image" />
+        <img v-if="showLarge" class="large-vimg" v-bind:class="sizeName" v-bind:src="largeUrl" ref="largeImage" v-on:mousedown="mousedown" title="large thumb image" />
+    </template>
+    
+    <template v-else>
+        <img v-if="isEncrypt&&!url" v-bind:class="className" v-on:mousedown="getBlobUrl" v-bind:style="{width:width,height:height}" v-bind:src="lockBase64" title="thumb image" />
+        <svg v-else v-bind:class="className" v-bind:style="{width:width,height:height}" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+            <path d="M352.2 224.2a128 128 0 1 0 128 128 128 128 0 0 0-128-128z m0 192a64 64 0 1 1 64-64 64.06 64.06 0 0 1-64 64z" fill="#1296db"></path>
+            <path d="M564.1 436.5L747.3 96.2H256.2a160 160 0 0 0-160 160v512a160 160 0 0 0 160 160H326l331.7-331.7zM299.4 864.2h-43.3a96 96 0 0 1-95.9-96v-46.9l71.2-47.5a160.1 160.1 0 0 1 177.5 0l48.5 32.4z m145-243.6a223.85 223.85 0 0 0-248.5 0l-35.7 23.8V256.2a96 96 0 0 1 96-96v0.1h383.9L490.6 437.9l86.8 148.4-73.8 73.8z" fill="#1296db"></path>
+            <path d="M837.6 112L810 98.7 633.4 426.6l98.2 160L390 928.2h378.3a160 160 0 0 0 160-160v-512A160.06 160.06 0 0 0 837.6 112z m26.6 656.2a96 96 0 0 1-96 96H544.5l268.1-268.1-105.4-171.6L835 187.2a95.88 95.88 0 0 1 29.2 69z" fill="#1296db"></path>
+        </svg>
+    </template>
+</div>

@@ -1,0 +1,101 @@
+<div class="row-4">
+    <div class="header">
+        <svg v-on:click="goBack" class="goBack" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" height="1" width="1">
+            <path d="M395.21518 513.604544l323.135538-312.373427c19.052938-18.416442 19.052938-48.273447 0-66.660212-19.053961-18.416442-49.910737-18.416442-68.964698 0L291.75176 480.290811c-19.052938 18.416442-19.052938 48.273447 0 66.660212l357.633237 345.688183c9.525957 9.207709 22.01234 13.796214 34.497699 13.796214 12.485359 0 24.971741-4.588505 34.466999-13.82896 19.052938-18.416442 19.052938-48.242747 0-66.660212L395.21518 513.604544z"></path>
+        </svg>
+        <div class="name">{{file.current?.name}}</div>
+        <btn class="operate" type="primary" circle v-on:click="operationShow=true">
+            <svg t="1709607474010" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                <path d="M224 512m-64 0a64 64 0 1 0 128 0 64 64 0 1 0-128 0Z"></path>
+                <path d="M512 512m-64 0a64 64 0 1 0 128 0 64 64 0 1 0-128 0Z"></path>
+                <path d="M800 512m-64 0a64 64 0 1 0 128 0 64 64 0 1 0-128 0Z"></path>
+            </svg>
+        </btn>
+    </div>
+    <div v-if="downloadingProgress" class="progress">
+        <div class="bar" v-bind:style="{width:downloadingProgress+'%'}"></div>
+        <div class="txt">下载进度:{{downloadingProgress}}%</div>
+    </div>
+    <div v-if="loading" class="body">
+        <div class="loading">
+            <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" height="1" width="1">
+                <path d="M512 213.333333a298.666667 298.666667 0 1 0 0 597.333334 298.666667 298.666667 0 0 0 0-597.333334z m-384 298.666667a384 384 0 1 1 768 0 384 384 0 0 1-768 0z" fill-opacity=".32" fill="#8a2be2"></path>
+                <path d="M723.2 300.8a298.666667 298.666667 0 0 0-422.4 0 42.666667 42.666667 0 0 1-60.330667-60.330667 384 384 0 0 1 543.061334 0A42.666667 42.666667 0 0 1 723.2 300.8z" fill="#8a2be2"></path>
+            </svg>
+        </div>
+    </div>
+    <div v-else class="body">
+        <template v-if="file.current?.playType=='txt'">
+            <div v-if="txt" class="txt">
+                {{txt}}
+            </div>
+        </template>
+        <template v-else-if="file.current?.playType=='audio'">
+            <div class="audio">
+                <audio v-if="url" v-bind:src="url" controls autoplay></audio>
+            </div>
+        </template>
+        <template v-else-if="file.current?.playType=='img'">
+            <div class="img" ref="imgContainer">
+                <img draggable="false" v-if="url" v-bind:src="url" v-bind:title="file.current?.name" v-bind:style="imgStyle" ref="img" v-on:touchstart="imgTouchStart($event)" v-on:touchmove="imgTouchMove($event)" v-on:touchend="imgTouchEnd($event)" v-on:mousewheel='imgMouseScroll($event)' />
+
+                <div class="img-operations">
+                    <btn v-on:click='imgAnticlockwiseRotate' title='逆时针旋转'>
+                        <svg viewBox="0 0 1118 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M621.691007 930.837137l0 93.162863C896.942803 1015.340184 1117.395653 789.486587 1117.395653 512.139674c0-282.840775-229.2989-512.139674-512.139674-512.139674C346.113304 0 131.899245 192.517959 97.818678 442.302446L0 442.302446 139.674457 605.255979l139.674457-162.953533L192.00582 442.302446C225.294899 244.104392 397.60662 93.116304 605.255979 93.116304c231.440575 0 419.02337 187.582795 419.02337 419.02337C1024.279349 738.039829 845.496044 922.223879 621.691007 930.837137z"></path>
+                        </svg>
+                    </btn>
+                    <p>{{Number.parseInt(imgStyle.rotate)}}°</p>
+                    <btn v-on:click='imgClockwiseRotate' title='顺时针旋转'>
+                        <svg viewBox="0 0 1118 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M977.721197 605.255979l139.674457-162.953533-97.865236 0C985.496408 192.517959 771.28235 0 512.139674 0 229.2989 0 0 229.2989 0 512.139674c0 277.346913 220.452851 503.200509 495.704647 511.860326l0-93.162863C271.899609 922.223879 93.116304 738.039829 93.116304 512.139674c0-231.440575 187.582795-419.02337 419.02337-419.02337 207.649359 0 379.96108 150.988088 413.250159 349.186142L838.04674 442.302446 977.721197 605.255979z"></path>
+                        </svg>
+                    </btn>
+                    <btn v-on:click='imgScaleDown' title='缩小' v-bind:disabled="imgStyle.scale<=0.2">
+                        <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M919.264 905.984l-138.912-138.912C851.808 692.32 896 591.328 896 480c0-229.376-186.624-416-416-416S64 250.624 64 480s186.624 416 416 416c95.008 0 182.432-32.384 252.544-86.208l141.44 141.44a31.904 31.904 0 0 0 45.248 0 32 32 0 0 0 0.032-45.248zM128 480C128 285.92 285.92 128 480 128s352 157.92 352 352-157.92 352-352 352S128 674.08 128 480z"></path>
+                            <path d="M625.792 448H336a32 32 0 0 0 0 64h289.792a32 32 0 1 0 0-64z"></path>
+                        </svg>
+                    </btn>
+                    <p>{{Number.parseInt(imgStyle.scale*100)}}%</p>
+                    <btn v-on:click='imgScaleUp' title='放大' v-bind:disabled="imgStyle.scale>=5">
+                        <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M919.264 905.984l-138.912-138.912C851.808 692.32 896 591.328 896 480c0-229.376-186.624-416-416-416S64 250.624 64 480s186.624 416 416 416c95.008 0 182.432-32.384 252.544-86.208l141.44 141.44a31.904 31.904 0 0 0 45.248 0 32 32 0 0 0 0.032-45.248zM128 480C128 285.92 285.92 128 480 128s352 157.92 352 352-157.92 352-352 352S128 674.08 128 480z"></path>
+                            <path d="M625.792 448H512v-112a32 32 0 0 0-64 0V448h-112a32 32 0 0 0 0 64H448v112a32 32 0 1 0 64 0V512h113.792a32 32 0 1 0 0-64z"></path>
+                        </svg>
+                    </btn>
+                    <btn v-on:click='imgReset' title='重置'>
+                        <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M0 0h1024v1024H0z" fill="#D8D8D8" opacity=".01"></path>
+                            <path d="M360.448 269.596444a28.444444 28.444444 0 0 1-5.063111 39.879112A256 256 0 0 0 512 768a28.444444 28.444444 0 1 1 0 56.888889 312.888889 312.888889 0 0 1-191.431111-560.355556 28.444444 28.444444 0 0 1 39.879111 5.063111zM512 199.111111a312.888889 312.888889 0 0 1 187.448889 563.427556 28.444444 28.444444 0 1 1-34.133333-45.511111A256 256 0 0 0 512 256a28.444444 28.444444 0 0 1 0.056889-56.888889z" fill="#5A6677"></path>
+                            <path d="M369.777778 227.555556a28.444444 28.444444 0 0 1 28.444444 28.444444v170.666667a28.444444 28.444444 0 0 1-56.888889 0V284.444444H199.111111a28.444444 28.444444 0 0 1 0-56.888888h170.666667zM654.222222 796.444444a28.444444 28.444444 0 0 1-28.444444-28.444444v-170.666667a28.444444 28.444444 0 1 1 56.888889 0V739.555556h142.222222a28.444444 28.444444 0 0 1 0 56.888888h-170.666667z" fill="#5A6677"></path>
+                        </svg>
+                    </btn>
+                </div>
+            </div>
+        </template>
+        <template v-else-if="file.current?.playType=='video'">
+            <div ref='video' class="video"></div>
+        </template>
+        <template v-else>
+            <div class="not-supported">
+                不支持预览,尝试用<p v-on:click="openBrowser">用浏览器打开</p>
+            </div>
+        </template>
+    </div>
+    <div class="footer">
+        <btn type="primary" v-on:click="pre" fullwidth v-bind:disabled="!file.hasPre">上一个</btn>
+        <div class="position">位置:{{file.index}}/{{file.total}}</div>
+        <btn type="primary" v-on:click="next" fullwidth v-bind:disabled="!file.hasNext">下一个</btn>
+    </div>
+</div>
+
+<drawer v-model:active="operationShow" v-bind:loading="operationLoading">
+    <div class="item" v-on:click="refresh">刷新</div>
+    <div class="item" v-on:click="goBackFolder">返回文件夹</div>
+    <div v-if="file.current?.isFavorited" class="item" v-on:click="unFavorite">取消收藏</div>
+    <div v-if="!file.current?.isFavorited" class="item" v-on:click="favorite">收藏</div>
+    <div class="item" v-on:click="openBrowser">尝试浏览器打开</div>
+    <div class="item" v-on:click="download">下载</div>
+    <div class="item danger" v-on:click="remove">删除</div>
+</drawer>

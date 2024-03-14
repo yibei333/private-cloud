@@ -1,0 +1,329 @@
+#app {
+    display: none;
+}
+
+.hidden {
+    display: none;
+}
+
+.overflow-hidden {
+    overflow: hidden;
+}
+
+input {
+    border: 1px solid var(--gray);
+    border-radius: var(--border-radius);
+    padding: 0 .5rem;
+}
+
+input:focus-visible {
+    border-color: var(--primary);
+    outline: none;
+}
+
+.fullheight {
+    height: 100%;
+}
+
+.fullwidth {
+    width: 100%;
+}
+
+@keyframes fadeInAnimation {
+    from {
+        opacity: 0
+    }
+
+    to {
+        opacity: 1
+    }
+}
+
+@keyframes fadeOutAnimation {
+    from {
+        opacity: 1
+    }
+
+    to {
+        opacity: 0
+    }
+}
+
+@keyframes rotateAnimation {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.page {
+    & {
+        box-sizing: border-box;
+    }
+
+    &.to-big-enter-active,
+    &.to-big-leave-active,
+    &.to-small-enter-active,
+    &.to-small-leave-active {
+        position: fixed;
+        top: 50px;
+        transition: transform .3s ease-in-out;
+        height: 100%;
+    }
+
+    &.to-big-enter-active.page-sm,
+    &.to-big-leave-active.page-sm,
+    &.to-small-enter-active.page-sm,
+    &.to-small-leave-active.page-sm {
+        top: 0;
+        height: calc(100% - 50px);
+    }
+
+    &.to-big-leave-active,
+    &.to-small-leave-active {
+        background: var(--gray-100);
+    }
+
+    &.to-big-enter-from,
+    &.to-small-leave-to {
+        transform: translateX(100%);
+    }
+
+    &.to-big-enter-to,
+    &.to-big-leave-from,
+    &.to-small-enter-to,
+    &.to-small-leave-from {
+        transform: translateX(0);
+    }
+
+    &.to-big-leave-to,
+    &.to-small-enter-from {
+        transform: translateX(-100%);
+    }
+}
+
+.notify-container {
+    & {
+        position: fixed;
+        top: 50px;
+        right: 0;
+        padding: 1rem;
+        z-index: 100;
+        max-height: 100%;
+        overflow: hidden;
+    }
+
+    & .message {
+        border-radius: 4px;
+        background: var(--gray-200);
+        margin-bottom: 1rem;
+        width: 200px;
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        transition: box-shadow .3s;
+    }
+
+    & .message.show {
+        animation: fadeInAnimation .3s ease forwards;
+    }
+
+    & .message.close {
+        animation: fadeOutAnimation .3s ease forwards;
+    }
+
+    & .message:hover {
+        box-shadow: var(--gray-600) 0 0 10px;
+    }
+
+    & .message .title {
+        padding: .5rem;
+        display: flex;
+        align-items: center;
+        color: var(--light);
+    }
+
+    & .message .title svg {
+        height: 20px;
+        width: 20px;
+        vertical-align: middle;
+        fill: var(--light);
+    }
+
+    & .message .title.info {
+        background-color: var(--info);
+    }
+
+    & .message .title.success {
+        background-color: var(--success);
+    }
+
+    & .message .title.warning {
+        background-color: var(--warning);
+    }
+
+    & .message .title.error {
+        background-color: var(--danger);
+    }
+
+    & .message .title-content {
+        flex-grow: 1;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        gap: 4px;
+    }
+
+    & .message .content {
+        padding: .5rem;
+        word-wrap: break-word;
+        max-height: 300px;
+        overflow: auto;
+        font-size: .9rem;
+    }
+
+    & .message .close-button {
+        cursor: pointer;
+        border-radius: 18px;
+        height: 18px;
+        width: 18px;
+        border: none;
+        background: none;
+        color: var(--dark);
+        padding: 0;
+        transition: background-color .3s;
+    }
+
+    & .message .close-button svg {
+        height: 12px;
+        width: 12px;
+    }
+
+    & .message .close-button:hover {
+        background: var(--danger);
+        color: var(--light);
+    }
+}
+
+.confirm-overlay {
+    & {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: var(--gray-opacity);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 50;
+    }
+
+    & .confirm-content {
+        background: var(--light);
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        transition: box-shadow .3s;
+        font-size: .9rem;
+    }
+
+    & .confirm-content:hover {
+        box-shadow: var(--gray-600) 0 0 10px;
+    }
+
+    & .confirm-content.show {
+        animation: fadeInAnimation .3s ease forwards;
+    }
+
+    & .confirm-content.hide {
+        animation: fadeOutAnimation .3s ease forwards;
+    }
+
+    & .confirm-content .content {
+        padding: 1.5rem;
+        width: 250px;
+        text-wrap: wrap;
+        word-break: break-word;
+        max-height: 80%;
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
+
+    & .confirm-content .operation-container {
+        display: flex;
+        justify-content: end;
+        align-items: center;
+        gap: 1rem;
+        padding: .5rem;
+        background: var(--gray-200);
+    }
+
+    & .confirm-content button {
+        border: none;
+        cursor: pointer;
+        padding: .5rem 1rem;
+        border-radius: var(--border-radius);
+        transition: background-color .3s;
+    }
+
+    & .confirm-content button:hover {
+        opacity: .8;
+        transition: opacity .2s;
+    }
+
+    & .confirm-content .cancle {
+        background: var(--gray-400);
+    }
+
+    & .confirm-content .ok {
+        background: var(--primary);
+        color: var(--light);
+    }
+}
+
+.mediaLibPassowrdConfirm {
+    & {
+        display: grid;
+        grid-template-rows: 1fr 1fr;
+        gap: 1rem;
+    }
+
+    & label {
+        font-size: 1rem;
+        font-weight: bold;
+    }
+
+    & form {
+        display: flex;
+        justify-content: stretch;
+    }
+
+    & .input {
+        width: 100%;
+        height: 28px;
+    }
+}
+
+#pageLoading {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--gray-opacity);
+    z-index: 9999;
+
+    & svg {
+        height: 48px;
+        width: 48px;
+        animation: rotateAnimation 1s ease-in-out forwards;
+        animation-iteration-count: infinite;
+        fill: var(--theme);
+    }
+}

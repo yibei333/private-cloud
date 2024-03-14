@@ -1,0 +1,13 @@
+<pull-refresh v-on:refresh="query">
+    <cols smCols="repeat(2,1fr)" mediumCols="repeat(4,1fr)" largeCols="repeat(5,1fr)" xLargeCols="repeat(7,1fr)" xxLargeCols="repeat(9,1fr)" gap="1rem">
+        <div v-for="item in items" class="card" v-on:click="jump(item)">
+            <div class="thumb">
+                <img v-bind:src="item.thumb??folderBase64" />
+            </div>
+            <div class="content">
+                <div class="name"> {{item.name}} </div>
+                <small><img v-if="item.isEncrypt" v-bind:src="lockBase64" />{{new Date(Number.parseFloat(item.createTime)).formatDate()}}</small>
+            </div>
+        </div>
+    </cols>
+</pull-refresh>

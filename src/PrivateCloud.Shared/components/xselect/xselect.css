@@ -1,0 +1,25 @@
+.xselect {
+    & {
+        position: relative;
+        height: 100%;
+    }
+
+    & .items {
+        background: var(--white);
+        -webkit-user-select: none;
+        user-select: none;
+    }
+
+    & .items .item {
+        padding: .5rem;
+        cursor: pointer;
+    }
+
+    & .items .item:hover {
+        background: var(--gray-400);
+    }
+
+    & .items .item.select {
+        background: var(--gray-500);
+    }
+}

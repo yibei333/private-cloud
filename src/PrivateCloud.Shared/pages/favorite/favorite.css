@@ -1,0 +1,131 @@
+.favorite-page {
+    & .retry {
+        height: 100%;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    & .row-2 {
+        display: grid;
+        grid-template-rows: auto 1fr;
+        height: 100%;
+        overflow: hidden;
+    }
+
+    & .header {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 1rem;
+        background: var(--gray-100);
+        align-items: center;
+        padding: .5rem;
+        position: relative;
+
+        & .header-add-content {
+            display: grid;
+            grid-template-columns: max-content;
+            gap: .5rem;
+            padding: .5rem;
+            background: var(--light);
+        }
+
+        & .goBack {
+            height: 24px;
+            width: 24px;
+            cursor: pointer;
+        }
+
+        & .goBack path {
+            fill: var(--primary);
+        }
+
+        & .goBack:hover path {
+            fill: var(--primary-200);
+        }
+    }
+
+    & .pullRefresh {
+        background: var(--gray-300);
+        grid-row: 2;
+    }
+
+    & .file-item {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        background: var(--gray-100);
+        border-radius: var(--border-radius);
+        margin: .5rem .5rem 0 .5rem;
+        overflow: hidden;
+        transition: background-color .3s;
+        gap: 1rem;
+        padding: .5rem;
+        word-break: break-all;
+        cursor: pointer;
+        position: relative;
+
+        & .thumb {
+            position: relative;
+        }
+
+        & .thumb .favorite {
+            width: 24px;
+            height: 24px;
+            position: absolute;
+            left: .3rem;
+            top: .6rem;
+        }
+    }
+
+    & .file-item.encrypting {
+        background: var(--gray-400);
+        opacity: .8;
+        cursor: unset;
+    }
+
+    & .file-item:hover {
+        background: var(--gray-200);
+    }
+
+    & .file-item .content {
+        display: flex;
+        justify-content: space-between;
+        flex-direction: column;
+
+        & .name {
+            font-weight: bold;
+        }
+
+        & .size,
+        .time {
+            font-size: .8rem;
+            padding-top: 4px;
+        }
+    }
+
+    & .plainText {
+        padding: .5rem;
+        border: 1px solid var(--light);
+        box-sizing: border-box;
+        margin: .5rem;
+        border-radius: var(--border-radius);
+    }
+
+    & .drawer .item {
+        border-bottom: 1px solid var(--gray-400);
+        padding: .5rem;
+        cursor: pointer;
+        text-align: center;
+        transition: all .3s ease-in-out;
+        box-sizing: border-box;
+    }
+
+    & .drawer .item:hover {
+        background-color: var(--gray-300);
+    }
+
+    & .drawer .item.danger {
+        color: var(--danger);
+    }
+}

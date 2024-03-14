@@ -1,0 +1,72 @@
+<container>
+    <cols sm-cols="auto auto 1fr" gap=".5rem" class="header">
+        <svg v-on:click="goBack" class="goBack" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" height="1" width="1">
+            <path d="M395.21518 513.604544l323.135538-312.373427c19.052938-18.416442 19.052938-48.273447 0-66.660212-19.053961-18.416442-49.910737-18.416442-68.964698 0L291.75176 480.290811c-19.052938 18.416442-19.052938 48.273447 0 66.660212l357.633237 345.688183c9.525957 9.207709 22.01234 13.796214 34.497699 13.796214 12.485359 0 24.971741-4.588505 34.466999-13.82896 19.052938-18.416442 19.052938-48.242747 0-66.660212L395.21518 513.604544z"></path>
+        </svg>
+        <div class="operations">
+            <btn type="primary" v-on:click="showAddModal">添加</btn>
+        </div>
+        <field v-model="queryRequest.name" placeholder="输入名称搜索" v-on:enter="query" noPadding>
+            <template #next>
+                <btn type="success" v-on:click="query" fullheight>搜索</btn>
+            </template>
+        </field>
+    </cols>
+
+    <vtable class="body">
+        <template #thead>
+            <th>行号</th>
+            <th>名称</th>
+            <th>角色</th>
+            <th>禁用</th>
+            <th>创建日期</th>
+            <th>操作</th>
+        </template>
+
+        <tr v-for="(item,index) in items">
+            <td>{{index+1}}</td>
+            <td>{{item.name}}</td>
+            <td>{{item.roles}}</td>
+            <td>{{item.isForbidden}}</td>
+            <td>{{new Date(Number.parseFloat(item.createTime)).formatDate()}}</td>
+            <td>
+                <div class="operations">
+                    <btn type="info" size="small" v-on:click="showDetailModal(item)">详情</btn>
+                    <btn type="primary" size="small" v-on:click="showEditModal(item)">编辑</btn>
+                    <btn type="danger" size="small" v-on:click="remove(item)">删除</btn>
+                </div>
+            </td>
+        </tr>
+    </vtable>
+
+    <div class="footer">
+        <pagination v-model:size="queryRequest.pageSize" v-model:index="queryRequest.pageIndex" v-bind:count="pageData.total" v-bind:page-count="pageData.pageCount" v-on:changed="query"></pagination>
+    </div>
+</container>
+
+<modal title="用户详情" v-model:show="detailModalShow" hideSubmit cancleText="关闭">
+    <fields>
+        <field label="用户名" v-model="detail.name" readonly></field>
+        <field label="角色" v-model="detail.roles" readonly></field>
+        <field label="禁用" v-model="detail.isForbidden" type="select" v-bind:select-options="yesOrNoOptions" readonly></field>
+        <field label="创建日期" v-bind:modelValue="new Date(Number.parseFloat(detail.createTime)).formatDateTime()" readonly></field>
+    </fields>
+</modal>
+
+<modal async title="添加用户" v-model:show="addModalShow" v-on:submit="add">
+    <fields ref="addFields">
+        <field label="用户名" v-model="addRequest.name" required></field>
+        <field label="角色" v-model="addRequest.roles"></field>
+        <field label="禁用" v-model="addRequest.isForbidden" type="select" v-bind:select-options="yesOrNoOptions"></field>
+        <field label="密码" v-model="addRequest.password" type="password"></field>
+    </fields>
+</modal>
+
+<modal async title="编辑用户" v-model:show="editModalShow" v-on:submit="edit">
+    <fields ref="editFields">
+        <field label="用户名" v-model="editRequest.name" required></field>
+        <field label="角色" v-model="editRequest.roles"></field>
+        <field label="禁用" v-model="editRequest.isForbidden" type="select" v-bind:select-options="yesOrNoOptions"></field>
+        <field label="密码" v-model="editRequest.password" type="password"></field>
+    </fields>
+</modal>
