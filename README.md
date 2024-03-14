@@ -2,7 +2,9 @@
 这是一个.net项目,可以将你的个人电脑作为家庭文件服务器使用（也许不止于此），包含一些基础操作（添加，删除，加密等），也包含一些拓展功能（收藏，历史，预览）。
 
 # 截图
-
+<img src="https://github.com/yibei333/private-cloud-release-demo1.0/blob/main/screenshot/desktop.gif?raw=true">
+<br>
+<img src="https://github.com/yibei333/private-cloud-release-demo1.0/blob/main/screenshot/mobile.gif?raw=true">
 
 # 起步
 
@@ -57,7 +59,7 @@ c.如后面代码有更新,执行private-cloud/deploy/deploy_with_nohup_ubuntu.s
 ## 2.客户端
 请自行用visual studio或者其他方式发布包。
 
-现提供[windows](https://github.com/yibei333/private-cloud-release-demo1.0/raw/main/files/package/windows/PrivateCloud.Maui_1.0.0.0.zip)和[android](https://github.com/yibei333/private-cloud-release-demo1.0/raw/main/files/package/android/com.yibei.privatecloud.apk)的示例包（需科学上网）。
+现提供[windows](https://github.com/yibei333/private-cloud-release-demo1.0/raw/main/windows/PrivateCloud.Maui_1.0.0.0_x64.zip)和[android](https://github.com/yibei333/private-cloud-release-demo1.0/raw/main/android/com.yibei.privatecloud.1.0.0.apk)的示例包（需科学上网）。
 
 windows需要安装示例包中的证书（安装证书->本地计算机->将所有的证书都放入下列存储->受信任的根证书颁发机构）。
 

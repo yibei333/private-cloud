@@ -1,5 +1,6 @@
 using Microsoft.JSInterop;
 using SharpDevLib;
+using SharpDevLib.Extensions.Model;
 
 namespace PrivateCloud.Maui.Services;
 
@@ -27,6 +28,20 @@ public static class AppService
 
     [JSInvokable]
     public static ApplicationInfo GetAppInfo() => new() { Version = AppInfo.Current.VersionString, Platform = DeviceInfo.Current.Platform.Convert() };
+
+    [JSInvokable]
+    public static async Task<Result> SetClipboard(string text)
+    {
+        try
+        {
+            await Clipboard.Default.SetTextAsync(text);
+            return Result.Succeed();
+        }
+        catch (Exception ex)
+        {
+            return Result.Failed(ex.Message);
+        }
+    }
 }
 
 public class ApplicationInfo

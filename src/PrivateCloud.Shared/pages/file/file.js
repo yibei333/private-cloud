@@ -189,13 +189,7 @@ export default {
             });
         },
         copyToClipboard(text) {
-            navigator.clipboard
-                .writeText(text)
-                .then(() => this.notify.success('拷贝成功'))
-                .catch((error) => {
-                    this.notify.error('拷贝失败');
-                    console.log(error);
-                });
+            this.http.setClipboard(text);
         },
         openBrowser() {
             this.operationShow = false;

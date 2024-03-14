@@ -208,7 +208,7 @@ export class httpService {
     async download(request, loadingCallback, progress) {
         let url = `${this.baseUrl}/api/file/${request.idPath}`;
         let options = { url: url, progress: progress, idPath: request.idPath, name: request.name, loadingCallback: loadingCallback };
-        return downloadUrl(options);
+        return this.downloadUrl(options);
     }
 
     async downloadUrl(options) {
@@ -294,5 +294,12 @@ export class httpService {
 
     getAppInfo() {
         return DotNet.invokeMethodAsync(this.assemblyName, "GetAppInfo");
+    }
+
+    setClipboard(text) {
+        DotNet.invokeMethodAsync(this.assemblyName, "SetClipboard", text).then(response => {
+            if (response.success) this.notify.success('拷贝成功');
+            else this.notify.error(`拷贝失败:${response.description}`);
+        });
     }
 }

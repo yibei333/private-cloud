@@ -230,4 +230,15 @@ export class httpService {
         let mediaLibToken = sessionStorage.getItem(`MediaLibToken_${id}`);
         window.open(`${this.baseUrl}/api/file/${idPath}?Token=${getToken()}&MediaLibToken=${mediaLibToken}&tryOpen=true`, '_blank');
     }
+
+    setClipboard(text) {
+        navigator
+            .clipboard
+            .writeText(text)
+            .then(() => this.notify.success('拷贝成功'))
+            .catch((error) => {
+                this.notify.error(`拷贝失败:${error}`);
+                console.log(error);
+            });
+    }
 }

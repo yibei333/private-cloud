@@ -21,7 +21,8 @@ public static class MauiProgram
             .ConfigureFonts(fonts =>
             {
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
-            }).ConfigureMauiHandlers(x =>
+            })
+            .ConfigureMauiHandlers(x =>
             {
 #if ANDROID
                 x.AddHandler(typeof(Microsoft.AspNetCore.Components.WebView.Maui.BlazorWebView), typeof(PrivateCloud.Maui.Platforms.Android.AndroidCustomBlazorWebViewHandler));
