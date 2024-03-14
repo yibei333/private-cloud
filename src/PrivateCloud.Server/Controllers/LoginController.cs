@@ -29,7 +29,7 @@ public class LoginController(IServiceProvider serviceProvider, IRepository<UserE
             if (adminUser is not null)
             {
                 var password = adminUser.Salt.PasswordHash(initPassword);
-                if (password == adminUser.Password) result.Add($"你可以在'{Statics.AdminPasswordPath}'中找到初始用户'admin'的密码,登录成功后请修改初始密码");
+                if (password == adminUser.Password) result.Add($"你可以在'{Statics.AdminPasswordPath}'中找到初始用户'Admin'的密码,登录成功后请修改初始密码");
             }
         }
 
