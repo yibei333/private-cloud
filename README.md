@@ -48,7 +48,7 @@ sudo chmod +x ./private-cloud/deploy/deploy_with_nohup_ubuntu.sh
 #### 后续步骤
 a.启动后需要修改appsettings.Other.json->FfmpegBinaryPath的值，默认配置的exe文件，重新运行deploy_with_nohup_ubuntu.sh脚本完成重启
 
-b.启动后打开页面->http://localhost:9090,根据登录页面提示完成ffmpeg的配置以及初始用户的密码修改
+b.启动后打开页面->http://localhost:9090 ,根据登录页面提示完成ffmpeg的配置以及初始用户的密码修改
 
 c.如后面代码有更新,执行private-cloud/deploy/deploy_with_nohup_ubuntu.sh即可
 
