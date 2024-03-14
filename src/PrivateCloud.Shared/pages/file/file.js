@@ -164,7 +164,7 @@ export default {
             this.operationLoading = true;
             let option =
             {
-                url: `${this.http.baseUrl}/api/favorite/${this.operateItem.idPath}`,
+                url: `${this.http.baseUrl}/api/favorite/${this.operateItem.favoritedId}`,
                 idPath: this.operateItem.idPath,
                 loadingCallback: () => this.operationLoading = false
             }
