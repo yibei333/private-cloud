@@ -18,7 +18,7 @@ public static class PlatformExtension
 
     public static string GetExtension(this Platforms platform)
     {
-        if (platform == Platforms.windows) return "msix";
+        if (platform == Platforms.windows) return "zip";
         if (platform == Platforms.android) return "apk";
         if (platform == Platforms.ios) return "ipa";
         if (platform == Platforms.mac) return "pkg";
