@@ -69,7 +69,14 @@ export default {
             this.items = [];
             this.folderLoaded = false;
             await this.getFolder();
-            if (this.folderLoaded) this.$refs.infiniteScroll.reset();
+            if (this.folderLoaded) {
+                let timer = setInterval(() => {
+                    if (this.$refs.infiniteScroll) {
+                        this.$refs.infiniteScroll.reset();
+                        clearInterval(timer);
+                    }
+                }, 10);
+            }
         },
         getFolder() {
             if (this.folderLoaded) return;
