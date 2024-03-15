@@ -1,12 +1,13 @@
 .taskManage-page {
     display: grid;
-    grid-template-rows: auto 1fr;
+    grid-template-rows: auto auto 1fr;
 
     & .header{
         display: grid;
         grid-template-columns: auto 1fr;
         padding: .5rem;
         gap: .5rem;
+        grid-row:2;
 
         & .goBack {
             height: 24px;
@@ -30,5 +31,9 @@
         overflow: auto;
         outline: none;
         border: none;
+    }
+
+    & .body{
+        grid-row:3;
     }
 }
