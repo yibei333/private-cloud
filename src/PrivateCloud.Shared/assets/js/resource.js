@@ -310,8 +310,10 @@ async function importPage(name) {
 function pageLoading(isFinish = false) {
     let id = 'pageLoading';
     if (isFinish) {
+        document.body.style.opacity = 1;
         document.getElementById(id)?.remove();
     } else {
+        document.body.style.opacity = 0;
         let element = document.createElement('div');
         element.id = id;
         element.innerHTML = `

@@ -111,3 +111,9 @@ public class EntryReply : IdNameRequest
     public string RelativePath { get; set; }
     public string AbsolutePath { get; set; }
 }
+
+public class NameIdPathReply
+{
+    public string Name { get; set; }
+    public string IdPath { get; set; }
+}

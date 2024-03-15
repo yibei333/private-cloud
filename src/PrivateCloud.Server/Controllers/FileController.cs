@@ -184,7 +184,7 @@ public class FileController(
         {
             var encryptedFileIds = entries.Select(x => x.Name.ToGuid()).Distinct().ToList();
             var encryptedFileNames = encryptedFileRepository.GetMany(x => encryptedFileIds.Contains(x.Id)).Select(x => new { x.Id, x.Name }).ToList();
-            entries = entries.OrderBy(x => encryptedFileNames.FirstOrDefault(y => x.Name.ToGuid() == y.Id)?.Name).ToList();
+            entries = [.. entries.OrderBy(x => encryptedFileNames.FirstOrDefault(y => x.Name.ToGuid() == y.Id)?.Name)];
         }
         result.Total = entries.Count;
         result.Index = 1;
@@ -260,13 +260,14 @@ public class FileController(
     [DisableRequestSizeLimit]
     [MultipartFormData]
     [DisableFormValueModelBinding]
-    public async Task<Result> UploadFile(string idPath)
+    public async Task<Result<List<NameIdPathReply>>> UploadFile(string idPath)
     {
         var idPathModel = BuildIdPathModel(idPath, out var mediaLib);
         var contentTypeHeader = MediaTypeHeaderValue.Parse(HttpContext.Request.ContentType).ToString();
         var boundary = contentTypeHeader[(contentTypeHeader.IndexOf(StaticNames.BoundarySymbol) + StaticNames.BoundarySymbol.Length)..];
         var multipartReader = new MultipartReader(boundary, HttpContext.Request.Body);
         var section = await multipartReader.ReadNextSectionAsync();
+        var reply = new List<NameIdPathReply>();
 
         while (section != null)
         {
@@ -285,12 +286,13 @@ public class FileController(
                 await fileSection.FileStream.CopyToAsync(fileStream);
                 await fileStream.FlushAsync();
                 fileStream.Close();
+                reply.Add(new NameIdPathReply { Name = fileSection.FileName.UrlDecode(), IdPath = new IdPath(mediaLib, fullPath, false).Value });
             }
             section = await multipartReader.ReadNextSectionAsync();
         }
         if (!mediaLib.IsEncrypt) thumbTaskService.ScanTaskToWriteAsync(idPath);
         else cryptoTaskService.ScanToAddCryptoTask(mediaLib, CryptoTaskType.Encrypt);
-        return Result.Succeed();
+        return Result.Succeed(reply);
     }
 
     [HttpDelete("{idPath}/{isFolder}")]

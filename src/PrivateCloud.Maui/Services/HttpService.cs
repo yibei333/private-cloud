@@ -66,8 +66,10 @@ public static class HttpService
         {
             var requestOptions = new ParameterOption(options.Url).SetOptions(options);
             var stream = await App.ServiceProvider.GetRequiredService<IHttpService>().GetStreamAsync(requestOptions);
-            await FileSaver.SaveAsync(options.Name, stream, CancellationToken.None);
-            return new HttpResult<string> { IsSuccess = true, Code = System.Net.HttpStatusCode.OK };
+            var result = await FileSaver.Default.SaveAsync(options.Name, stream, CancellationToken.None);
+            result.EnsureSuccess();
+            stream.Close();
+            return new HttpResult<string> { IsSuccess = result.IsSuccessful, Code = result.IsSuccessful ? System.Net.HttpStatusCode.OK : System.Net.HttpStatusCode.InternalServerError, Message = result.Exception?.Message ?? string.Empty };
         }
         catch (Exception ex)
         {
