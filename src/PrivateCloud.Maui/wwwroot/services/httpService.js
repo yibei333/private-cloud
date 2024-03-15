@@ -133,7 +133,8 @@ export class httpService {
             name: options.name,
             headers: this.getKeyValueHeaders(options),
             optionInstance: optionInstance,
-            hasProgress: hasProgress
+            hasProgress: hasProgress,
+            timeout: options.timeout | null
         };
     }
 
@@ -301,5 +302,13 @@ export class httpService {
             if (response.success) this.notify.success('拷贝成功');
             else this.notify.error(`拷贝失败:${response.description}`);
         });
+    }
+
+    fullScreen() {
+        DotNet.invokeMethodAsync(this.assemblyName, "FullScreen");
+    }
+
+    exitFullScreen() {
+        DotNet.invokeMethodAsync(this.assemblyName, "ExitFullScreen");
     }
 }

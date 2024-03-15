@@ -31,19 +31,17 @@ export default {
     },
     methods: {
         setLayout() {
-            if (this.name == 'login' || this.name == 'notfound' || this.name == 'play') {
-                this.useHeader = false;
-                this.useFooter = false;
-            }
-            else {
-                this.useHeader = true;
-                this.useFooter = true;
-            }
 
             if (this.size == 1) {
-                if (this.name == 'history' || this.name == 'favorite' || this.name == 'about' || this.name == 'userManage' || this.name == 'taskManage' || this.name == 'mediaLibManage' || this.name == 'foreverRecordManage' || this.name == 'upgradeManage') {
+                this.useHeader = false;
+                if (this.name == 'login' || this.name == 'notfound' || this.name == 'play' || this.name == 'history' || this.name == 'favorite' || this.name == 'about' || this.name == 'userManage' || this.name == 'taskManage' || this.name == 'mediaLibManage' || this.name == 'foreverRecordManage' || this.name == 'upgradeManage') {
                     this.useFooter = false;
-                }
+                } else this.useFooter = true;
+            } else {
+                this.useFooter = false;
+                if (this.name == 'login' || this.name == 'notfound' || this.name == 'play') {
+                    this.useHeader = false;
+                } else this.useHeader = true;
             }
         },
         setUser() {

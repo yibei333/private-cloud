@@ -164,7 +164,15 @@ export default {
             this.videoPlayer = new window.Player(config);
             this.videoPlayer.on('error', (error) => {
                 console.log(111,error);
-            })
+            });
+            this.videoPlayer.on('fullscreen_change',isFullScreen=>{
+                if(isFullScreen) {
+                    if(this.http.fullScreen) this.http.fullScreen();
+                }
+                else{
+                    if(this.http.exitFullScreen) this.http.exitFullScreen();
+                }
+            });
         },
         goBack() {
             this.$router.go(-1);

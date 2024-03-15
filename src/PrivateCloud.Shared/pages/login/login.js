@@ -49,9 +49,9 @@ export default {
                 localStorage.setItem('api', this.http.baseUrl);
             }
 
-            if (this.options.savepassword&&this.http.setLoginPassword) this.http.setLoginPassword(this.options.name,this.options.password);
+            if (this.options.savepassword && this.http.setLoginPassword) this.http.setLoginPassword(this.options.name, this.options.password);
             let clonedOption = clone(this.options);
-            clonedOption.password='';
+            clonedOption.password = '';
             let json = JSON.stringify(clonedOption);
             localStorage.setItem('options', json);
         },
@@ -82,7 +82,7 @@ export default {
 
             if (this.$refs.fields.verify()) {
                 await this.setOptions();
-                this.http.post({ url: `${this.api}`, data: { name: this.options.name, password: this.options.password }, loadingCallback: loadingCallback }).then(res => {
+                this.http.post({ url: `${this.api}`, data: { name: this.options.name, password: this.options.password }, loadingCallback: loadingCallback, timeout: 5 }).then(res => {
                     localStorage.setItem('user', JSON.stringify(res.data));
                     location.replace("/index.html");
                 });

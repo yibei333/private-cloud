@@ -103,12 +103,14 @@ export class httpService {
                 options.url = `${options.url}${toQueryString(options.data)}`;
                 options.data = null;
             }
+          
             let requestOption = {
                 method: method,
                 url: options.url,
                 data: options.data,
                 headers: this.getHeaders(options),
                 responseType: options?.responseType ?? 'json',
+                timeout: options.timeout * 1000 | 0,
                 onUploadProgress: e => {
                     if (options?.progress) {
                         let progress = Math.round((e.loaded * 100) / e.total);

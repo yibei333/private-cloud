@@ -64,6 +64,5 @@ c.如后面代码有更新,执行private-cloud/deploy/deploy_with_nohup_ubuntu.s
 windows需要安装示例包中的证书（安装证书->本地计算机->将所有的证书都放入下列存储->受信任的根证书颁发机构）。
 
 # 已知问题
-1.客户端不支持全屏[[#15472](https://github.com/dotnet/maui/pull/15472)]
 
-2.部分mp4不支持播放,[参考xgplayer](https://v3.h5player.bytedance.com/guide/extends/about_format.html)
+1.部分mp4不支持播放,[参考xgplayer](https://v3.h5player.bytedance.com/guide/extends/about_format.html)

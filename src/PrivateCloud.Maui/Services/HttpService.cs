@@ -136,6 +136,7 @@ public static class HttpService
                 };
             }
         }
+        if (options.Timeout.HasValue && options.Timeout > 0) option.TimeOut = TimeSpan.FromSeconds(options.Timeout.Value);
         return option;
     }
 }
@@ -148,6 +149,7 @@ public class RequestOptions
     public List<KeyValueDto> Headers { get; set; } = [];
     public IJSObjectReference? OptionInstance { get; set; }
     public string Name { get; set; } = string.Empty;
+    public int? Timeout { get; set; }
 }
 
 public class KeyValueDto

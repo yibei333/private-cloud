@@ -1,4 +1,5 @@
 using Microsoft.JSInterop;
+using Microsoft.UI.Windowing;
 using SharpDevLib;
 using SharpDevLib.Extensions.Model;
 
@@ -41,6 +42,30 @@ public static class AppService
         {
             return Result.Failed(ex.Message);
         }
+    }
+
+    [JSInvokable]
+    public static void FullScreen()
+    {
+#if WINDOWS
+        if (MauiProgram.MainWindow is null) return;
+        IntPtr hWnd = WinRT.Interop.WindowNative.GetWindowHandle(MauiProgram.MainWindow);
+        Microsoft.UI.WindowId myWndId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hWnd);
+        var _appWindow = AppWindow.GetFromWindowId(myWndId);
+        _appWindow.SetPresenter(AppWindowPresenterKind.FullScreen);
+#endif
+    }
+
+    [JSInvokable]
+    public static void ExitFullScreen()
+    {
+#if WINDOWS
+        if (MauiProgram.MainWindow is null) return;
+        IntPtr hWnd = WinRT.Interop.WindowNative.GetWindowHandle(MauiProgram.MainWindow);
+        Microsoft.UI.WindowId myWndId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hWnd);
+        var _appWindow = AppWindow.GetFromWindowId(myWndId);
+        _appWindow.SetPresenter(AppWindowPresenterKind.Default);
+#endif
     }
 }
 
