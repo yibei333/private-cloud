@@ -53,7 +53,7 @@ export default {
                 location.replace('/index.html#/login');
                 return;
             }
-            this.isAdmin = this.user.roles.indexOf('Admin') >= 0;
+            if (this.user.roles) this.isAdmin = this.user.roles.indexOf('Admin') >= 0;
         },
         setItems() {
             this.largeItems = pagesConfig.filter(x => (x.type == 0 || x.type == 1) && !x.parentId && (!x.isAdmin || (x.isAdmin && this.isAdmin)));

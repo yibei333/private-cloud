@@ -53,7 +53,7 @@ export default {
             this.operationOptions.push({ id: 3, name: '取消' });
         },
         operate(item) {
-            if (item.id == 1) this.jump(this.operateItem.isFolder,this.operateItem.idPath);
+            if (item.id == 1) this.jump(this.operateItem.isFolder, this.operateItem.idPath);
             else if (item.id == 2) this.remove();
             else if (item.id === 3) this.operationShow = false;
             else this.notify.warning(`不支持的操作`);
@@ -81,5 +81,10 @@ export default {
         goBack() {
             this.$router.go(-1);
         },
+        clear() {
+            this.http.delete({ url: `${this.api}/clear` }).then(res => {
+                this.init();
+            });
+        }
     },
 }

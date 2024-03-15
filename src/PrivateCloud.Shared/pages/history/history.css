@@ -16,7 +16,7 @@
 
     & .header {
         display: grid;
-        grid-template-columns: auto 1fr;
+        grid-template-columns:auto auto 1fr;
         gap: 1rem;
         background: var(--gray-100);
         align-items: center;

@@ -11,12 +11,12 @@ using SixLabors.ImageSharp;
 
 namespace PrivateCloud.Server.Controllers;
 
-public class HistoryController(IServiceProvider serviceProvider, IRepository<HistoryEntity> repository, IRepository<ThumbEntity> thumbRepository,IRepository<MediaLibEntity> mediaLibRepository) : BaseController(serviceProvider)
+public class HistoryController(IServiceProvider serviceProvider, IRepository<HistoryEntity> repository, IRepository<ThumbEntity> thumbRepository, IRepository<MediaLibEntity> mediaLibRepository) : BaseController(serviceProvider)
 {
     [HttpGet]
     public PageResult<HistoryReply> Get([FromQuery] HistoryQueryRequest request)
     {
-        var query = repository.GetAll();
+        var query = repository.GetMany(x => x.UserId == CurrentUser.Id);
         if (request.Name.NotEmpty()) query = query.Where(x => x.Name.ToLower().Contains(request.Name.ToLower()));
         if (request.StartTimeLong.HasValue) query = query.Where(x => x.CreateTime >= request.StartTimeLong);
         if (request.EndTimeLong.HasValue) query = query.Where(x => x.CreateTime < request.EndTimeLong);
@@ -92,6 +92,16 @@ public class HistoryController(IServiceProvider serviceProvider, IRepository<His
         var entity = repository.Get(x => x.Id == id);
         if (entity is null) return Result.Succeed();
         repository.Remove(entity);
+        return Result.Succeed();
+    }
+
+    [HttpDelete]
+    [Route("clear")]
+    public Result Clear()
+    {
+        var entityList = repository.GetMany(x => x.UserId == CurrentUser.Id);
+        if (entityList.IsEmpty()) return Result.Succeed();
+        repository.RemoveRange(entityList);
         return Result.Succeed();
     }
 }
