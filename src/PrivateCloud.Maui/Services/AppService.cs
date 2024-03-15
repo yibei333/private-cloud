@@ -1,7 +1,10 @@
 using Microsoft.JSInterop;
-using Microsoft.UI.Windowing;
 using SharpDevLib;
 using SharpDevLib.Extensions.Model;
+
+#if WINDOWS
+using Microsoft.UI.Windowing;
+#endif
 
 namespace PrivateCloud.Maui.Services;
 
