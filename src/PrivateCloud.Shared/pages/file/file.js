@@ -2,7 +2,7 @@ export default {
     props: ["id"],
     watch: {
         id() {
-            this.idPath = sessionStorage.getItem('fileid');
+            this.idPath = getIdPathByFileId(this.id);
             if (!this.idPath) {
                 this.notify.warning('找不到文件,请重新选择一个媒体库');
                 this.$router.push({ name: 'mediaLib' });
@@ -53,7 +53,7 @@ export default {
     },
     mounted() {
         this.api = `${this.http.baseUrl}/api/file`;
-        this.idPath = sessionStorage.getItem('fileid');
+        this.idPath = getIdPathByFileId(this.id);
         this.init();
     },
     methods: {
@@ -271,8 +271,7 @@ export default {
             this.operationShow = false;
             if (encrypting) return;
             if (isFolder) {
-                sessionStorage.setItem('fileid', idPath);
-                this.$router.push({ name: 'file', params: { id: new Date().getTime() } });
+                this.$router.push({ name: 'file', params: { id: getFileIdByIdPath(idPath) } });
             } else {
                 sessionStorage.setItem('playid', idPath);
                 this.$router.push({ name: 'play' });
@@ -336,6 +335,7 @@ export default {
         },
         goBack() {
             this.$router.go(-1);
+            removeFileId(this.id);
         },
     },
 }

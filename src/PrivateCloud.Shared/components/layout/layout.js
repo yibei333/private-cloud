@@ -68,9 +68,9 @@ export default {
         nav(name) {
             if (this.$refs.navdropdown && this.$refs.navdropdown.length > 0) this.$refs.navdropdown[0].active = false;
             if (name == 'file') {
-                let fileId = sessionStorage.getItem('fileid');
+                let fileId = getLastIdPath();
                 if (fileId) {
-                    this.$router.push({ name: name, params: { id: new Date().getTime() } });
+                    this.$router.push({ name: name, params: { id: getFileIdByIdPath(fileId) } });
                 } else {
                     this.notify.confirm('请选择一个媒体库', { hideCancle: true }).then(() => {
                         this.$router.push({ name: 'mediaLib' });

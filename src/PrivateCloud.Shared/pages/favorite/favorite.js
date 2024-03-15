@@ -72,8 +72,7 @@ export default {
         jump(isFolder, idPath) {
             this.operationShow = false;
             if (isFolder) {
-                sessionStorage.setItem('fileid', idPath);
-                this.$router.push({ name: 'file', params: { id: new Date().getTime() } });
+                this.$router.push({ name: 'file', params: { id: getFileIdByIdPath(idPath) } });
             } else {
                 sessionStorage.setItem('playid', idPath);
                 this.$router.push({ name: 'play' });

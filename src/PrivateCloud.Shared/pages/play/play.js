@@ -118,7 +118,7 @@ export default {
         async loadVideo() {
             await new Promise((resolve) => {
                 let timer = setInterval(() => {
-                    if (this.$refs.video) {
+                    if (this.$refs.video && window.Player.BasePlugin) {
                         resolve();
                         clearTimeout(timer);
                     }
@@ -163,14 +163,14 @@ export default {
             }
             this.videoPlayer = new window.Player(config);
             this.videoPlayer.on('error', (error) => {
-                console.log(111,error);
+                console.log(111, error);
             });
-            this.videoPlayer.on('fullscreen_change',isFullScreen=>{
-                if(isFullScreen) {
-                    if(this.http.fullScreen) this.http.fullScreen();
+            this.videoPlayer.on('fullscreen_change', isFullScreen => {
+                if (isFullScreen) {
+                    if (this.http.fullScreen) this.http.fullScreen();
                 }
-                else{
-                    if(this.http.exitFullScreen) this.http.exitFullScreen();
+                else {
+                    if (this.http.exitFullScreen) this.http.exitFullScreen();
                 }
             });
         },
@@ -400,8 +400,7 @@ export default {
         },
         goBackFolder() {
             this.operationShow = false;
-            sessionStorage.setItem('fileid', this.file.current.parentIdPath);
-            this.$router.push({ name: 'file', params: { id: new Date().getTime() } });
+            this.$router.push({ name: 'file', params: { id: getFileIdByIdPath(this.file.current.parentIdPath) } });
         },
         refresh() {
             location.reload();

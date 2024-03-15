@@ -16,8 +16,7 @@ export default {
             this.http.get({ url: `${this.api}/authed` }).then(res => this.items = res.data);
         },
         jump(item) {
-            sessionStorage.setItem('fileid', item.idPath);
-            this.$router.push({ name: 'file', params: { id: new Date().getTime() } });
+            this.$router.push({ name: 'file', params: { id: getFileIdByIdPath(item.idPath) } });
         }
     },
 }

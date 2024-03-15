@@ -132,3 +132,41 @@ function toQueryString(obj, prefixt = '?', ignoreEmptyString = true) {
     if (array.length <= 0) return '';
     return `${prefixt}${array.join('&')}`;
 }
+
+function getFileIdByIdPath(idPath) {
+    let id = new Date().getTime();
+    let cache = sessionStorage.getItem("fileIdMap");
+    if (!cache) cache = [];
+    else cache = JSON.parse(cache);
+    cache.push({ id: id, idPath: idPath });
+    sessionStorage.setItem("fileIdMap", JSON.stringify(cache));
+    return id;
+}
+
+function getIdPathByFileId(id) {
+    let cache = sessionStorage.getItem("fileIdMap");
+    if (!cache) cache = [];
+    else cache = JSON.parse(cache);
+    let value = cache.filter(x => x.id == id);
+    if (value.length <= 0) return null;
+    return value[0].idPath;
+}
+
+function removeFileId(id) {
+    let cache = sessionStorage.getItem("fileIdMap");
+    if (!cache) return;
+    let array = JSON.parse(cache) || [];
+    let result = array.filter(x => x.id == id);
+    if (result.length <= 0) return;
+    let index = array.indexOf(result[0]);
+    array.splice(index, 1);
+    sessionStorage.setItem("fileIdMap", JSON.stringify(array));
+}
+
+function getLastIdPath() {
+    let cache = sessionStorage.getItem("fileIdMap");
+    if (!cache) return null;
+    let array = JSON.parse(cache) || [];
+    if (array.length <= 0) return null;
+    return array[array.length - 1].idPath;
+}
