@@ -1,5 +1,8 @@
+using CommunityToolkit.Maui.Alerts;
+using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Maui.Storage;
 using Microsoft.JSInterop;
+using Microsoft.Maui.Controls.PlatformConfiguration;
 using SharpDevLib;
 using SharpDevLib.Extensions.Http;
 using System.Diagnostics;
@@ -66,14 +69,38 @@ public static class HttpService
         {
             var requestOptions = new ParameterOption(options.Url).SetOptions(options);
             var stream = await App.ServiceProvider.GetRequiredService<IHttpService>().GetStreamAsync(requestOptions);
+            if (DeviceInfo.Current.Platform == DevicePlatform.Android) return await AndroidDownload(options, stream);
+
             var result = await FileSaver.Default.SaveAsync(options.Name, stream, CancellationToken.None);
             result.EnsureSuccess();
             stream.Close();
-            return new HttpResult<string> { IsSuccess = result.IsSuccessful, Code = result.IsSuccessful ? System.Net.HttpStatusCode.OK : System.Net.HttpStatusCode.InternalServerError, Message = result.Exception?.Message ?? string.Empty };
+            return new HttpResult<string> { IsSuccess = result.IsSuccessful, Code = result.IsSuccessful ? System.Net.HttpStatusCode.OK : System.Net.HttpStatusCode.InternalServerError, Message = result.IsSuccessful ? $"已保存在位置:{result.FilePath}" : result.Exception?.Message ?? string.Empty };
         }
         catch (Exception ex)
         {
             return new HttpResult<string> { IsSuccess = false, Message = ex.Message, Code = System.Net.HttpStatusCode.InternalServerError };
+        }
+    }
+
+    static async Task<HttpResult<string>> AndroidDownload(RequestOptions options, Stream stream)
+    {
+        try
+        {
+            var path = string.Empty;
+#if ANDROID
+            path = Android.OS.Environment.ExternalStorageDirectory.Path.CombinePath($"Download/{options.Name}");
+#endif
+            var fileInfo = new FileInfo(path);
+            if (fileInfo.Directory is null || !fileInfo.Directory.Exists) Directory.CreateDirectory(fileInfo.Directory!.FullName);
+            if (File.Exists(path)) File.Delete(path);
+            using var fileStream = new FileStream(path, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
+            await stream.CopyToAsync(fileStream);
+            await fileStream.FlushAsync();
+            return new HttpResult<string> { IsSuccess = true, Code = System.Net.HttpStatusCode.OK, Message = $"已保存在位置:{path}" };
+        }
+        catch (Exception ex)
+        {
+            return new HttpResult<string> { IsSuccess = false, Code = System.Net.HttpStatusCode.InternalServerError, Message = ex.Message };
         }
     }
 

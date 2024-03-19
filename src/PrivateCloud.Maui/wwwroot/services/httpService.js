@@ -218,7 +218,8 @@ export class httpService {
                 .then(response => {
                     if (response && response.code >= 200 && response.code < 300) {
                         if (options.loadingCallback) options.loadingCallback();
-                        resolve(response.data);
+                        if (response?.message && response?.message != '') this.notify.info(response.message);
+                        resolve(response);
                     }
                     else {
                         console.log('request options', options);
