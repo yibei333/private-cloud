@@ -88,7 +88,7 @@ public static class HttpService
         {
             var path = string.Empty;
 #if ANDROID
-            path = Android.OS.Environment.ExternalStorageDirectory.Path.CombinePath($"Download/{options.Name}");
+            path = Android.OS.Environment.ExternalStorageDirectory?.Path.CombinePath($"Download/{options.Name}")??throw new Exception("找不到外部存储目录");
 #endif
             var fileInfo = new FileInfo(path);
             if (fileInfo.Directory is null || !fileInfo.Directory.Exists) Directory.CreateDirectory(fileInfo.Directory!.FullName);
