@@ -20,7 +20,7 @@
     <div id="app"></div>
     <div id="vue-app">
         <layout v-bind:size="size" v-bind:name="name">
-            <router-view v-slot="{ Component,route }" v-on:download="download">
+            <router-view v-slot="{ Component,route }">
                 <transition appear :name="route.meta.transition">
                     <keep-alive>
                         <component :is="Component" />

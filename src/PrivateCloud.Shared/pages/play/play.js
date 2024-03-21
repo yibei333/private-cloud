@@ -396,6 +396,10 @@ export default {
                 this.downloading = false;
                 this.downloadingProgress = null;
                 sessionStorage.removeItem('fileOperating');
+            }).catch(() => {
+                this.downloading = false;
+                this.downloadingProgress = null;
+                sessionStorage.removeItem('fileOperating');
             });
         },
         goBackFolder() {

@@ -154,7 +154,8 @@ export class httpService {
                         reject(response);
                         this.handleRequestError(response, options);
                     }
-                });
+                })
+                .catch((error) => reject(error));
         });
     }
 
@@ -185,7 +186,7 @@ export class httpService {
                         reject(response);
                         this.handleRequestError(response, options);
                     }
-                });
+                }).catch((error) => reject(error));
         });
     }
 
@@ -227,6 +228,10 @@ export class httpService {
                         reject(response);
                         this.handleRequestError(response, options);
                     }
+                })
+                .catch(error => {
+                    console.log(error);
+                    reject(error);
                 });
         });
     }
@@ -262,6 +267,10 @@ export class httpService {
                         reject(response);
                         this.handleRequestError(response, options);
                     }
+                })
+                .catch(error => {
+                    console.log(error);
+                    reject(error);
                 });
         });
     }

@@ -50,6 +50,8 @@ export default {
             this.http.downloadUrl({ url: url, name: name, loadingCallback: callback, progress: p => this.progress = p }).then(() => {
                 this.progress = null;
                 this.notify.success('下载成功');
+            }).catch(() => {
+                this.progress = false;
             });
         },
         goBack() {
