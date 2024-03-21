@@ -170,22 +170,12 @@ const componentsConfig = [
     },
     {
         name: 'dropdown',
-        ignoreStyle: true
     },
     {
         name: 'xselect',
         children: ['dropdown']
     },
 ];
-
-function getComponentsStyleRecursive(components) {
-    let names = [];
-    getComponentsNameRecursive(components, names);
-    let ignoreStyleNames = componentsConfig.filter(x => x.ignoreStyle).map(x => x.name) || [];
-    names = names.filter(x => ignoreStyleNames.filter(y => x.name == y).length <= 0);
-    let styles = names.map(x => `/components/${x.path ?? x.name}/${x.name}.css`);
-    return [...new Set(styles)];
-}
 
 function getComponentsNameRecursive(components, result) {
     if (!components || components.length <= 0) return [];
@@ -310,10 +300,10 @@ async function importPage(name) {
 function pageLoading(isFinish = false) {
     let id = 'pageLoading';
     if (isFinish) {
-        document.body.style.opacity = 1;
+        document.querySelector("#vue-app").style.opacity = 1;
         document.getElementById(id)?.remove();
     } else {
-        document.body.style.opacity = 0;
+        document.querySelector("#vue-app").style.opacity = 0;
         let element = document.createElement('div');
         element.id = id;
         element.innerHTML = `
@@ -341,13 +331,6 @@ async function importPageStyle(name) {
         for (let i = 0; i < staticStyles.length; i++) {
             let staticStyleUrl = await getResourceUrl(staticStyles[i]);
             styles += `<link rel='stylesheet' href='${staticStyleUrl}'/>`;
-        }
-
-        //component styles
-        let components = getComponentsStyleRecursive(meta.components || []);
-        for (let i = 0; i < components.length; i++) {
-            let componentStyleUrl = await getResourceUrl(components[i]);
-            styles += `<link rel='stylesheet' href='${componentStyleUrl}'/>`;
         }
     }
     styles += '</section>';

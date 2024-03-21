@@ -1,39 +1,39 @@
 .taskManage-page {
     display: grid;
     grid-template-rows: auto auto 1fr;
+}
 
-    & .header{
-        display: grid;
-        grid-template-columns: auto 1fr;
-        padding: .5rem;
-        gap: .5rem;
-        grid-row:2;
+.taskManage-page .header {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    padding: .5rem;
+    gap: .5rem;
+    grid-row: 2;
+}
 
-        & .goBack {
-            height: 24px;
-            width: 24px;
-            cursor: pointer;
-            align-self: center;
-        }
-    
-        & .goBack path {
-            fill: var(--primary);
-        }
-    
-        & .goBack:hover path {
-            fill: var(--primary-200);
-        }
-    }
+.taskManage-page .header .goBack {
+    height: 24px;
+    width: 24px;
+    cursor: pointer;
+    align-self: center;
+}
 
-    & iframe {
-        height: calc(100% - 4px);
-        width: 100%;
-        overflow: auto;
-        outline: none;
-        border: none;
-    }
+.taskManage-page .header .goBack path {
+    fill: var(--primary);
+}
 
-    & .body{
-        grid-row:3;
-    }
+.taskManage-page .header .goBack:hover path {
+    fill: var(--primary-200);
+}
+
+.taskManage-page iframe {
+    height: calc(100% - 4px);
+    width: 100%;
+    overflow: auto;
+    outline: none;
+    border: none;
+}
+
+.taskManage-page .body {
+    grid-row: 3;
 }

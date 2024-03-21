@@ -17,15 +17,10 @@ export default {
             default: false
         }
     },
-    watch: {
-        active() {
-            this.contentClassName = this.active ? 'active' : 'hide'
-        }
-    },
     data() {
         return {
             active: false,
-            contentClassName: ''
+            contentClassName: '',
         }
     },
     mounted() {

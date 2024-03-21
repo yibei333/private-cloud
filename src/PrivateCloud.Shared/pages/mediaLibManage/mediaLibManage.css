@@ -1,63 +1,61 @@
-.mediaLibManage-page {
-    & .container-content{
-        display: grid;
-        grid-template-rows: auto 1fr auto;
-    }
+.mediaLibManage-page .container-content {
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+}
 
-    & .header{
-        background: var(--gray-100);
-    }
+.mediaLibManage-page .header {
+    background: var(--gray-100);
+}
 
-    & .goBack {
-        height: 24px;
-        width: 24px;
-        cursor: pointer;
-        align-self: center;
-    }
+.mediaLibManage-page .goBack {
+    height: 24px;
+    width: 24px;
+    cursor: pointer;
+    align-self: center;
+}
 
-    & .goBack path {
-        fill: var(--primary);
-    }
+.mediaLibManage-page .goBack path {
+    fill: var(--primary);
+}
 
-    & .goBack:hover path {
-        fill: var(--primary-200);
-    }
+.mediaLibManage-page .goBack:hover path {
+    fill: var(--primary-200);
+}
 
-    & .uploadField {
-        padding-bottom: .5rem;
-    }
+.mediaLibManage-page .uploadField {
+    padding-bottom: .5rem;
+}
 
-    & .uploadField label {
-        display: block;
-        padding-bottom: .5rem;
-        -webkit-user-select: none;
-        user-select: none;
-    }
+.mediaLibManage-page .uploadField label {
+    display: block;
+    padding-bottom: .5rem;
+    -webkit-user-select: none;
+    user-select: none;
+}
 
-    & .uploadField .content {
-        display: flex;
-        align-items: center;
-        justify-content: space-around;
-        border: 1px solid var(--gray-300);
-        border-radius: var(--border-radius);
-        background: var(--light);
-    }
+.mediaLibManage-page .uploadField .content {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    border: 1px solid var(--gray-300);
+    border-radius: var(--border-radius);
+    background: var(--light);
+}
 
-    & .uploadField .content:focus {
-        border: 1px solid var(--primary);
-        outline: none;
-    }
+.mediaLibManage-page .uploadField .content:focus {
+    border: 1px solid var(--primary);
+    outline: none;
+}
 
-    & .thumb {
-        height: 64px;
-    }
+.mediaLibManage-page .thumb {
+    height: 64px;
+}
 
-    & .uploadField .content .thumb {
-        padding: .5rem 0;
-    }
+.mediaLibManage-page .uploadField .content .thumb {
+    padding: .5rem 0;
+}
 
-    .body .operations{
-        display: flex;
-        gap: .5rem;
-    }
+.body .operations {
+    display: flex;
+    gap: .5rem;
 }

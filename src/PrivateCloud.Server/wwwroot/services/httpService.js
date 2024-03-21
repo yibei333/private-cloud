@@ -6,6 +6,7 @@ export class httpService {
     static confirming;
 
     constructor() {
+        this.baseUrl = location.origin;
         this.notify = new notify();
         this.appid = localStorage.getItem('appid');
         this.isClient = false;
@@ -103,7 +104,7 @@ export class httpService {
                 options.url = `${options.url}${toQueryString(options.data)}`;
                 options.data = null;
             }
-          
+
             let requestOption = {
                 method: method,
                 url: options.url,

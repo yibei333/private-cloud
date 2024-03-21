@@ -1,213 +1,210 @@
-.play-page {
+.play-page .row-4 {
+    display: grid;
+    grid-template-rows: auto auto 1fr auto;
+    height: 100%;
+    overflow: hidden;
+}
 
-    & .row-4 {
-        display: grid;
-        grid-template-rows: auto auto 1fr auto;
-        height: 100%;
-        overflow: hidden;
-    }
+.play-page .header {
+    background: var(--primary);
+    color: var(--light);
+    padding: .5rem;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: .5rem;
+    align-items: center;
+}
 
-    & .header {
-        background: var(--primary);
-        color: var(--light);
-        padding: .5rem;
-        display: grid;
-        grid-template-columns: auto 1fr auto;
-        gap: .5rem;
-        align-items: center;
+.play-page .header .goBack {
+    height: 24px;
+    width: 24px;
+    cursor: pointer;
+}
 
-        & .goBack {
-            height: 24px;
-            width: 24px;
-            cursor: pointer;
-        }
+.play-page .header .goBack path {
+    fill: var(--light);
+}
 
-        & .goBack path {
-            fill: var(--light);
-        }
+.play-page .header .goBack:hover path {
+    fill: var(--gray-200);
+}
 
-        & .goBack:hover path {
-            fill: var(--gray-200);
-        }
+.play-page .header .name {
+    text-align: center;
+    word-break: break-word;
+}
 
-        & .name {
-            text-align: center;
-            word-break: break-word;
-        }
+.play-page .header .operate {
+    height: 32px;
+    width: 32px;
+    padding: 0;
+}
 
-        & .operate {
-            height: 32px;
-            width: 32px;
-            padding: 0;
+.play-page .header .operate svg {
+    height: 24px;
+    width: 24px;
+}
 
-            & svg {
-                height: 24px;
-                width: 24px;
+.play-page .header .operate svg path {
+    fill: var(--light);
+}
 
-                & path {
-                    fill: var(--light);
-                }
-            }
-        }
-    }
+.play-page .progress {
+    position: relative;
+    height: 1rem;
+    background: var(--primary);
+    width: 100%;
+    grid-row: 2;
+}
 
-    & .progress {
-        position: relative;
-        height: 1rem;
-        background: var(--primary);
-        width: 100%;
-        grid-row: 2;
+.play-page .progress .bar {
+    background: var(--success);
+    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+}
 
-        & .bar {
-            background: var(--success);
-            height: 100%;
-            position: absolute;
-            left: 0;
-            top: 0;
-        }
+.play-page .progress .txt {
+    text-align: center;
+    font-size: .7rem;
+    color: var(--light);
+    position: absolute;
+    width: 100%;
+}
 
-        & .txt {
-            text-align: center;
-            font-size: .7rem;
-            color: var(--light);
-            position: absolute;
-            width: 100%;
-        }
-    }
+.play-page .body {
+    overflow: auto;
+    position: relative;
+    grid-row: 3;
+}
 
-    & .body {
-        overflow: auto;
-        position: relative;
-        grid-row: 3;
+.play-page .body .loading {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--gray-opacity);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1;
+}
 
-        & .loading {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: var(--gray-opacity);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1;
-        }
+.play-page .body .loading svg {
+    height: 48px;
+    width: 48px;
+    animation: rotateAnimation 1s ease-in-out forwards;
+    animation-iteration-count: infinite;
+    fill: var(--theme);
+}
 
-        & .loading svg {
-            height: 48px;
-            width: 48px;
-            animation: rotateAnimation 1s ease-in-out forwards;
-            animation-iteration-count: infinite;
-            fill: var(--theme);
-        }
+.play-page .body .txt {
+    white-space: pre;
+    padding: .5rem;
+}
 
-        & .txt {
-            white-space: pre;
-            padding: .5rem;
-        }
+.play-page .body .audio {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+}
 
-        & .audio {
-            display: flex;
-            width: 100%;
-            height: 100%;
-            justify-content: center;
-            align-items: center;
-        }
+.play-page .body .img {
+    height: 100%;
+    width: 100%;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
 
-        & .img {
-            height: 100%;
-            width: 100%;
-            position: relative;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
+.play-page .body .img img {
+    object-fit: contain;
+}
 
-            & img {
-                object-fit: contain;
-            }
+.play-page .body .img .img-operations {
+    position: absolute;
+    bottom: 1rem;
+    right: 1rem;
+    background: var(--gray-opacity);
+    padding: .5rem;
+    display: flex;
+    gap: .5rem;
+    align-items: center;
+    border-radius: var(--border-radius);
+}
 
-            & .img-operations {
-                position: absolute;
-                bottom: 1rem;
-                right: 1rem;
-                background: var(--gray-opacity);
-                padding: .5rem;
-                display: flex;
-                gap: .5rem;
-                align-items: center;
-                border-radius: var(--border-radius);
+.play-page .body .img .img-operations p {
+    margin: 0;
+    vertical-align: middle;
+    line-height: 32px;
+}
 
-                & p {
-                    margin: 0;
-                    vertical-align: middle;
-                    line-height: 32px;
-                }
+.play-page .body .img .img-operations button {
+    height: 32px;
+    width: 32px;
+    color: var(--dark);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 
-                & button {
-                    height: 32px;
-                    width: 32px;
-                    color: var(--dark);
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
+.play-page .body .img .img-operations button svg {
+    height: 24px;
+    width: 24px;
+    fill: var(--dark);
+}
 
-                    & svg {
-                        height: 24px;
-                        width: 24px;
-                        fill: var(--dark);
-                    }
-                }
-            }
-        }
+.play-page .body .not-supported {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+}
 
-        & .not-supported {
-            display: flex;
-            width: 100%;
-            height: 100%;
-            justify-content: center;
-            align-items: center;
+.play-page .body .not-supported p {
+    cursor: pointer;
+    text-decoration: underline;
+    color: var(--primary);
+}
 
-            & p {
-                cursor: pointer;
-                text-decoration: underline;
-                color: var(--primary);
-            }
-        }
-    }
+.play-page .footer {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    background: var(--blue-400);
+    color: var(--light);
+    align-items: center;
+    gap: .5rem;
+    grid-row: 4;
+}
 
-    & .footer {
-        display: grid;
-        grid-template-columns: 1fr auto 1fr;
-        background: var(--blue-400);
-        color: var(--light);
-        align-items: center;
-        gap: .5rem;
-        grid-row: 4;
+.play-page .footer button {
+    border-radius: 0;
+}
 
-        & button {
-            border-radius: 0;
-        }
-    }
+.play-page .drawer {
+    z-index: 10;
+}
 
-    & .drawer{
-        z-index: 10;
-    }
+.play-page .drawer .item {
+    border-bottom: 1px solid var(--gray-400);
+    padding: .5rem;
+    cursor: pointer;
+    text-align: center;
+    transition: all .3s ease-in-out;
+    box-sizing: border-box;
+}
 
-    & .drawer .item {
-        border-bottom: 1px solid var(--gray-400);
-        padding: .5rem;
-        cursor: pointer;
-        text-align: center;
-        transition: all .3s ease-in-out;
-        box-sizing: border-box;
-    }
+.play-page .drawer .item:hover {
+    background-color: var(--gray-300);
+}
 
-    & .drawer .item:hover {
-        background-color: var(--gray-300);
-    }
-
-    & .drawer .item.danger {
-        color: var(--danger);
-    }
+.play-page .drawer .item.danger {
+    color: var(--danger);
 }

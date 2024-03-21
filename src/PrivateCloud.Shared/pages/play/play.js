@@ -4,7 +4,22 @@ export default {
         id() {
             sessionStorage.setItem("playid", this.id);
             this.init();
-        }
+        },
+        'imgStyleValue.scale'() {
+            this.convertImgStyle();
+        },
+        'imgStyleValue.rotate'() {
+            this.convertImgStyle();
+        },
+        'imgStyleValue.translate'() {
+            this.convertImgStyle();
+        },
+        'imgStyleValue.maxWidth'() {
+            this.convertImgStyle();
+        },
+        'imgStyleValue.maxHeight'() {
+            this.convertImgStyle();
+        },
     },
     data() {
         return {
@@ -23,13 +38,14 @@ export default {
             minImgScaleSize: .4,
             imgTouchPoint: null,
             imgTouchStartScale: null,
-            imgStyle: {
+            imgStyleValue: {
                 scale: 1,
                 rotate: '0deg',
                 translate: '0px 0px',
                 maxWidth: '100%',
                 maxHeight: '100%',
             },
+            imgStyle: {},
             operationLoading: false,
             operationShow: false,
             downloadingProgress: null,
@@ -42,10 +58,11 @@ export default {
     },
     mounted() {
         this.api = `${this.http.baseUrl}/api/file`;
+        this.convertImgStyle();
     },
     activated() {
         this.id = sessionStorage.getItem("playid");
-        this.positionTimer = setInterval(() => this.setHistory(this.getElementPostion()), 2000);
+        this.positionTimer = setInterval(() => this.setHistory(this.getElementPostion()), 30000);
     },
     methods: {
         async init() {
@@ -209,7 +226,7 @@ export default {
             this.http.openBrowser(this.id);
         },
         imgReset() {
-            this.imgStyle = {
+            this.imgStyleValue = {
                 scale: 1,
                 rotate: "0deg",
                 translate: '0px 0px',
@@ -220,40 +237,40 @@ export default {
         setImgScale(scale) {
             scale = Math.min(this.maxImgScaleSize, scale);
             scale = Math.max(this.minImgScaleSize, scale);
-            this.imgStyle.scale = scale;
+            this.imgStyleValue.scale = scale;
             this.setImgMove(0, 0);
         },
         imgMouseScroll(event) {
             let delta = (event.wheelDelta && (event.wheelDelta > 0 ? 1 : -1)) || (event.detail && (event.detail > 0 ? -1 : 1));
             let unit = (delta > 0 ? 1 : -1) * 0.04;
-            let scale = this.imgStyle.scale + unit;
+            let scale = this.imgStyleValue.scale + unit;
             this.setImgScale(scale);
         },
         imgScaleUp() {
-            this.setImgScale(this.imgStyle.scale + .2);
+            this.setImgScale(this.imgStyleValue.scale + .2);
         },
         imgScaleDown() {
-            this.setImgScale(this.imgStyle.scale - .2);
+            this.setImgScale(this.imgStyleValue.scale - .2);
         },
         imgClockwiseRotate() {
-            let angle = Number.parseInt(this.imgStyle.rotate) + 90;
+            let angle = Number.parseInt(this.imgStyleValue.rotate) + 90;
             if (angle >= 360) angle = 0;
             this.setImgRotate(angle);
         },
         imgAnticlockwiseRotate() {
-            let angle = Number.parseInt(this.imgStyle.rotate) - 90;
+            let angle = Number.parseInt(this.imgStyleValue.rotate) - 90;
             if (angle < 0) angle = 270;
             this.setImgRotate(angle);
         },
         setImgRotate(angle) {
-            this.imgStyle.rotate = `${angle}deg`;
+            this.imgStyleValue.rotate = `${angle}deg`;
             let isReverse = (angle == 90 || angle == 270);
             if (isReverse) {
-                this.imgStyle.maxWidth = `${this.$refs.imgContainer.clientHeight}px`;
-                this.imgStyle.maxHeight = `${this.$refs.imgContainer.clientWidth}px`;
+                this.imgStyleValue.maxWidth = `${this.$refs.imgContainer.clientHeight}px`;
+                this.imgStyleValue.maxHeight = `${this.$refs.imgContainer.clientWidth}px`;
             } else {
-                this.imgStyle.maxWidth = '100%';
-                this.imgStyle.maxHeight = '100%';
+                this.imgStyleValue.maxWidth = '100%';
+                this.imgStyleValue.maxHeight = '100%';
             }
             this.setImgMove(0, 0);
         },
@@ -264,7 +281,7 @@ export default {
                 this.imgTouchStartScale = Math.sqrt(Math.pow(Math.abs(point1.X - point2.X), 2) + Math.pow(Math.abs(point1.Y - point2.Y), 2));
             }
             else if (event.targetTouches.length === 1) {
-                if (this.imgStyle.scale <= 1) {
+                if (this.imgStyleValue.scale <= 1) {
                     this.imgTouchPoint = null;
                     return;
                 }
@@ -282,8 +299,8 @@ export default {
                 let scaleStartPoint = { X: event.targetTouches[0].clientX, Y: event.targetTouches[0].clientY };
                 let scaleEndPoint = { X: event.targetTouches[1].clientX, Y: event.targetTouches[1].clientY };
                 let scaleEndValue = Math.sqrt(Math.pow(Math.abs(scaleStartPoint.X - scaleEndPoint.X), 2) + Math.pow(Math.abs(scaleStartPoint.Y - scaleEndPoint.Y), 2));
-                let unit = (scaleEndValue - this.imgTouchStartScale) / this.imgStyle.scale / 100;
-                let scale = this.imgStyle.scale + unit;
+                let unit = (scaleEndValue - this.imgTouchStartScale) / this.imgStyleValue.scale / 100;
+                let scale = this.imgStyleValue.scale + unit;
                 this.setImgScale(scale);
                 this.imgTouchStartScale = scaleEndValue;
             }
@@ -299,11 +316,11 @@ export default {
         setImgMove(moveX, moveY) {
             let containerSize = { width: this.$refs.imgContainer.clientWidth, height: this.$refs.imgContainer.clientHeight };
             let size = { width: this.$refs.img.clientWidth, height: this.$refs.img.clientHeight };
-            let angle = Number.parseInt(this.imgStyle.rotate);
+            let angle = Number.parseInt(this.imgStyleValue.rotate);
             if (angle == 90 || angle == 270) size = { height: this.$refs.img.clientWidth, width: this.$refs.img.clientHeight };
-            let actualSize = { width: size.width * this.imgStyle.scale, height: size.height * this.imgStyle.scale }
+            let actualSize = { width: size.width * this.imgStyleValue.scale, height: size.height * this.imgStyleValue.scale }
             let maxMoveSize = { X: (actualSize.width - containerSize.width) / 2, Y: (actualSize.height - containerSize.height) / 2 };
-            let translate = this.imgStyle.translate.split(' ');
+            let translate = this.imgStyleValue.translate.split(' ');
             let x = Number.parseFloat(translate[0]);
             let y = Number.parseFloat(translate[1]);
 
@@ -330,7 +347,7 @@ export default {
                     y = Math.max(y, -maxMoveSize.Y);
                 }
             } else y = 0;
-            this.imgStyle.translate = `${x}px ${y}px`;
+            this.imgStyleValue.translate = `${x}px ${y}px`;
         },
         openBrowser() {
             this.operationShow = false;
@@ -408,6 +425,17 @@ export default {
         },
         refresh() {
             location.reload();
+        },
+        convertImgStyle() {
+            // this.imgStyle = this.imgStyleValue;
+            let translate = this.imgStyleValue.translate.split(' ');
+            let x = Number.parseFloat(translate[0]);
+            let y = Number.parseFloat(translate[1]);
+            this.imgStyle = {
+                maxWidth: this.imgStyleValue.maxWidth,
+                maxHeight: this.imgStyleValue.maxHeight,
+                transform: `translate(${x}px,${y}px) scale(${this.imgStyleValue.scale}) rotate(${this.imgStyleValue.rotate})`
+            };
         }
     }
 }

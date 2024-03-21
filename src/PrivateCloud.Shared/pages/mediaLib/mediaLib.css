@@ -1,59 +1,57 @@
-.mediaLib-page {
-    & .card {
-        border: 1px solid var(--gray-300);
-        border-radius: var(--border-radius);
-        overflow: hidden;
-        width: 100%;
-        cursor: pointer;
-        transition: box-shadow .5s;
-    }
+.mediaLib-page .card {
+    border: 1px solid var(--gray-300);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    width: 100%;
+    cursor: pointer;
+    transition: box-shadow .5s;
+}
 
-    & .card:hover {
-        box-shadow: 0 0 10px 0 var(--theme);
-    }
+.mediaLib-page .card:hover {
+    box-shadow: 0 0 10px 0 var(--theme);
+}
 
-    & .card .thumb {
-        padding: 1rem;
-        background: var(--gray-100);
-        text-align: center;
-        box-sizing: border-box;
-        width: 100%;
-    }
+.mediaLib-page .card .thumb {
+    padding: 1rem;
+    background: var(--gray-100);
+    text-align: center;
+    box-sizing: border-box;
+    width: 100%;
+}
 
-    & .card .thumb img {
-        height: 100px;
-        width: 100%;
-        object-fit: contain;
-        transition: transform .5s;
-    }
+.mediaLib-page .card .thumb img {
+    height: 100px;
+    width: 100%;
+    object-fit: contain;
+    transition: transform .5s;
+}
 
-    & .card:hover .thumb img {
-        transform: scale(1.1);
-    }
+.mediaLib-page .card:hover .thumb img {
+    transform: scale(1.1);
+}
 
-    & .card .content {
-        padding: .5rem;
-        color: var(--gray-700);
-    }
+.mediaLib-page .card .content {
+    padding: .5rem;
+    color: var(--gray-700);
+}
 
-    & .card:hover .content {
-        color: var(--theme);
-    }
+.mediaLib-page .card:hover .content {
+    color: var(--theme);
+}
 
-    & .card .content .name {
-        text-align: center;
-        padding: .5rem 0;
-        font-weight: bold;
-        font-size: 1.2rem;
-    }
- 
-    & .card .content img {
-        height: 24px;
-    }
+.mediaLib-page .card .content .name {
+    text-align: center;
+    padding: .5rem 0;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
 
-    & .card .content small {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
+.mediaLib-page .card .content img {
+    height: 24px;
+}
+
+.mediaLib-page .card .content small {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }

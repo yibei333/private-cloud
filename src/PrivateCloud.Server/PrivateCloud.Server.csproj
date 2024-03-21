@@ -7,7 +7,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <Content Remove="wwwroot\hangfire.js" />
+		<Content Remove="wwwroot\hangfire.js" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -30,56 +30,40 @@
 		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\assets\lib\default-passive-events.js" Link="wwwroot\assets\lib\default-passive-events.js" />
 		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\assets\lib\touch-emulator.js" Link="wwwroot\assets\lib\touch-emulator.js" />
 		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\assets\lib\vue-3.2.36.js" Link="wwwroot\assets\lib\vue-3.2.36.js" />
-		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\assets\lib\vue-develop.js" Link="wwwroot\assets\lib\vue-develop.js" />
 		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\assets\lib\vue-router-4.1.2.js" Link="wwwroot\assets\lib\vue-router-4.1.2.js" />
-		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\assets\lib\vue-router.develop.js" Link="wwwroot\assets\lib\vue-router.develop.js" />
-		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\components\btn\btn.css" Link="wwwroot\components\btn\btn.css" />
 		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\components\btn\btn.html" Link="wwwroot\components\btn\btn.html" />
 		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\components\btn\btn.js" Link="wwwroot\components\btn\btn.js" />
-		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\components\cols\cols.css" Link="wwwroot\components\cols\cols.css" />
 		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\components\cols\cols.html" Link="wwwroot\components\cols\cols.html" />
 		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\components\cols\cols.js" Link="wwwroot\components\cols\cols.js" />
-		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\components\container\container.css" Link="wwwroot\components\container\container.css" />
 		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\components\container\container.html" Link="wwwroot\components\container\container.html" />
 		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\components\container\container.js" Link="wwwroot\components\container\container.js" />
-		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\components\drawer\drawer.css" Link="wwwroot\components\drawer\drawer.css" />
 		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\components\drawer\drawer.html" Link="wwwroot\components\drawer\drawer.html" />
 		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\components\drawer\drawer.js" Link="wwwroot\components\drawer\drawer.js" />
-		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\components\dropdown\dropdown.css" Link="wwwroot\components\dropdown\dropdown.css" />
 		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\components\dropdown\dropdown.html" Link="wwwroot\components\dropdown\dropdown.html" />
 		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\components\dropdown\dropdown.js" Link="wwwroot\components\dropdown\dropdown.js" />
-		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\components\field\field.css" Link="wwwroot\components\field\field.css" />
 		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\components\field\field.html" Link="wwwroot\components\field\field.html" />
 		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\components\field\field.js" Link="wwwroot\components\field\field.js" />
-		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\components\fields\fields.css" Link="wwwroot\components\fields\fields.css" />
 		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\components\fields\fields.html" Link="wwwroot\components\fields\fields.html" />
 		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\components\fields\fields.js" Link="wwwroot\components\fields\fields.js" />
 		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\components\infiniteScroll\infinite-scroll.js" Link="wwwroot\components\infiniteScroll\infinite-scroll.js" />
-		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\components\infiniteScroll\infiniteScroll.css" Link="wwwroot\components\infiniteScroll\infiniteScroll.css" />
 		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\components\infiniteScroll\infiniteScroll.html" Link="wwwroot\components\infiniteScroll\infiniteScroll.html" />
 		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\components\infiniteScroll\infiniteScroll.js" Link="wwwroot\components\infiniteScroll\infiniteScroll.js" />
-		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\components\layout\layout.css" Link="wwwroot\components\layout\layout.css" />
 		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\components\layout\layout.html" Link="wwwroot\components\layout\layout.html" />
 		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\components\layout\layout.js" Link="wwwroot\components\layout\layout.js" />
-		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\components\modal\modal.css" Link="wwwroot\components\modal\modal.css" />
 		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\components\modal\modal.html" Link="wwwroot\components\modal\modal.html" />
 		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\components\modal\modal.js" Link="wwwroot\components\modal\modal.js" />
-		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\components\pagination\pagination.css" Link="wwwroot\components\pagination\pagination.css" />
 		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\components\pagination\pagination.html" Link="wwwroot\components\pagination\pagination.html" />
 		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\components\pagination\pagination.js" Link="wwwroot\components\pagination\pagination.js" />
 		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\components\pullRefresh\pull-refresh.js" Link="wwwroot\components\pullRefresh\pull-refresh.js" />
-		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\components\pullRefresh\pullRefresh.css" Link="wwwroot\components\pullRefresh\pullRefresh.css" />
 		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\components\pullRefresh\pullRefresh.html" Link="wwwroot\components\pullRefresh\pullRefresh.html" />
 		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\components\pullRefresh\pullRefresh.js" Link="wwwroot\components\pullRefresh\pullRefresh.js" />
-		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\components\vimg\vimg.css" Link="wwwroot\components\vimg\vimg.css" />
 		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\components\vimg\vimg.html" Link="wwwroot\components\vimg\vimg.html" />
 		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\components\vimg\vimg.js" Link="wwwroot\components\vimg\vimg.js" />
-		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\components\vtable\vtable.css" Link="wwwroot\components\vtable\vtable.css" />
 		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\components\vtable\vtable.html" Link="wwwroot\components\vtable\vtable.html" />
 		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\components\vtable\vtable.js" Link="wwwroot\components\vtable\vtable.js" />
-		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\components\xselect\xselect.css" Link="wwwroot\components\xselect\xselect.css" />
 		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\components\xselect\xselect.html" Link="wwwroot\components\xselect\xselect.html" />
 		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\components\xselect\xselect.js" Link="wwwroot\components\xselect\xselect.js" />
+		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\components\components.css" Link="wwwroot\components\components.css" />
 		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\mixins\componentMixin.js" Link="wwwroot\mixins\componentMixin.js" />
 		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\mixins\pageMixin.js" Link="wwwroot\mixins\pageMixin.js" />
 		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\pages\about\about.css" Link="wwwroot\pages\about\about.css" />
@@ -128,7 +112,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <EmbeddedResource Include="wwwroot\hangfire.js" />
+		<EmbeddedResource Include="wwwroot\hangfire.js" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -154,8 +138,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <None Update="Fonts\OpenSans-Regular.ttf">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </None>
+		<None Update="Fonts\OpenSans-Regular.ttf">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
 	</ItemGroup>
 </Project>

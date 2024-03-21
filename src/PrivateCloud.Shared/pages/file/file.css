@@ -1,191 +1,189 @@
-.file-page {
-    & .retry {
-        height: 100%;
-        width: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
+.file-page .retry {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 
-    & .row-5 {
-        display: grid;
-        grid-template-rows: auto auto auto auto 1fr;
-        height: 100%;
-        overflow: hidden;
-    }
+.file-page .row-5 {
+    display: grid;
+    grid-template-rows: auto auto auto auto 1fr;
+    height: 100%;
+    overflow: hidden;
+}
 
-    & .header {
-        display: grid;
-        grid-template-columns: auto auto 1fr;
-        gap: 1rem;
-        background: var(--gray-100);
-        align-items: center;
-        padding: .5rem;
-        position: relative;
+.file-page .header {
+    display: grid;
+    grid-template-columns: auto auto 1fr;
+    gap: 1rem;
+    background: var(--gray-100);
+    align-items: center;
+    padding: .5rem;
+    position: relative;
+}
 
-        & .header-add-content {
-            display: grid;
-            grid-template-columns: max-content;
-            gap: .5rem;
-            padding: .5rem;
-            background: var(--light);
-        }
+.file-page .header .header-add-content {
+    display: grid;
+    grid-template-columns: max-content;
+    gap: .5rem;
+    padding: .5rem;
+    background: var(--light);
+}
 
-        & .goBack {
-            height: 24px;
-            width: 24px;
-            cursor: pointer;
-        }
+.file-page .header .goBack {
+    height: 24px;
+    width: 24px;
+    cursor: pointer;
+}
 
-        & .goBack path {
-            fill: var(--primary);
-        }
+.file-page .header .goBack path {
+    fill: var(--primary);
+}
 
-        & .goBack:hover path {
-            fill: var(--primary-200);
-        }
-    }
+.file-page .header .goBack:hover path {
+    fill: var(--primary-200);
+}
 
-    & .path {
-        padding: .5rem;
-        background: var(--gray-200);
-        grid-row: 2;
+.file-page .path {
+    padding: .5rem;
+    background: var(--gray-200);
+    grid-row: 2;
+}
 
-        & .item,
-        .content,
-        .splitor {
-            display: inline-block;
-        }
+.file-page .path .item,
+.file-page .path .content,
+.file-page .path .splitor {
+    display: inline-block;
+}
 
-        & .splitor {
-            padding: 0 .5rem;
-        }
+.file-page .path .splitor {
+    padding: 0 .5rem;
+}
 
-        & .content {
-            color: var(--primary);
-            cursor: pointer;
-        }
+.file-page .path .content {
+    color: var(--primary);
+    cursor: pointer;
+}
 
-        & .content:hover {
-            text-decoration: underline;
-        }
+.file-page .path .content:hover {
+    text-decoration: underline;
+}
 
-        & .content.disabled {
-            color: var(--dark);
-            cursor: unset;
-        }
+.file-page .path .content.disabled {
+    color: var(--dark);
+    cursor: unset;
+}
 
-        & .content.disabled:hover {
-            text-decoration: unset;
-        }
-    }
+.file-page .path .content.disabled:hover {
+    text-decoration: unset;
+}
 
-    & .progress {
-        position: relative;
-        height: 1rem;
-        background: var(--primary);
-        width: 100%;
-        &.upload{
-            grid-row: 3;
-        }
-        &.download{
-            grid-row: 4;
-        }
+.file-page .progress {
+    position: relative;
+    height: 1rem;
+    background: var(--primary);
+    width: 100%;
+}
 
-        & .bar {
-            background: var(--success);
-            height: 100%;
-            position: absolute;
-            left: 0;
-            top: 0;
-        }
+.file-page .progress.upload {
+    grid-row: 3;
+}
 
-        & .txt {
-            text-align: center;
-            font-size: .7rem;
-            color: var(--light);
-            position: absolute;
-            width: 100%;
-        }
-    }
+.file-page .progress.download {
+    grid-row: 4;
+}
 
-    & .pullRefresh {
-        background: var(--gray-300);
-        grid-row: 5;
-    }
+.file-page .progress .bar {
+    background: var(--success);
+    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+}
 
-    & .file-item {
-        display: grid;
-        grid-template-columns: auto 1fr auto;
-        background: var(--gray-100);
-        border-radius: var(--border-radius);
-        margin: .5rem .5rem 0 .5rem;
-        overflow: hidden;
-        transition: background-color .3s;
-        gap: 1rem;
-        padding: .5rem;
-        word-break: break-all;
-        cursor: pointer;
-        position: relative;
+.file-page .progress .txt {
+    text-align: center;
+    font-size: .7rem;
+    color: var(--light);
+    position: absolute;
+    width: 100%;
+}
 
-        & .thumb {
-            position: relative;
-        }
+.file-page .pullRefresh {
+    background: var(--gray-300);
+    grid-row: 5;
+}
 
-        & .thumb .favorite {
-            width: 24px;
-            height: 24px;
-            position: absolute;
-            left: .3rem;
-            top: .6rem;
-        }
-    }
+.file-page .file-item {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    background: var(--gray-100);
+    border-radius: var(--border-radius);
+    margin: .5rem .5rem 0 .5rem;
+    overflow: hidden;
+    transition: background-color .3s;
+    gap: 1rem;
+    padding: .5rem;
+    word-break: break-all;
+    cursor: pointer;
+    position: relative;
+}
 
-    & .file-item.encrypting {
-        background: var(--gray-400);
-        opacity: .8;
-        cursor: unset;
-    }
+.file-page .file-item .thumb {
+    position: relative;
+}
 
-    & .file-item:hover {
-        background: var(--gray-200);
-    }
+.file-page .file-item .thumb .favorite {
+    width: 24px;
+    height: 24px;
+    position: absolute;
+    left: .3rem;
+    top: .6rem;
+}
 
-    & .file-item .content {
-        & .name {
-            font-weight: bold;
-        }
+.file-page .file-item.encrypting {
+    background: var(--gray-400);
+    opacity: .8;
+    cursor: unset;
+}
 
-        & .size,
-        .time,
-        .position {
-            font-size: .8rem;
-            padding-top: 4px;
-        }
-    }
+.file-page .file-item:hover {
+    background: var(--gray-200);
+}
 
-    & .plainText {
-        padding: .5rem;
-        border: 1px solid var(--light);
-        box-sizing: border-box;
-        margin: .5rem;
-        border-radius: var(--border-radius);
-    }
+.file-page .file-item .content .name {
+    font-weight: bold;
+}
 
-    & .drawer .item {
-        border-bottom: 1px solid var(--gray-400);
-        padding: .5rem;
-        cursor: pointer;
-        text-align: center;
-        transition: all .3s ease-in-out;
-        box-sizing: border-box;
-    }
+.file-page .file-item .content .size,
+.file-page .file-item .content .time,
+.file-page .file-item .content .position {
+    font-size: .8rem;
+    padding-top: 4px;
+}
 
-    & .drawer .item:hover {
-        background-color: var(--gray-300);
-    }
+.file-page .plainText {
+    padding: .5rem;
+    border: 1px solid var(--light);
+    box-sizing: border-box;
+    margin: .5rem;
+    border-radius: var(--border-radius);
+}
 
-    & .drawer .item.danger {
-        color: var(--danger);
-    }
+.file-page .drawer .item {
+    border-bottom: 1px solid var(--gray-400);
+    padding: .5rem;
+    cursor: pointer;
+    text-align: center;
+    transition: all .3s ease-in-out;
+    box-sizing: border-box;
+}
+
+.file-page .drawer .item:hover {
+    background-color: var(--gray-300);
+}
+
+.file-page .drawer .item.danger {
+    color: var(--danger);
 }

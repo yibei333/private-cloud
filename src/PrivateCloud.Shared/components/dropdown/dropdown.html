@@ -1,10 +1,10 @@
-<div v-bind:class="[className,readonly?'readonly':'',disabled?'disabled':'']" ref="dropdown" v-on:click="click($event)" v-on:touchstart="$event.stopPropagation()">
+<div v-bind:class="[className,readonly?'readonly':'',disabled?'disabled':'']" ref='dropdown' v-on:click="click($event)" v-on:touchstart="$event.stopPropagation()">
     <slot name="title" v-bind:active="active">
         <div v-bind:class="['dropdown-title',active?'active':'']">
             {{title}}
         </div>
     </slot>
-    <div v-on:click="$event.stopPropagation()" ref="content" v-bind:class="['dropdown-content',contentClassName]" v-bind:style="{translate:`0 ${($refs.dropdown?.clientHeight??0)+4}px`}">
+    <div v-if="active" v-on:click="$event.stopPropagation()" ref="content" class="dropdown-content" v-bind:style="{top:`${$refs.dropdown.clientHeight+4}px`}">
         <slot v-bind:active="active"></slot>
     </div>
 </div>

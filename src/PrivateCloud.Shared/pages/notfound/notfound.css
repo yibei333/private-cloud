@@ -1,5 +1,3 @@
-.notfound-page {
-    & h2 {
-        color: red;
-    }
+.notfound-page h2 {
+    color: red;
 }

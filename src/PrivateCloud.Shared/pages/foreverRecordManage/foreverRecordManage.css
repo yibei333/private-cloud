@@ -1,31 +1,29 @@
-.foreverRecordManage-page {
-    & .container-content{
-        display: grid;
-        grid-template-rows: auto 1fr auto;
-    }
+.foreverRecordManage-page .container-content {
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+}
 
-    & .header{
-        background: var(--gray-100);
-    }
+.foreverRecordManage-page .header {
+    background: var(--gray-100);
+}
 
-    & .goBack {
-        height: 24px;
-        width: 24px;
-        cursor: pointer;
-        align-self: center;
-    }
+.foreverRecordManage-page .goBack {
+    height: 24px;
+    width: 24px;
+    cursor: pointer;
+    align-self: center;
+}
 
-    & .goBack path {
-        fill: var(--primary);
-    }
+.foreverRecordManage-page .goBack path {
+    fill: var(--primary);
+}
 
-    & .goBack:hover path {
-        fill: var(--primary-200);
-    }
+.foreverRecordManage-page .goBack:hover path {
+    fill: var(--primary-200);
+}
 
-    & .operations {
-        display: flex;
-        align-items: center;
-        gap: .5rem;
-    }
+.foreverRecordManage-page .operations {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
 }

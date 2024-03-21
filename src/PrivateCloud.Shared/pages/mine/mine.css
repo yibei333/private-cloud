@@ -1,117 +1,115 @@
-.mine-page {
-    .user-info {
-        display: grid;
-        grid-template-columns: auto 1fr;
-        gap: .5rem;
-        background: var(--theme);
-        color: var(--light);
+.mine-page .user-info {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: .5rem;
+    background: var(--theme);
+    color: var(--light);
+}
 
-        & .icon {
-            align-self: center;
+.mine-page .user-info .icon {
+    align-self: center;
+}
 
-            & svg {
-                width: 12rem;
-                height: 12rem;
+.mine-page .user-info .icon svg {
+    width: 12rem;
+    height: 12rem;
+}
 
-                & path {
-                    fill: var(--light);
-                }
-            }
-        }
+.mine-page .user-info .icon svg path {
+    fill: var(--light);
+}
 
-        & .content {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
+.mine-page .user-info .content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
 
-            & .name {
-                font-size: 1.5rem;
-            }
-        }
-    }
+.mine-page .user-info .content .name {
+    font-size: 1.5rem;
+}
 
-    .label {
-        padding: .5rem;
-        display: flex;
-        justify-content: start;
-        align-items: center;
+.mine-page .label {
+    padding: .5rem;
+    display: flex;
+    justify-content: start;
+    align-items: center;
+}
 
-        & svg {
-            height: 32px;
-            width: 32px;
+.mine-page .label svg {
+    height: 32px;
+    width: 32px;
+}
 
-            & path {
-                fill: var(--primary);
-            }
-        }
+.mine-page .label svg path {
+    fill: var(--primary);
+}
 
-        & .name {
-            font-weight: bold;
-        }
-    }
+.mine-page .label .name {
+    font-weight: bold;
+}
 
-    .operations {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: .5rem;
-        padding: .5rem;
+.mine-page .operations {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: .5rem;
+    padding: .5rem;
+}
 
-        & .item {
-            height: 7rem;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            color: var(--light);
+.mine-page .operations .item {
+    height: 7rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    color: var(--light);
+}
 
-            &:hover {
-                opacity: .9;
-            }
+.mine-page .operations .item:hover {
+    opacity: .9;
+}
 
-            & svg {
-                height: 32px;
-                width: 32px;
+.mine-page .operations .item svg {
+    height: 32px;
+    width: 32px;
+}
 
-                & path {
-                    fill: var(--light);
-                }
-            }
+.mine-page .operations .item svg path {
+    fill: var(--light);
+}
 
-            & .name {
-                font-weight: bold;
-            }
+.mine-page .operations .item .name {
+    font-weight: bold;
+}
 
-            &.history {
-                background: var(--yellow);
-            }
+.mine-page .operations .item.history {
+    background: var(--yellow);
+}
 
-            &.favorite {
-                background: var(--red);
-            }
+.mine-page .operations .item.favorite {
+    background: var(--red);
+}
 
-            &.about {
-                background: var(--pink);
-            }
+.mine-page .operations .item.about {
+    background: var(--pink);
+}
 
-            &.user {
-                background: var(--green);
-            }
+.mine-page .operations .item.user {
+    background: var(--green);
+}
 
-            &.task {
-                background: var(--blue);
-            }
+.mine-page .operations .item.task {
+    background: var(--blue);
+}
 
-            &.mediaLib {
-                background: var(--purple);
-            }
+.mine-page .operations .item.mediaLib {
+    background: var(--purple);
+}
 
-            &.upgrade {
-                background: var(--orange);
-            }
+.mine-page .operations .item.upgrade {
+    background: var(--orange);
+}
 
-            &.foreverRecord {
-                background: var(--cyan);
-            }
-        }
-    }
+.mine-page .operations .item.foreverRecord {
+    background: var(--cyan);
 }

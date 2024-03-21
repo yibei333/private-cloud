@@ -1,6 +1,0 @@
-.cols {
-    & {
-        display: grid;
-        justify-items: start;
-    }
-}
