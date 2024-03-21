@@ -66,5 +66,3 @@ windows需要安装示例包中的证书（安装证书->本地计算机->将所
 # 已知问题
 
 1.部分mp4不支持播放,[参考xgplayer](https://v3.h5player.bytedance.com/guide/extends/about_format.html)
-
-2.下载是文件大小为空,可以用浏览器打开代替
