@@ -51,6 +51,7 @@ public class CleanTempService
                 {
                     var mediaLib = mediaLibs.FirstOrDefault(y => x.MediaLibId == y.Id);
                     var mediaLibDirectory = new DirectoryInfo(mediaLib.Path);
+                    if (mediaLibDirectory.GetDirectories(x.Id.ToString(), SearchOption.AllDirectories).Any()) return;
                     var files = mediaLibDirectory.GetFiles(x.Id.ToString(), SearchOption.AllDirectories);
                     if (mediaLib is null || !mediaLibDirectory.Exists || files.Length <= 0)
                     {
