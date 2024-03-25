@@ -11,4 +11,6 @@ git pull
 
 dotnet publish "%cd%\..\..\src\PrivateCloud.Maui" -o "%cd%\..\..\src\PrivateCloud.Maui\bin\packages\windows" -f net8.0-windows10.0.19041.0 -c Release -p:RuntimeIdentifierOverride=win10-x64 -p:WindowsPackageType=None --sc
 
-pause
+"InnoSetup6/ISCC.exe" installer.iss
+
+pause 

@@ -1,7 +1,10 @@
 using CommunityToolkit.Maui;
 using Microsoft.Extensions.Logging;
-using Microsoft.Maui.LifecycleEvents;
 using PrivateCloud.Maui.Extensions;
+
+#if WINDOWS
+using Microsoft.Maui.LifecycleEvents;
+#endif
 
 namespace PrivateCloud.Maui;
 
@@ -34,13 +37,6 @@ public static class MauiProgram
 #endif
             });
 #if WINDOWS
-        // using Microsoft.Maui.LifecycleEvents;
-        // #if WINDOWS
-        //            using Microsoft.UI;
-        //            using Microsoft.UI.Windowing;
-        //            using Windows.Graphics;
-        // #endif
-
         builder.ConfigureLifecycleEvents(events =>
         {
             events.AddWindows(windowsLifecycleBuilder =>

@@ -31,6 +31,7 @@ SetupIconFile="{#MyBinaryFolder}\appicon.ico"
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
+RestartIfNeededByRun=no
 
 [Languages]
 Name: "chinesesimplified"; MessagesFile: "compiler:Languages\ChineseSimplified.isl"
@@ -43,12 +44,14 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 [Files]
 Source: "{#MyBinaryFolder}\PrivateCloud.Maui.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#MyBinaryFolder}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
 Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
 Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
-
+  
 [Run]
+Filename: "{app}\MicrosoftEdgeWebview2Setup.exe"; Flags: skipifsilent
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
 
