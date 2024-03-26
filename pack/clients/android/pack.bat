@@ -5,6 +5,8 @@ cd /d "%~dp0"
 set projectPath=%cd%\..\..\..\src\PrivateCloud.Maui
 set packagePath=%projectPath%\bin\packages
 set binaryPath=%packagePath%\android
+set versionPath=%cd%\..\..\version.txt
+set /p version=<"%versionPath%"
 
 IF EXIST "%binaryPath%" (
     rd /s /q "%binaryPath%"
@@ -15,7 +17,6 @@ git pull
 
 dotnet publish "%projectPath%" -o "%binaryPath%" -f net8.0-android -c Release -p:AndroidSigningKeyStore="%cd%\demo.keystore" -p:AndroidSigningKeyAlias=private.cloud -p:AndroidSigningKeyPass=demo123 -p:AndroidSigningStorePass=demo123
 
-set /p version=<"../../version.txt"
 copy %binaryPath%\com.yibei.privatecloud-Signed.apk "%packagePath%\clients.privatecloud.android.%version%.apk"
 
 IF EXIST "%binaryPath%" (
