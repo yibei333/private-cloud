@@ -2,17 +2,26 @@
 %1 mshta vbscript:CreateObject("Shell.Application").ShellExecute("cmd.exe","/c %~s0 ::","","runas",1)(window.close)&&exit
 cd /d "%~dp0"
 
-IF EXIST "%cd%\..\..\..\src\PrivateCloud.Maui\bin\packages\windows" (
-    rd /s /q "%cd%\..\..\..\src\PrivateCloud.Maui\bin\packages\windows"
+set projectPath=%cd%\..\..\..\src\PrivateCloud.Maui
+set binaryPath=%projectPath%\bin\packages\windows
+
+IF EXIST "%binaryPath%" (
+    rd /s /q "%binaryPath%"
 ) 
 
 cd "%cd%"
 git pull
 
-dotnet publish "%cd%\..\..\..\src\PrivateCloud.Maui" -o "%cd%\..\..\..\src\PrivateCloud.Maui\bin\packages\windows" -f net8.0-windows10.0.19041.0 -c Release -p:RuntimeIdentifierOverride=win10-x64 -p:WindowsPackageType=None --sc
+dotnet publish "%projectPath%" -o "%binaryPath%" -f net8.0-windows10.0.19041.0 -c Release -p:RuntimeIdentifierOverride=win10-x64 -p:WindowsPackageType=None --sc
 
-copy EnsureWebview2RuntimeInstalled.exe "%cd%\..\..\..\src\PrivateCloud.Maui\bin\packages\windows"
+copy EnsureWebview2RuntimeInstalled.exe "%binaryPath%"
 
-"InnoSetup6/ISCC.exe" installer.iss
+set /p version=<"../../version.txt"
+
+"InnoSetup6/ISCC.exe" /DMyAppVersion=%version% installer.iss
+
+IF EXIST "%binaryPath%" (
+    rd /s /q "%binaryPath%"
+) 
 
 pause 
