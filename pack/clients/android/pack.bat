@@ -2,9 +2,24 @@
 %1 mshta vbscript:CreateObject("Shell.Application").ShellExecute("cmd.exe","/c %~s0 ::","","runas",1)(window.close)&&exit
 cd /d "%~dp0"
 
+set projectPath=%cd%\..\..\..\src\PrivateCloud.Maui
+set packagePath=%projectPath%\bin\packages
+set binaryPath=%packagePath%\android
+
+IF EXIST "%binaryPath%" (
+    rd /s /q "%binaryPath%"
+) 
+
 cd "%cd%"
 git pull
 
-dotnet publish "%cd%\..\..\src\PrivateCloud.Maui" -o "%cd%\..\..\src\PrivateCloud.Maui\bin\packages\android" -f net8.0-android -c Release -p:AndroidSigningKeyStore="%cd%\private.cloud.keystore" -p:AndroidSigningKeyAlias=private.cloud -p:AndroidSigningKeyPass=demo123 -p:AndroidSigningStorePass=demo123
+dotnet publish "%projectPath%" -o "%binaryPath%" -f net8.0-android -c Release -p:AndroidSigningKeyStore="%cd%\private.cloud.keystore" -p:AndroidSigningKeyAlias=private.cloud -p:AndroidSigningKeyPass=demo123 -p:AndroidSigningStorePass=demo123
 
-pause
+set /p version=<"../../version.txt"
+copy %packagePath\com.yibei.privatecloud-Signed.apk% "%packagePath%\clients.privatecloud.android.%version%.apk"
+
+IF EXIST "%binaryPath%" (
+    rd /s /q "%binaryPath%"
+) 
+
+pause 
