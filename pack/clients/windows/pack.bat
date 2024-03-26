@@ -4,6 +4,7 @@ cd /d "%~dp0"
 
 set projectPath=%cd%\..\..\..\src\PrivateCloud.Maui
 set binaryPath=%projectPath%\bin\packages\windows
+set innoSetupPath=%cd%\..\..\InnoSetup6/ISCC.exe
 
 IF EXIST "%binaryPath%" (
     rd /s /q "%binaryPath%"
@@ -18,7 +19,7 @@ copy EnsureWebview2RuntimeInstalled.exe "%binaryPath%"
 
 set /p version=<"../../version.txt"
 
-"InnoSetup6/ISCC.exe" /DMyAppVersion=%version% installer.iss
+"%innoSetupPath%" /DMyAppVersion=%version% installer.iss
 
 IF EXIST "%binaryPath%" (
     rd /s /q "%binaryPath%"

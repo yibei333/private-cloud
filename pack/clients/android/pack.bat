@@ -13,10 +13,10 @@ IF EXIST "%binaryPath%" (
 cd "%cd%"
 git pull
 
-dotnet publish "%projectPath%" -o "%binaryPath%" -f net8.0-android -c Release -p:AndroidSigningKeyStore="%cd%\private.cloud.keystore" -p:AndroidSigningKeyAlias=private.cloud -p:AndroidSigningKeyPass=demo123 -p:AndroidSigningStorePass=demo123
+dotnet publish "%projectPath%" -o "%binaryPath%" -f net8.0-android -c Release -p:AndroidSigningKeyStore="%cd%\demo.keystore" -p:AndroidSigningKeyAlias=private.cloud -p:AndroidSigningKeyPass=demo123 -p:AndroidSigningStorePass=demo123
 
 set /p version=<"../../version.txt"
-copy %packagePath\com.yibei.privatecloud-Signed.apk% "%packagePath%\clients.privatecloud.android.%version%.apk"
+copy %binaryPath%\com.yibei.privatecloud-Signed.apk "%packagePath%\clients.privatecloud.android.%version%.apk"
 
 IF EXIST "%binaryPath%" (
     rd /s /q "%binaryPath%"
