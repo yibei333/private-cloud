@@ -366,3 +366,4 @@ FodyWeavers.xsd
 /src/PrivateCloud.WebApi/.config/dotnet-tools.json
 /src/PrivateCloud/appsettings.Other.json
 .config
+packages
