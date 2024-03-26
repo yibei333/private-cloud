@@ -19,8 +19,8 @@ cd /d "%~dp0"
 call "%cd%/clients/android/pack.bat"
 
 cd /d "%~dp0"
-xcopy /E /I "%clientPath%\*" "%targetPath%"
-xcopy /E /I "%serverPath%\*" "%targetPath%"
+xcopy /E /I /Y "%clientPath%\*" "%targetPath%"
+xcopy /E /I /Y "%serverPath%\*" "%targetPath%"
 
 IF EXIST "%clientPath%" (
     rd /s /q "%clientPath%"
