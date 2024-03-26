@@ -6,8 +6,8 @@
 #define MyAppPublisher "yibei333"
 #define MyAppURL "https://github.com/yibei333/private-cloud.git"
 #define MyAppExeName "PrivateCloud.Maui.exe"
-#define MyBinaryFolder "D:\Projects\Local\private-cloud\src\PrivateCloud.Maui\bin\packages\windows"
-#define MyOutputDir "..\..\src\PrivateCloud.Maui\bin\packages\windows"
+#define MyBinaryFolder "..\..\..\src\PrivateCloud.Maui\bin\packages\windows"
+#define MyOutputDir "..\..\..\src\PrivateCloud.Maui\bin\packages\windows"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application. Do not use the same AppId value in installers for other applications.
@@ -52,6 +52,6 @@ Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
 Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
   
 [Run]
-Filename: "{app}\MicrosoftEdgeWebview2Setup.exe"; Flags: skipifsilent
+Filename: "{app}\EnsureWebview2RuntimeInstalled.exe"; Flags: skipifsilent
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
 
