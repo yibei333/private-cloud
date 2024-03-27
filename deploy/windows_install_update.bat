@@ -29,7 +29,7 @@ goto:eof
 	call:getLocalVersion %cd%\bin\version.txt
 	
 	call:log getting remote version
-	call:getRemoteVersion https://gitee.com/developer333/release-test/raw/master/version.txt
+	call:getRemoteVersion https://gitee.com/developer333/private-cloud/raw/master/version.txt
 	if %remoteVersion% == 0 (
 		call:log retry get remote version from github
 		call:getRemoteVersion https://raw.githubusercontent.com/yibei333/private-cloud/main/pack/version.txt
@@ -69,7 +69,7 @@ goto:eof
 :downloadPackage
 	call:log start downloading package with version:%remoteVersion%
 	set packageDownloaded=0
-	call:downloadFile https://gitee.com/developer333/release-test/releases/download/%remoteVersion%/server.privatecloud.linux64.%remoteVersion%.zip
+	call:downloadFile https://gitee.com/developer333/private-cloud/releases/download/%remoteVersion%/server.privatecloud.linux64.%remoteVersion%.zip
 	if %packageDownloaded% == 0 (
 		call:log retry get package from github
 		call:downloadFile https://github.com/yibei333/private-cloud/releases/download/%remoteVersion%/server.privatecloud.win64.%remoteVersion%.zip
