@@ -20,7 +20,7 @@ dotnet publish "%projectPath%" -o "%binaryPath%" -r linux-x64 -c Release --sc /p
 
 copy "%versionPath%" "%binaryPath%"
 
-powershell Compress-Archive -Force -LiteralPath "%binaryPath%" -DestinationPath "%filename%"
+powershell Compress-Archive -Force -Path "%binaryPath%\*" -DestinationPath "%filename%"
 
 IF EXIST "%binaryPath%" (
     rd /s /q "%binaryPath%"
