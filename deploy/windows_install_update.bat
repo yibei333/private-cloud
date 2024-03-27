@@ -21,7 +21,7 @@ call:openBrowser
 pause
 
 :log
-	echo [34m *%* [37m
+	echo [32m *%* [37m
 goto:eof
 
 :checkVersion
@@ -29,7 +29,7 @@ goto:eof
 	call:getLocalVersion %cd%\bin\version.txt
 	
 	call:log getting remote version
-	call:getRemoteVersion https://gitee.com/developer333/private-cloud/raw/master/version.txt
+	call:getRemoteVersion https://gitee.com/developer333/private-cloud/raw/main/pack/version.txt
 	if %remoteVersion% == 0 (
 		call:log retry get remote version from github
 		call:getRemoteVersion https://raw.githubusercontent.com/yibei333/private-cloud/main/pack/version.txt
@@ -57,7 +57,7 @@ goto:eof
 goto:eof
 
 :getRemoteVersion
-	curl -L -f -#  --connect-timeout 10 -m 10 -o temp.txt %1
+	curl --ssl-no-revoke -L -f -#  --connect-timeout 10 -m 10 -o temp.txt %1
 	if %ERRORLEVEL% == 0 (
 		set /p remoteVersion=<temp.txt
 		del temp.txt
@@ -83,7 +83,7 @@ goto:eof
 
 :downloadFile
 	call:log url is '%1'
-	curl -L -f -# --connect-timeout 10 -m 300 -o package.zip %1
+	curl --ssl-no-revoke -L -f -# --connect-timeout 10 -m 300 -o package.zip %1
 
 	if %ERRORLEVEL% == 0 (
     		call:log download success
