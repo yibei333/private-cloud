@@ -69,7 +69,7 @@ goto:eof
 :downloadPackage
 	call:log start downloading package with version:%remoteVersion%
 	set packageDownloaded=0
-	call:downloadFile https://gitee.com/developer333/private-cloud/releases/download/%remoteVersion%/server.privatecloud.linux64.%remoteVersion%.zip
+	call:downloadFile https://gitee.com/developer333/private-cloud/releases/download/%remoteVersion%/server.privatecloud.win64.%remoteVersion%.zip
 	if %packageDownloaded% == 0 (
 		call:log retry get package from github
 		call:downloadFile https://github.com/yibei333/private-cloud/releases/download/%remoteVersion%/server.privatecloud.win64.%remoteVersion%.zip
