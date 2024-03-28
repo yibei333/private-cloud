@@ -21,6 +21,8 @@ call:installAndStartService
 
 call:openBrowser
 
+call:clean
+
 pause
 
 :log
@@ -153,4 +155,16 @@ goto:eof
 :openBrowser
 	call:log open browser
 	start http://localhost:9090
+goto:eof
+
+:removeFile
+	if exist %1 (
+		del %1
+	)
+goto:eof
+
+:clean
+	call:removeFile temp.txt
+	call:removeFile package.zip
+	call:removeFile ffmpeg.windows.zip
 goto:eof
