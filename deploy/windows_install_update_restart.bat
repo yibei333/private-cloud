@@ -5,6 +5,7 @@ cd /d "%~dp0"
 set localVersion=0
 set remoteVersion=0
 set serviceName=private.cloud
+set fileDownloaded=0
 
 call:checkVersion
 
@@ -13,6 +14,8 @@ call:downloadPackage
 call:removeOldService
 
 call:unPackPackage
+
+call:setFfmpeg
 
 call:installAndStartService
 
@@ -43,6 +46,7 @@ goto:eof
 
 	if %remoteVersion% == %localVersion% (
 		call:log already update to date
+		call:restartService
 		pause
 		exit 0
 	)
@@ -66,31 +70,37 @@ goto:eof
 	)
 goto:eof
 
+:restartService
+	call:log restart service
+	sc stop %serviceName%
+	sc start %serviceName%
+goto:eof
+
 :downloadPackage
 	call:log start downloading package with version:%remoteVersion%
-	set packageDownloaded=0
-	call:downloadFile https://gitee.com/developer333/private-cloud/releases/download/%remoteVersion%/server.privatecloud.win64.%remoteVersion%.zip
-	if %packageDownloaded% == 0 (
+	call:downloadFile https://gitee.com/developer333/private-cloud/releases/download/%remoteVersion%/server.privatecloud.win64.%remoteVersion%.zip package.zip
+	if %fileDownloaded% == 0 (
 		call:log retry get package from github
-		call:downloadFile https://github.com/yibei333/private-cloud/releases/download/%remoteVersion%/server.privatecloud.win64.%remoteVersion%.zip
+		call:downloadFile https://github.com/yibei333/private-cloud/releases/download/%remoteVersion%/server.privatecloud.win64.%remoteVersion%.zip package.zip
 	)
-	if %packageDownloaded% == 0 (
+	if %fileDownloaded% == 0 (
 		call:log download package failed
 		pause
-		exit 0
+		exit 1
 	)
 goto:eof
 
 :downloadFile
-	call:log url is '%1'
-	curl --ssl-no-revoke -L -f -# --connect-timeout 10 -m 300 -o package.zip %1
+	call:log download url is '%1'
+	curl --ssl-no-revoke -L -f -# --connect-timeout 10 -m 300 -o %2 %1
 
 	if %ERRORLEVEL% == 0 (
-    		call:log download success
-		set packageDownloaded=1
+		call:log download file success
+		set fileDownloaded=1
 	) || (
-    		call:log curl failed
-		del package.zip
+		call:log curl failed
+		del %2
+		fileDownloaded=0
 	)
 goto:eof
 
@@ -112,6 +122,26 @@ goto:eof
 	if exist bin\appsettings.Other.json.bak (
 		copy bin\appsettings.Other.json.bak bin\appsettings.Other.json
 	)
+goto:eof
+
+:setFfmpeg
+	if exist bin/data/ffmpeg/ffmpeg.exe (
+		exit /b 0
+	)
+
+	call:downloadFile https://gitee.com/developer333/private-cloud/releases/download/1.0/ffmpeg.windows.zip ffmpeg.windows.zip
+
+	if %fileDownloaded% == 0 (
+		call:log retry get ffmpeg from github
+		call:downloadFile https://github.com/yibei333/private-cloud/releases/download/1.0/ffmpeg.windows.zip ffmpeg.windows.zip
+	)
+	if %fileDownloaded% == 0 (
+		call:log download ffmpeg failed
+		pause
+		exit 1
+	)
+
+	powershell Expand-Archive -Force -Path ffmpeg.windows.zip -DestinationPath bin/data/ffmpeg
 goto:eof
 
 :installAndStartService
