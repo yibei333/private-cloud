@@ -4,7 +4,7 @@ position="$(cd "$(dirname "$0")" && pwd)"
 cd $position
 
 log(){
-    echo -e "\033[32m $1 \033[0m"
+    echo -e "\033[32m$1\033[0m"
 }
 
 removeFile(){
@@ -18,18 +18,18 @@ checkVersion(){
 
     log 'getting remote version'
     getRemoteVersion 'https://gitee.com/developer333/private-cloud/raw/main/pack/version.txt'
-    if ["$remoteVersion" = "0"];then
+    if [ "$remoteVersion" = "0" ];then
         log 'retry get remote version from github'
         getRemoteVersion 'https://raw.githubusercontent.com/yibei333/private-cloud/main/pack/version.txt'
     fi
 
-    if ["$remoteVersion" = "0"];then
+    if [ "$remoteVersion" = "0" ];then
         log 'unable to get remote version'
         exit 1
     fi
-    log 'remote version is $remoteVersion'
+    log "remote version is $remoteVersion"
 
-    if ["$remoteVersion" = "$localVersion"];then
+    if [ "$remoteVersion" = "$localVersion" ];then
         log 'already update to date'
         exit 0
     fi
@@ -37,7 +37,7 @@ checkVersion(){
 
 getLocalVersion(){
     log 'getting local version'
-    if test -f $1; then
+    if [ -f $1 ]; then
         read -r localVersion < $1
     fi
 	log "local version is $localVersion"
@@ -45,7 +45,7 @@ getLocalVersion(){
 
 getRemoteVersion(){
     curl --ssl-no-revoke -L -f -#  --connect-timeout 10 -m 10 -o temp.txt $1
-    if [$? -eq 0];then
+    if [ $? -eq 0 ];then
         read -r remoteVersion < temp.txt
         removeFile temp.txt
     else
@@ -56,12 +56,12 @@ getRemoteVersion(){
 downloadPackage(){
     log "start downloading package with version:$remoteVersion"
     packageDownloaded=0
-    downloadFile "https://gitee.com/developer333/private-cloud/releases/download/$remoteVersion/server.privatecloud.linux64.$remoteVersion.zip"
-    if [$packageDownloaded -eq 0];then
+    downloadFile "https://gitee.com/developer333/private-cloud/releases/download/$remoteVersion/server.privatecloud.linux64.$remoteVersion.tar.gz"
+    if [ $packageDownloaded -eq 0 ];then
         log 'retry get package from github'
-        downloadFile "https://github.com/yibei333/private-cloud/releases/download/$remoteVersion/server.privatecloud.linux64.$remoteVersion.zip"
+        downloadFile "https://github.com/yibei333/private-cloud/releases/download/$remoteVersion/server.privatecloud.linux64.$remoteVersion.tar.gz"
     fi
-    if [$packageDownloaded -eq 0];then
+    if [ $packageDownloaded -eq 0 ];then
         log 'log download package failed'
         exit 1
     fi
@@ -70,8 +70,9 @@ downloadPackage(){
 downloadFile(){
     log "url is $1"
     curl --ssl-no-revoke -L -f -# --connect-timeout 10 -m 300 -o package.tar.gz $1
-    if [$? -eq 0];then
+    if [ $? -eq 0 ];then
         log 'download success'
+        packageDownloaded=1
     else
         log 'curl failed'
         removeFile package.tar.gz
