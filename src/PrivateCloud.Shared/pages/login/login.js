@@ -86,6 +86,9 @@ export default {
                     localStorage.setItem('user', JSON.stringify(res.data));
                     location.replace("/index.html");
                 });
+            } else {
+                loadingCallback();
+                return;
             }
         },
         selectNetwork(item) {

@@ -19,7 +19,6 @@ public class DataContext(DbContextOptions<DataContext> options) : DbContext(opti
     public DbSet<HistoryEntity> History { get; set; }
     public DbSet<ThumbEntity> Thumb { get; set; }
     public DbSet<ThumbTaskEntity> ThumbTask { get; set; }
-    public DbSet<UpgradeEntity> Upgrade { get; set; }
     public DbSet<CryptoTaskEntity> CryptoTask { get; set; }
     public DbSet<EncryptedFileEntity> EncryptedFile { get; set; }
 }

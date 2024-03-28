@@ -146,22 +146,6 @@ namespace PrivateCloud.Server.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Upgrade",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Version = table.Column<string>(type: "TEXT", nullable: true),
-                    Url = table.Column<string>(type: "TEXT", nullable: true),
-                    LocalUrl = table.Column<string>(type: "TEXT", nullable: true),
-                    Platform = table.Column<int>(type: "INTEGER", nullable: false),
-                    CreateTime = table.Column<long>(type: "INTEGER", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Upgrade", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "User",
                 columns: table => new
                 {
@@ -206,9 +190,6 @@ namespace PrivateCloud.Server.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "ThumbTask");
-
-            migrationBuilder.DropTable(
-                name: "Upgrade");
 
             migrationBuilder.DropTable(
                 name: "User");

@@ -1,8 +1,5 @@
-using CommunityToolkit.Maui.Alerts;
-using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Maui.Storage;
 using Microsoft.JSInterop;
-using Microsoft.Maui.Controls.PlatformConfiguration;
 using SharpDevLib;
 using SharpDevLib.Extensions.Http;
 using System.Diagnostics;

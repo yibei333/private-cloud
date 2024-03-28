@@ -17,7 +17,7 @@ namespace PrivateCloud.Server.Data.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .UseCollation("SQL_Latin1_General_CP1_CS_AS")
-                .HasAnnotation("ProductVersion", "8.0.0");
+                .HasAnnotation("ProductVersion", "8.0.2");
 
             modelBuilder.Entity("PrivateCloud.Server.Data.Entity.CryptoTaskEntity", b =>
                 {
@@ -240,32 +240,6 @@ namespace PrivateCloud.Server.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("ThumbTask");
-                });
-
-            modelBuilder.Entity("PrivateCloud.Server.Data.Entity.UpgradeEntity", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<long>("CreateTime")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("LocalUrl")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("Platform")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Url")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Version")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Upgrade");
                 });
 
             modelBuilder.Entity("PrivateCloud.Server.Data.Entity.UserEntity", b =>

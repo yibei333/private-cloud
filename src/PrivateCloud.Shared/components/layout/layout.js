@@ -31,10 +31,9 @@ export default {
     },
     methods: {
         setLayout() {
-
             if (this.size == 1) {
                 this.useHeader = false;
-                if (this.name == 'login' || this.name == 'notfound' || this.name == 'play' || this.name == 'history' || this.name == 'favorite' || this.name == 'about' || this.name == 'userManage' || this.name == 'taskManage' || this.name == 'mediaLibManage' || this.name == 'foreverRecordManage' || this.name == 'upgradeManage') {
+                if (this.name == 'login' || this.name == 'notfound' || this.name == 'play' || this.name == 'history' || this.name == 'favorite' || this.name == 'about' || this.name == 'userManage' || this.name == 'taskManage' || this.name == 'mediaLibManage' || this.name == 'foreverRecordManage') {
                     this.useFooter = false;
                 } else this.useFooter = true;
             } else {

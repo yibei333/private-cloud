@@ -136,10 +136,7 @@ public class FfmpegService(ILogger<FfmpegService> logger, IConfiguration configu
 
     private void Check(Guid id)
     {
-        var path = configuration.GetValue<string>("FfmpegBinaryPath");
-        if (string.IsNullOrWhiteSpace(path)) throw new Exception("FfmpegBinaryPath config required");
-        var fullPath = Statics.FfmpegPath.CombinePath(path);
-        if (!File.Exists(fullPath)) throw new Exception($"ffmpeg binary not exist '{fullPath}'");
+        var fullPath = Statics.GetFfmpegPath()?? throw new Exception($"在文件夹'{Statics.FfmpegFolder}'中找不到ffmpeg执行程序"); ;
         if (_engine is null)
         {
             _engine = new Engine(fullPath);

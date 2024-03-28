@@ -32,10 +32,6 @@ public class LoginController(IServiceProvider serviceProvider, IRepository<UserE
                 if (password == adminUser.Password) result.Add($"你可以在'{Statics.AdminPasswordPath}'中找到初始用户'Admin'的密码,登录成功后请修改初始密码");
             }
         }
-
-        var ffmepgDirectory = _configuration.GetValue<string>("FfmpegBinaryPath");
-        var ffmpegPath = Statics.FfmpegPath.CombinePath(ffmepgDirectory);
-        if (!System.IO.File.Exists(ffmpegPath)) result.Add($"请将ffmpeg可执行文件放在路径'{ffmpegPath}'上,以保证缩略图正常工作");
         return Result.Succeed(result);
     }
 

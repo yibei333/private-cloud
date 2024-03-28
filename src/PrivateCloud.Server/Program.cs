@@ -16,6 +16,7 @@ using Serilog.Enrichers.Span;
 using SharpDevLib;
 using SharpDevLib.Extensions.Data;
 using SharpDevLib.Extensions.Encryption;
+using SharpDevLib.Extensions.Http;
 using SharpDevLib.Extensions.Jwt;
 using System.Reflection;
 
@@ -68,6 +69,7 @@ builder.Services.AddHangfire(configuration =>
 });
 
 builder.Services.AddHangfireServer();
+builder.Services.AddHttp();
 builder.Services.AddJwt();
 builder.Services.AddAuthentication(StaticNames.TokenSchemeName).AddScheme<AuthenticationSchemeOptions, TokenAuthenticationHandler>(StaticNames.TokenSchemeName, null);
 builder.Services.AddAuthorization();

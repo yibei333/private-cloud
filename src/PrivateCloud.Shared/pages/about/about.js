@@ -1,13 +1,13 @@
 export default {
     data() {
         return {
-            isLocal: false,
-            version: 1.0,
+            currentVersion: '0',
+            lastVersion: '0',
             platform: '',
-            last: 1.0,
+            last: null,
             isMostNew: true,
-            upgrade: null,
-            progress: null
+            progress: null,
+            downloadDisabled: false,
         }
     },
     mounted() {
@@ -16,43 +16,50 @@ export default {
     methods: {
         getAppInfo() {
             if (!this.http.isClient) return;
-            let hostname = new URL(this.http.baseUrl).hostname;
-            this.isLocal = (hostname === 'localhost' || hostname === '0.0.0.0' || hostname.startsWith('192.168.') || hostname.startsWith('127.0.') || hostname.startsWith('172.') || hostname.startsWith('10.'));
-
             this.http.getAppInfo().then(res => {
-                this.version = Number.parseFloat(res.version);
+                this.currentVersion = res.version;
                 this.platform = res.platform;
                 this.getLastVersion();
             });
         },
         getLastVersion(callback) {
-            this.http.get({ url: `${this.http.baseUrl}/api/upgrade/last/${this.platform}`, loadingCallback: callback }).then(res => {
+            this.http.get({ url: `${this.http.baseUrl}/api/version/last/${this.platform}`, loadingCallback: callback }).then(res => {
                 if (!res.data) {
-                    this.last = this.version;
+                    this.lastVersion = this.currentVersion;
                     this.notify.success('已经是最新版本了');
                 }
                 else {
-                    this.upgrade = res.data;
-                    this.last = Number.parseFloat(res.data.version);
-                    this.isMostNew = (this.version >= this.last);
+                    this.last = res.data;
+                    this.lastVersion = res.data.version;
+                    this.isMostNew = (this.lastVersion == this.currentVersion);
                     if (this.isMostNew) this.notify.success('已经是最新版本了');
                 }
             });
         },
-        download(callback) {
-            if (!this.upgrade) return;
-            let url = this.isLocal ? this.upgrade.localUrl : this.upgrade.url;
-            if (!url) {
-                this.notify.warning('找不到下载地址');
-                return;
-            }
-            let name = `私有云.${this.last}.${this.upgrade.extension}`;
-            this.http.downloadUrl({ url: url, name: name, loadingCallback: callback, progress: p => this.progress = p }).then(() => {
+        download() {
+            if (!this.last) return;
+            this.startDownload();
+            this.http.downloadUrl({ url: this.last.giteeUrl, name: this.last.name, loadingCallback: this.downloaded, progress: p => this.progress = p, notifyError: false }).then(() => {
                 this.progress = null;
                 this.notify.success('下载成功');
             }).catch(() => {
-                this.progress = false;
+                this.startDownload();
+                this.http.downloadUrl({ url: this.last.githubUrl, name: this.last.name, loadingCallback: this.downloaded, progress: p => this.progress = p }).then(() => {
+                    this.progress = null;
+                    this.notify.success('下载成功');
+                }).catch(() => {
+                    this.downloaded();
+                });
             });
+        },
+        startDownload() {
+            this.downloadDisabled = true;
+            this.$refs.downloadButton.loading = true;
+        },
+        downloaded() {
+            this.downloadDisabled = false;
+            this.$refs.downloadButton.loading = false;
+            this.progress = null;
         },
         goBack() {
             this.$router.go(-1);

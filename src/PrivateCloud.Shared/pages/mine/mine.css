@@ -106,10 +106,6 @@
     background: var(--purple);
 }
 
-.mine-page .operations .item.upgrade {
-    background: var(--orange);
-}
-
 .mine-page .operations .item.foreverRecord {
     background: var(--cyan);
 }

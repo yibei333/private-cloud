@@ -90,15 +90,6 @@ const pagesConfig = [
         type: 1,
         id: 840,
         parentId: 80,
-        name: 'upgradeManage',
-        text: '版本管理',
-        isAdmin: true,
-        components: ["btn", "modal", "fields", "field", "pagination", "cols", "vtable", "container"]
-    },
-    {
-        type: 1,
-        id: 850,
-        parentId: 80,
         name: 'foreverRecordManage',
         text: '永久链接',
         isAdmin: true,

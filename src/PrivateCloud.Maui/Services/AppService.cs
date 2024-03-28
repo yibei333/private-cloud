@@ -1,6 +1,7 @@
 using Microsoft.JSInterop;
 using SharpDevLib;
 using SharpDevLib.Extensions.Model;
+using System.Text;
 
 #if WINDOWS
 using Microsoft.UI.Windowing;
@@ -31,7 +32,18 @@ public static class AppService
     }
 
     [JSInvokable]
-    public static ApplicationInfo GetAppInfo() => new() { Version = AppInfo.Current.VersionString, Platform = DeviceInfo.Current.Platform.Convert() };
+    public static async Task<ApplicationInfo> GetAppInfoAsync()
+    {
+        var version = string.Empty;
+        using var stream = await FileSystem.Current.OpenAppPackageFileAsync("wwwroot/version.txt");
+        if (stream is not null)
+        {
+            using var memoryStream = new MemoryStream();
+            stream.CopyTo(memoryStream);
+            version = Encoding.UTF8.GetString(memoryStream.ToArray());
+        }
+        return new() { Version = version, Platform = DeviceInfo.Current.Platform.Convert() };
+    }
 
     [JSInvokable]
     public static async Task<Result> SetClipboard(string text)

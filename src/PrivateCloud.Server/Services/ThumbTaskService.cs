@@ -14,7 +14,6 @@ public class ThumbTaskService
     private static readonly object _locker = new();
     private static bool _isRunning;
     private static readonly int MaxHandleCount = 5;
-    readonly IConfiguration configuration;
     readonly FfmpegService ffmpegService;
     readonly ILogger<ThumbTaskService> logger;
     readonly IRepository<MediaLibEntity> mediaLibRepository;
@@ -24,7 +23,6 @@ public class ThumbTaskService
     public ThumbTaskService(IServiceProvider serviceProvider)
     {
         var provider = serviceProvider.CreateScope().ServiceProvider;
-        configuration = provider.GetRequiredService<IConfiguration>();
         ffmpegService = provider.GetRequiredService<FfmpegService>();
         logger = provider.GetRequiredService<ILogger<ThumbTaskService>>();
         mediaLibRepository = provider.GetRequiredService<IRepository<MediaLibEntity>>();
@@ -39,9 +37,8 @@ public class ThumbTaskService
             if (_isRunning) return;
             _isRunning = true;
         }
-        var ffmepgDirectory = configuration.GetValue<string>("FfmpegBinaryPath");
-        var ffmpegPath = Statics.FfmpegPath.CombinePath(ffmepgDirectory);
-        if (!File.Exists(ffmpegPath))
+        var ffmpegPath = Statics.GetFfmpegPath();
+        if (ffmpegPath.IsNull())
         {
             logger.LogInformation("找不到文件:{ffmpegPath},缩略图服务不能正常工作", ffmpegPath);
             _isRunning = false;

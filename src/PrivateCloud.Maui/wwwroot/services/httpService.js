@@ -304,7 +304,7 @@ export class httpService {
     }
 
     getAppInfo() {
-        return DotNet.invokeMethodAsync(this.assemblyName, "GetAppInfo");
+        return DotNet.invokeMethodAsync(this.assemblyName, "GetAppInfoAsync");
     }
 
     setClipboard(text) {

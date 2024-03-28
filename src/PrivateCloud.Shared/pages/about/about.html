@@ -8,15 +8,15 @@
 <div v-if="http.isClient" class="container">
     <div class="content">
         <div class="platform">运行环境:{{platform}}</div>
-        <div class="version">当前版本:{{version}}</div>
+        <div class="currentVersion">当前版本:{{currentVersion}}</div>
         <template v-if="isMostNew">
             <div class="isMostNew">已经是最新版本了</div>
             <btn v-on:click="getLastVersion" async>检查更新</btn>
         </template>
         <template v-else>
-            <div class="last">最新版本:{{last}}</div>
+            <div class="lastVersion">最新版本:{{lastVersion}}</div>
             <div v-if="progress" class="progress" async>下载进度:{{progress}}%</div>
-            <btn v-on:click="download" type="primary" async>下载</btn>
+            <btn v-on:click="download" type="primary" v-bind:disabled="downloadDisabled" ref="downloadButton">下载</btn>
         </template>
     </div>
 </div>

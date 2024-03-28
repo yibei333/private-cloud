@@ -1,45 +1,29 @@
-using AutoMapper;
-using PrivateCloud.Server.Data.Entity;
-using SharpDevLib.Extensions.Model;
+using PrivateCloud.Server.Common;
 
 namespace PrivateCloud.Server.Models.Pages;
 
-public class UpgradeMap : Profile
+public class VersionReply
 {
-    public UpgradeMap()
+    public VersionReply(VersionConfig config, string version, Platforms platform)
     {
-        CreateMap<UpgradeEntity, UpgradeReply>();
+        Version = version;
+        GiteeUrl = platform == Platforms.android ? config.GiteeAndroidUrl.Replace("%version%", version) : config.GiteeWindowsUrl.Replace("%version%", version);
+        GithubUrl = platform == Platforms.android ? config.GithubAndroidUrl.Replace("%version%", version) : config.GithubWindowsUrl.Replace("%version%", version);
+        Name = GiteeUrl.GetFileName();
     }
+
+    public string Version { get; }
+    public string GiteeUrl { get; }
+    public string GithubUrl { get; }
+    public string Name { get; }
 }
 
-public class UpgradeQueryRequest : PageRequest
+public class VersionConfig
 {
-    public string Version { get; set; }
-}
-
-public class UpgradeAddRequest
-{
-    public string Version { get; set; }
-    public string Url { get; set; }
-    public string LocalUrl { get; set; }
-    public Platforms Platform { get; set; }
-}
-
-public class UpgradeModifyRequest
-{
-    public string Version { get; set; }
-    public string Url { get; set; }
-    public string LocalUrl { get; set; }
-    public Platforms Platform { get; set; }
-}
-
-public class UpgradeReply : IdDto
-{
-    public string Version { get; set; }
-    public string Url { get; set; }
-    public string LocalUrl { get; set; }
-    public string CreateTime { get; set; }
-    public Platforms Platform { get; set; }
-    public string PlatformName => Platform.ToString();
-    public string Extension => Platform.GetExtension();
+    public string GithubVersionUrl { get; set; }
+    public string GithubAndroidUrl { get; set; }
+    public string GithubWindowsUrl { get; set; }
+    public string GiteeVersionUrl { get; set; }
+    public string GiteeAndroidUrl { get; set; }
+    public string GiteeWindowsUrl { get; set; }
 }
