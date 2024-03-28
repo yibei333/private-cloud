@@ -66,6 +66,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<Content CopyToOutputDirectory="PreserveNewest" Include="..\..\pack\version.txt" Link="version.txt" />
+		
 		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\assets\css\site.css" Link="wwwroot\assets\css\site.css" />
 		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\assets\css\variable.css" Link="wwwroot\assets\css\variable.css" />
 		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\assets\js\crypto.js" Link="wwwroot\assets\js\crypto.js" />
