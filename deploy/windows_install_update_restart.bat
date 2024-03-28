@@ -130,12 +130,12 @@ goto:eof
 	if exist bin/data/ffmpeg/ffmpeg.exe (
 		exit /b 0
 	)
-
-	call:downloadFile https://gitee.com/developer333/private-cloud/releases/download/1.0/ffmpeg.windows.zip ffmpeg.windows.zip
+	call:log start downloading ffmpeg
+	call:downloadFile https://gitee.com/developer333/private-cloud/releases/download/%remoteVersion%/ffmpeg.windows.zip ffmpeg.windows.zip
 
 	if %fileDownloaded% == 0 (
 		call:log retry get ffmpeg from github
-		call:downloadFile https://github.com/yibei333/private-cloud/releases/download/1.0/ffmpeg.windows.zip ffmpeg.windows.zip
+		call:downloadFile https://github.com/yibei333/private-cloud/releases/download/%remoteVersion%/ffmpeg.windows.zip ffmpeg.windows.zip
 	)
 	if %fileDownloaded% == 0 (
 		call:log download ffmpeg failed

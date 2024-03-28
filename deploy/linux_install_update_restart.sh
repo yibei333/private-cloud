@@ -31,6 +31,8 @@ checkVersion(){
 
     if [ "$remoteVersion" = "$localVersion" ];then
         log 'already update to date'
+        log 'restart process'
+        restartProcess
         exit 0
     fi
 }
@@ -55,27 +57,27 @@ getRemoteVersion(){
 
 downloadPackage(){
     log "start downloading package with version:$remoteVersion"
-    packageDownloaded=0
-    downloadFile "https://gitee.com/developer333/private-cloud/releases/download/$remoteVersion/server.privatecloud.linux64.$remoteVersion.tar.gz"
-    if [ $packageDownloaded -eq 0 ];then
+    downloadFile "https://gitee.com/developer333/private-cloud/releases/download/$remoteVersion/server.privatecloud.linux64.$remoteVersion.tar.gz" "package.tar.gz"
+    if [ $fileDownloaded -eq 0 ];then
         log 'retry get package from github'
-        downloadFile "https://github.com/yibei333/private-cloud/releases/download/$remoteVersion/server.privatecloud.linux64.$remoteVersion.tar.gz"
+        downloadFile "https://github.com/yibei333/private-cloud/releases/download/$remoteVersion/server.privatecloud.linux64.$remoteVersion.tar.gz" "package.tar.gz"
     fi
-    if [ $packageDownloaded -eq 0 ];then
-        log 'log download package failed'
+    if [ $fileDownloaded -eq 0 ];then
+        log 'download package failed'
         exit 1
     fi
 }
 
 downloadFile(){
-    log "url is $1"
-    curl --ssl-no-revoke -L -f -# --connect-timeout 10 -m 300 -o package.tar.gz $1
+    log "download url is $1"
+    curl --ssl-no-revoke -L -f -# --connect-timeout 10 -m 300 -o $2 $1
     if [ $? -eq 0 ];then
         log 'download success'
-        packageDownloaded=1
+        fileDownloaded=1
     else
         log 'curl failed'
-        removeFile package.tar.gz
+        removeFile $2
+        fileDownloaded=0
     fi
 }
 
@@ -100,19 +102,47 @@ unPackPackage(){
     fi
 }
 
+setFfmpeg(){
+    log "start downloading ffmepg"
+    downloadFile "https://gitee.com/developer333/private-cloud/releases/download/$remoteVersion/ffmpeg.linux.tar.xz" "ffmpeg.linux.tar.xz"
+    if [ $fileDownloaded -eq 0 ];then
+        log 'retry get ffmpeg from github'
+        downloadFile "https://github.com/yibei333/private-cloud/releases/download/$remoteVersion/ffmpeg.linux.tar.xz" "ffmpeg.linux.tar.xz"
+    fi
+    if [ $fileDownloaded -eq 0 ];then
+        log 'download ffmpeg failed'
+        exit 1
+    fi
+
+    mkdir -p bin/data/ffmpeg
+    tar -xf ffmpeg.linux.tar.xz -C bin/data/ffmpeg
+}
+
 startProcess(){
     sudo chmod +x "$position/bin/PrivateCloud.Server"
     nohup "$position/bin/PrivateCloud.Server" > /dev/null 2>&1 &
 }
 
+restartProcess(){
+    stopProcess
+    nohup "$position/bin/PrivateCloud.Server" > /dev/null 2>&1 &
+}
+
+clean(){
+    removeFile temp.txt
+    removeFile package.tar.gz
+    removeFile ffmpeg.linux.tar.xz
+}
 
 localVersion="0"
 remoteVersion="0"
+fileDownloaded=0
 
 checkVersion
 downloadPackage
 stopProcess
 unPackPackage
+setFfmpeg
 startProcess
-removeFile package.tar.gz
+clean
 log 'complete'
