@@ -8,6 +8,7 @@ export default {
             isMostNew: true,
             progress: null,
             downloadDisabled: false,
+            filePath: null
         }
     },
     mounted() {
@@ -39,14 +40,18 @@ export default {
         download() {
             if (!this.last) return;
             this.startDownload();
-            this.http.downloadUrl({ url: this.last.giteeUrl, name: this.last.name, loadingCallback: this.downloaded, progress: p => this.progress = p, notifyError: false }).then(() => {
+            this.http.downloadUrl({ url: this.last.giteeUrl, name: this.last.name, loadingCallback: this.downloaded, progress: p => this.progress = p, notifyError: false }).then((res) => {
                 this.progress = null;
                 this.notify.success('下载成功');
+                this.filePath = res.data;
+                this.tryInstall();
             }).catch(() => {
                 this.startDownload();
-                this.http.downloadUrl({ url: this.last.githubUrl, name: this.last.name, loadingCallback: this.downloaded, progress: p => this.progress = p }).then(() => {
+                this.http.downloadUrl({ url: this.last.githubUrl, name: this.last.name, loadingCallback: this.downloaded, progress: p => this.progress = p }).then((res) => {
                     this.progress = null;
                     this.notify.success('下载成功');
+                    this.filePath = res.data;
+                    this.tryInstall();
                 }).catch(() => {
                     this.downloaded();
                 });
@@ -60,6 +65,9 @@ export default {
             this.downloadDisabled = false;
             this.$refs.downloadButton.loading = false;
             this.progress = null;
+        },
+        tryInstall() {
+            if (this.http.upgrade && this.filePath) this.http.upgrade(this.filePath);
         },
         goBack() {
             this.$router.go(-1);

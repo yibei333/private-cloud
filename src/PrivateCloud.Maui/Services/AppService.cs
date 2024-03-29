@@ -1,3 +1,4 @@
+using CommunityToolkit.Maui.Alerts;
 using Microsoft.JSInterop;
 using SharpDevLib;
 using SharpDevLib.Extensions.Model;
@@ -5,6 +6,7 @@ using System.Text;
 
 #if WINDOWS
 using Microsoft.UI.Windowing;
+using System.Diagnostics;
 #endif
 
 namespace PrivateCloud.Maui.Services;
@@ -56,6 +58,36 @@ public static class AppService
         catch (Exception ex)
         {
             return Result.Failed(ex.Message);
+        }
+    }
+
+    [JSInvokable]
+    public static async void Upgrade(string path)
+    {
+        try
+        {
+
+#if WINDOWS
+            Process.Start(new ProcessStartInfo(path));
+#elif ANDROID
+            var context = Android.App.Application.Context;
+            if (context is null || context.ApplicationContext is null) throw new Exception("unable to find android context");
+            var file = new Java.IO.File(path);
+
+            using var install = new Android.Content.Intent(Android.Content.Intent.ActionView);
+            var apkURI = AndroidX.Core.Content.FileProvider.GetUriForFile(context, context.ApplicationContext.PackageName + ".provider", file);
+            install.SetDataAndType(apkURI, "application/vnd.android.package-archive");
+            install.AddFlags(Android.Content.ActivityFlags.NewTask);
+            install.AddFlags(Android.Content.ActivityFlags.GrantReadUriPermission);
+            install.AddFlags(Android.Content.ActivityFlags.ClearTop);
+            install.PutExtra(Android.Content.Intent.ExtraNotUnknownSource, true);
+            Platform.CurrentActivity?.StartActivity(install);
+#endif
+            await Toast.Make($"已尝试自动升级").Show();
+        }
+        catch (Exception ex)
+        {
+            await Toast.Make($"启动安装失败:{ex.Message}").Show();
         }
     }
 

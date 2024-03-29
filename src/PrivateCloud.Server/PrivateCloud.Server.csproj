@@ -104,9 +104,6 @@
 		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\pages\taskManage\taskManage.css" Link="wwwroot\pages\taskManage\taskManage.css" />
 		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\pages\taskManage\taskManage.html" Link="wwwroot\pages\taskManage\taskManage.html" />
 		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\pages\taskManage\taskManage.js" Link="wwwroot\pages\taskManage\taskManage.js" />
-		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\pages\upgradeManage\upgradeManage.css" Link="wwwroot\pages\upgradeManage\upgradeManage.css" />
-		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\pages\upgradeManage\upgradeManage.html" Link="wwwroot\pages\upgradeManage\upgradeManage.html" />
-		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\pages\upgradeManage\upgradeManage.js" Link="wwwroot\pages\upgradeManage\upgradeManage.js" />
 		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\pages\userManage\userManage.css" Link="wwwroot\pages\userManage\userManage.css" />
 		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\pages\userManage\userManage.html" Link="wwwroot\pages\userManage\userManage.html" />
 		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\pages\userManage\userManage.js" Link="wwwroot\pages\userManage\userManage.js" />

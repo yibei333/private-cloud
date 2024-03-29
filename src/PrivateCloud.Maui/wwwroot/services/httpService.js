@@ -321,4 +321,8 @@ export class httpService {
     exitFullScreen() {
         DotNet.invokeMethodAsync(this.assemblyName, "ExitFullScreen");
     }
+
+    upgrade(url) {
+        DotNet.invokeMethodAsync(this.assemblyName, "Upgrade", url);
+    }
 }

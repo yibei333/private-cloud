@@ -20,7 +20,6 @@ public class VersionController(IServiceProvider serviceProvider, IConfiguration 
 
         var config = new VersionConfig();
         configuration.GetSection("Version").Bind(config);
-        _logger.LogInformation($"xxxxx:{config is null},{config?.GiteeVersionUrl}");
         var httpService = _serviceProvider.GetRequiredService<IHttpService>();
         var version = await httpService.GetAsync<string>(new ParameterOption(config.GiteeVersionUrl));
         if (!version.IsSuccess) version = await httpService.GetAsync<string>(new ParameterOption(config.GithubVersionUrl));
