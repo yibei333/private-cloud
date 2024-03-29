@@ -108,6 +108,12 @@ export default {
             }
 
             if (this.isClient) {
+                for (let i = 0; i < this.options.networks.length; i++) {
+                    let network = this.options.networks[i];
+                    if (network.value && network.value != '' && !network.value.startsWith('http://') && !network.value.startsWith('https://')) {
+                        network.value = `http://${network.value}`;
+                    }
+                }
                 let networks = this.options.networks.filter(x => x.isSelected);
                 let api = networks.length > 0 ? networks[0] : null;
                 if (!api) {
