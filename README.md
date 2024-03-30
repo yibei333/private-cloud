@@ -22,9 +22,10 @@
 ### 1.1.windows（需要系统为win10及以上）
 * 找一个放置程序的目录下载并运行[deploy/windows_install_update_restart.bat脚本](https://gitee.com/developer333/private-cloud/raw/main/deploy/windows_install_update_restart.bat)。
 * 首次安装会自动下载[ffmpeg](https://gitee.com/developer333/private-cloud/releases/download/1.0/ffmpeg.windows.zip)程序。
-* 安装完成后会添加一个名称为private.cloud的服务，并且会自动打开http://localhost:9090。
-* [deploy/windows_install_update_restart.bat脚本](https://gitee.com/developer333/private-cloud/raw/main/deploy/windows_install_update_restart.bat)提供了安装，更新，重启的功能，如果需要删除服务可以手动操作也可以运行[deploy/windows_remove_service.bat脚本](https://gitee.com/developer333/private-cloud/raw/main/deploy/windows_remove_service.bat)。
-* 打开http://localhost:9090会自动跳转到登录页，页面有初始密码提示，登录成功后可以到[管理->用户管理]页面更改密码。
+* 安装完成后会添加一个名称为private.cloud的服务，并且会自动打开```http://localhost:9090```。
+* [deploy/windows_install_update_restart.bat脚本](https://gitee.com/developer333/private-cloud/raw/main/deploy/windows_install_update_restart.bat)提供了安装，更新，重启的功能。
+* 如果需要删除服务可以手动操作也可以运行[deploy/windows_remove_service.bat脚本](https://gitee.com/developer333/private-cloud/raw/main/deploy/windows_remove_service.bat)。
+* 打开```http://localhost:9090```会自动跳转到登录页，页面有初始密码提示，登录成功后可以到[管理->用户管理]页面更改密码。
 
 ### 1.2.linux
 目前只是在ubuntu20.04中做了测试，低版本可能有sqlite引用的问题，其他发行版或者docker中未进行测试。
@@ -32,8 +33,9 @@
 * 找一个放置程序的目录下载并运行[deploy/linux_install_update_restart.sh脚本](https://gitee.com/developer333/private-cloud/raw/main/deploy/linux_install_update_restart.sh)。
 * 首次运行脚本会自动下载[ffmpeg](https://gitee.com/developer333/private-cloud/releases/download/1.0/ffmpeg.linux.tar.xz)程序。
 * 脚本运行完成后会监听9090端口（采用nohup的方式运行了一个守护进程）。
-* [deploy/linux_install_update_restart.sh脚本](https://gitee.com/developer333/private-cloud/raw/main/deploy/windows_install_update_restart.sh)提供了启动，更新，重启的功能，如果需要停止程序可以手动操作也可以运行[deploy/linux_stop.sh脚本](https://gitee.com/developer333/private-cloud/raw/main/deploy/linux_stop.sh)。
-* 打开http://yourhost:9090会自动跳转到登录页，页面有初始密码提示，登录成功后可以到[管理->用户管理]页面更改密码。
+* [deploy/linux_install_update_restart.sh脚本](https://gitee.com/developer333/private-cloud/raw/main/deploy/windows_install_update_restart.sh)提供了启动，更新，重启的功能。
+* 如果需要停止程序可以手动操作也可以运行[deploy/linux_stop.sh脚本](https://gitee.com/developer333/private-cloud/raw/main/deploy/linux_stop.sh)。
+* 打开```http://yourhost:9090```会自动跳转到登录页，页面有初始密码提示，登录成功后可以到[管理->用户管理]页面更改密码。
 
 ## 2.安装客户端
 * ios和mac的支持要看maui的支持情况，并未测试。
