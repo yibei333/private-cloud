@@ -74,8 +74,8 @@ goto:eof
 
 :restartService
 	call:log restart service
-	sc stop %serviceName%
-	sc start %serviceName%
+	net stop %serviceName%
+	net start %serviceName%
 goto:eof
 
 :downloadPackage
