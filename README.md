@@ -33,7 +33,7 @@
 * 找一个放置程序的目录下载并运行[deploy/linux_install_update_restart.sh脚本](https://gitee.com/developer333/private-cloud/raw/main/deploy/linux_install_update_restart.sh)。
 * 首次运行脚本会自动下载[ffmpeg](https://gitee.com/developer333/private-cloud/releases/download/1.0/ffmpeg.linux.tar.xz)程序。
 * 脚本运行完成后会监听9090端口（采用nohup的方式运行了一个守护进程）。
-* [deploy/linux_install_update_restart.sh脚本](https://gitee.com/developer333/private-cloud/raw/main/deploy/windows_install_update_restart.sh)提供了启动，更新，重启的功能。
+* [deploy/linux_install_update_restart.sh脚本](https://gitee.com/developer333/private-cloud/raw/main/deploy/linux_install_update_restart.sh)提供了启动，更新，重启的功能。
 * 如果需要停止程序可以手动操作也可以运行[deploy/linux_stop.sh脚本](https://gitee.com/developer333/private-cloud/raw/main/deploy/linux_stop.sh)。
 * 打开```http://yourhost:9090```会自动跳转到登录页，页面有初始密码提示，登录成功后可以到[管理->用户管理]页面更改密码。
 
