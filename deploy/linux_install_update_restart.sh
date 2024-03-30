@@ -116,6 +116,7 @@ setFfmpeg(){
 
     mkdir -p bin/data/ffmpeg
     tar -xf ffmpeg.linux.tar.xz -C bin/data/ffmpeg
+    sudo chmod +x bin/data/ffmpeg/ffmpeg
 }
 
 startProcess(){
