@@ -184,7 +184,6 @@ public class MediaLibController(
     }
 
     [HttpPost]
-    [Authorize(Roles = StaticNames.AdminName)]
     [Route("token")]
     public Result<string> GetToken([FromBody] MediaLibTokenRequest request)
     {
