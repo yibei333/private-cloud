@@ -8,7 +8,6 @@ using SharpDevLib.Extensions.Model;
 
 namespace PrivateCloud.Server.Controllers;
 
-[Authorize(Roles = StaticNames.AdminName)]
 public class VersionController(IServiceProvider serviceProvider, IConfiguration configuration) : BaseController(serviceProvider)
 {
     [HttpGet]
