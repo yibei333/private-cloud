@@ -13,10 +13,12 @@
 </pull-refresh>
 
 <div class="empty" v-else>
-    <div v-if="isAdmin">
-        <btn type="primary" v-on:click="goCreateMediaLib">创建一个媒体库</btn>
-    </div>
-    <div v-else>
-        联系管理员创建媒体库
-    </div>
+    <template v-if="inited">
+        <div v-if="isAdmin">
+            <btn type="primary" v-on:click="goCreateMediaLib">创建一个媒体库</btn>
+        </div>
+        <div v-else>
+            联系管理员创建媒体库
+        </div>
+    </template>
 </div>

@@ -29,7 +29,6 @@
 		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\assets\lib\xgplayer-mp4-3.0.13\index.min.js.map" Link="wwwroot\assets\lib\xgplayer-mp4-3.0.13\index.min.js.map" />
 		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\assets\lib\aes.js" Link="wwwroot\assets\lib\aes.js" />
 		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\assets\lib\axios-0.27.2.js" Link="wwwroot\assets\lib\axios-0.27.2.js" />
-		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\assets\lib\default-passive-events.js" Link="wwwroot\assets\lib\default-passive-events.js" />
 		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\assets\lib\touch-emulator.js" Link="wwwroot\assets\lib\touch-emulator.js" />
 		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\assets\lib\vue-3.2.36.js" Link="wwwroot\assets\lib\vue-3.2.36.js" />
 		<Content CopyToOutputDirectory="PreserveNewest" Include="..\PrivateCloud.Shared\assets\lib\vue-router-4.1.2.js" Link="wwwroot\assets\lib\vue-router-4.1.2.js" />

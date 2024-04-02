@@ -5,13 +5,15 @@ export default {
             folderBase64: staticImages.folder,
             queryRequest: {},
             items: [],
-            isAdmin: false
+            isAdmin: false,
+            inited: false
         }
     },
     mounted() {
         this.api = `${this.http.baseUrl}/api/medialib`;
     },
     activated() {
+        this.inited = false;
         this.init();
     },
     methods: {
@@ -22,13 +24,14 @@ export default {
         query() {
             this.http.get({ url: `${this.api}/authed` }).then(res => {
                 this.items = res.data;
-                if(this.items&&this.items.length>0){
-                    let interval=setInterval(()=>{
-                        if(this.$refs.pullRefresh){
+                this.inited = true;
+                if (this.items && this.items.length > 0) {
+                    let interval = setInterval(() => {
+                        if (this.$refs.pullRefresh) {
                             this.$refs.pullRefresh.init();
                             clearInterval(interval);
                         }
-                    },10);
+                    }, 10);
                 }
             });
         },
