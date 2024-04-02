@@ -105,6 +105,12 @@ function getUser() {
     return null;
 }
 
+function getUserIsAdminRole() {
+    let user = this.getUser();
+    let isAdmin = (user.roles?.split(',')?.filter(x => x == "Admin")?.length ?? 0) > 0;
+    return isAdmin;
+}
+
 function getToken() {
     return getUser()?.token;
 }

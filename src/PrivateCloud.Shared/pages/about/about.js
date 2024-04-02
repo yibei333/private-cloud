@@ -16,7 +16,13 @@ export default {
     },
     methods: {
         getAppInfo() {
-            if (!this.http.isClient) return;
+            if (!this.http.isClient) {
+                this.platform = "web";
+                this.http.get({ url: `${this.http.baseUrl}/api/version/last/${this.platform}` }).then(res => {
+                    this.currentVersion = res.data.version;
+                });
+                return;
+            }
             this.http.getAppInfo().then(res => {
                 this.currentVersion = res.version;
                 this.platform = res.platform;

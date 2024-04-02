@@ -15,7 +15,7 @@
     <vtable class="body">
         <template #thead>
             <th>行号</th>
-            <th>图片</th>
+            <th>封面</th>
             <th>名称</th>
             <th>路径</th>
             <th>角色</th>
@@ -56,7 +56,7 @@
 <modal title="媒体库详情" v-model:show="detailModalShow" hideSubmit cancleText="关闭">
     <fields>
         <div class="uploadField">
-            <label for="detailFieldsThumb" v-on:click="$refs.detailFieldsThumb.focus()">图片</label>
+            <label for="detailFieldsThumb" v-on:click="$refs.detailFieldsThumb.focus()">封面</label>
             <div class="content" id="detailFieldsThumb" ref="detailFieldsThumb" tabindex="1">
                 <img class="thumb" v-if="detail.thumb" v-bind:src="detail.thumb" />
                 <img class="thumb" v-else
@@ -74,32 +74,32 @@
 <modal async title="添加媒体库" v-model:show="addModalShow" v-on:submit="add">
     <fields ref="addFields">
         <div class="uploadField">
-            <label for="addFieldsThumb" v-on:click="$refs.addFieldsThumb.focus()">图片</label>
+            <label for="addFieldsThumb" v-on:click="$refs.addFieldsThumb.focus()">封面</label>
             <div class="content" id="addFieldsThumb" ref="addFieldsThumb" tabindex="1">
                 <img class="thumb" v-if="addRequest.thumb" v-bind:src="addRequest.thumb" />
                 <img class="thumb" v-else v-bind:src="folderBase64">
                 <btn v-on:click="upload(addRequest)" type="primary">上传</btn>
             </div>
         </div>
-        <field label="路径" v-model="addRequest.path" v-on:change="pathChange(addRequest)"></field>
-        <field label="名称" v-model="addRequest.name"></field>
-        <field label="角色" v-model="addRequest.allowedRoles"></field>
+        <field label="路径" tip="例如:C:\Files" v-model="addRequest.path" v-on:change="pathChange(addRequest)" required></field>
+        <field label="名称" v-model="addRequest.name" required></field>
+        <field label="角色" tip="例如:Admin,Guester。如果为空表示所有人可见" v-model="addRequest.allowedRoles" placeholder="请输入角色"></field>
     </fields>
 </modal>
 
 <modal async title="编辑媒体库" v-model:show="editModalShow" v-on:submit="edit">
     <fields ref="editFields">
         <div class="uploadField">
-            <label for="editFieldsThumb" v-on:click="$refs.editFieldsThumb.focus()">图片</label>
+            <label for="editFieldsThumb" v-on:click="$refs.editFieldsThumb.focus()">封面</label>
             <div class="content" id="editFieldsThumb" ref="editFieldsThumb" tabindex="1">
                 <img class="thumb" v-if="editRequest.thumb" v-bind:src="editRequest.thumb" />
                 <img class="thumb" v-else v-bind:src="folderBase64">
                 <btn v-on:click="upload(editRequest)" type="primary">上传</btn>
             </div>
         </div>
-        <field label="路径" v-model="editRequest.path" readonly></field>
+        <field label="路径" tip="例如:C:\Files" v-model="editRequest.path" readonly></field>
         <field label="名称" v-model="editRequest.name"></field>
-        <field label="角色" v-model="editRequest.allowedRoles"></field>
+        <field label="角色" tip="例如:Admin,Guester。如果为空表示所有人可见" v-model="editRequest.allowedRoles"></field>
     </fields>
 </modal>
 

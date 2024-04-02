@@ -1,4 +1,4 @@
-<pull-refresh v-on:refresh="query">
+<pull-refresh v-if="items&&items.length>0" ref="pullRefresh" v-on:refresh="query">
     <cols smCols="repeat(2,1fr)" mediumCols="repeat(4,1fr)" largeCols="repeat(5,1fr)" xLargeCols="repeat(7,1fr)" xxLargeCols="repeat(9,1fr)" gap="1rem">
         <div v-for="item in items" class="card" v-on:click="jump(item)">
             <div class="thumb">
@@ -11,3 +11,12 @@
         </div>
     </cols>
 </pull-refresh>
+
+<div class="empty" v-else>
+    <div v-if="isAdmin">
+        <btn type="primary" v-on:click="goCreateMediaLib">创建一个媒体库</btn>
+    </div>
+    <div v-else>
+        联系管理员创建媒体库
+    </div>
+</div>

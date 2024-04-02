@@ -71,7 +71,8 @@ export default {
             await this.getFolder();
             if (this.folderLoaded) {
                 let timer = setInterval(() => {
-                    if (this.$refs.infiniteScroll) {
+                    if (this.$refs.pullRefresh && this.$refs.infiniteScroll) {
+                        this.$refs.pullRefresh.init();
                         this.$refs.infiniteScroll.reset();
                         clearInterval(timer);
                     }

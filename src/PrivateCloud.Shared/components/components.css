@@ -287,8 +287,8 @@
     height: 100%;
     width: 100%;
     overflow: hidden;
-    top: 0;
     left: 0;
+    bottom: 0;
     background-color: var(--gray-opacity);
     z-index: 3;
     display: flex;
@@ -438,6 +438,11 @@
 .field input:focus-visible {
     border-color: var(--primary);
     outline: none;
+}
+
+.field label .tip {
+    padding: 0 .5rem;
+    color: var(--info);
 }
 
 .field label .error {

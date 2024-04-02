@@ -4,9 +4,13 @@ namespace PrivateCloud.Server.Models.Pages;
 
 public class VersionReply
 {
-    public VersionReply(VersionConfig config, string version, Platforms platform)
+    public VersionReply(string version)
     {
         Version = version;
+    }
+
+    public VersionReply(VersionConfig config, string version, Platforms platform) : this(version)
+    {
         GiteeUrl = platform == Platforms.android ? config.GiteeAndroidUrl.Replace("%version%", version) : config.GiteeWindowsUrl.Replace("%version%", version);
         GithubUrl = platform == Platforms.android ? config.GithubAndroidUrl.Replace("%version%", version) : config.GithubWindowsUrl.Replace("%version%", version);
         Name = GiteeUrl.GetFileName();

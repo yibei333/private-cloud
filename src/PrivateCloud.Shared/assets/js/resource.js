@@ -12,7 +12,7 @@ const pagesConfig = [
         name: 'mediaLib',
         text: '媒体库',
         scripts: ['/assets/lib/touch-emulator.js'],
-        components: ['pullRefresh', 'cols']
+        components: ['pullRefresh', 'cols', 'btn']
     },
     {
         type: 0,
@@ -31,9 +31,9 @@ const pagesConfig = [
         text: '播放',
         path: '/play',
         hasProps: true,
-        scripts: ['/assets/lib/touch-emulator.js', '/assets/lib/aes.js', '/assets/js/crypto.js','/assets/lib/xgplayer-3.0.13/index.min.js','/assets/lib/xgplayer-mp4-3.0.13/index.min.js','/assets/lib/xgplayer-hls.js-3.0.13/index.min.js'],
+        scripts: ['/assets/lib/touch-emulator.js', '/assets/lib/aes.js', '/assets/js/crypto.js', '/assets/lib/xgplayer-3.0.13/index.min.js', '/assets/lib/xgplayer-mp4-3.0.13/index.min.js', '/assets/lib/xgplayer-hls.js-3.0.13/index.min.js'],
         styles: ['/assets/lib/xgplayer-3.0.13/index.min.css'],
-        components: ['btn','drawer']
+        components: ['btn', 'drawer']
     },
     {
         type: 1,
@@ -73,6 +73,8 @@ const pagesConfig = [
         id: 820,
         parentId: 80,
         name: 'mediaLibManage',
+        path: '/mediaLibManage/:goAdd?',
+        hasProps: true,
         text: '媒体库管理',
         isAdmin: true,
         scripts: ['/assets/lib/aes.js', '/assets/js/crypto.js'],

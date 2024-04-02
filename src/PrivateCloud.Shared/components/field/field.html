@@ -2,6 +2,7 @@
     <label v-if="label" v-bind:for="id" class="label">
         <small v-if="required">*</small>
         {{label}}
+        <small class="tip" v-if="tip"><br>{{tip}}<br></small>
         <small class="error" v-if="error">({{error}})</small>
     </label>
     <div class="input-container">

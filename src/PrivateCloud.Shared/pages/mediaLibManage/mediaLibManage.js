@@ -1,4 +1,5 @@
 export default {
+    props: ["goAdd"],
     data() {
         return {
             folderBase64: staticImages.folder,
@@ -29,7 +30,10 @@ export default {
     },
     mounted() {
         this.api = `${this.http.baseUrl}/api/mediaLib`;
+    },
+    activated() {
         this.query();
+        if(this.goAdd) this.showAddModal();
     },
     methods: {
         query() {

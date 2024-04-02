@@ -1,8 +1,7 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using PrivateCloud.Server.Common;
 using PrivateCloud.Server.Models;
 using PrivateCloud.Server.Models.Pages;
+using SharpDevLib;
 using SharpDevLib.Extensions.Http;
 using SharpDevLib.Extensions.Model;
 
@@ -14,6 +13,14 @@ public class VersionController(IServiceProvider serviceProvider, IConfiguration 
     [Route("last/{platform}")]
     public async Task<Result<VersionReply>> GetLast(string platform)
     {
+        if (platform == "web")
+        {
+            var path = AppDomain.CurrentDomain.BaseDirectory.CombinePath("version.txt");
+            var serverVersion = "1.0";
+            if(System.IO.File.Exists(path)) serverVersion = System.IO.File.ReadAllText(path);
+            return Result.Succeed(new VersionReply(serverVersion));
+        }
+
         var platformEnum = platform.ToPlatform();
         if (platformEnum != Platforms.android && platformEnum != Platforms.windows) throw new Exception("当前只支持windows和android客户端");
 
