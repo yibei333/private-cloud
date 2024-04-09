@@ -83,11 +83,11 @@ public static class AppService
             install.PutExtra(Android.Content.Intent.ExtraNotUnknownSource, true);
             Platform.CurrentActivity?.StartActivity(install);
 #endif
-            await Toast.Make($"ÒÑ³¢ÊÔ×Ô¶¯Éı¼¶").Show();
+            await Toast.Make($"å·²å°è¯•è‡ªåŠ¨å‡çº§").Show();
         }
         catch (Exception ex)
         {
-            await Toast.Make($"Æô¶¯°²×°Ê§°Ü:{ex.Message}").Show();
+            await Toast.Make($"å¯åŠ¨å®‰è£…å¤±è´¥:{ex.Message}").Show();
         }
     }
 
