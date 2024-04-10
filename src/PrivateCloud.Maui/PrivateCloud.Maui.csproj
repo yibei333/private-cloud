@@ -32,10 +32,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <None Remove="Platforms\Android\Resources\values\provider_paths.xml" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<!-- App Icon -->
 		<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" ForegroundScale="0.5" Color="white" />
 
