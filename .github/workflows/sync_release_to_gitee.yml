@@ -1,0 +1,22 @@
+name: sync_release_to_gitee
+
+on:
+  workflow_run:
+    workflows: ["release"]
+    types: [completed]
+      
+jobs:
+  sync2gitee:
+    permissions: write-all
+    runs-on: windows-latest 
+    steps:
+    - name: getExeFile
+      run: (new-object System.Net.WebClient).DownloadFile('https://github.com/yibei333/sync-github-release-to-gitee/releases/download/1.0.0/SyncGithubReleaseToGitee.exe','./SyncGithubReleaseToGitee.exe')
+
+    - name: sync
+      env:
+        gitee_token: ${{secrets.GITEE_TOKEN}}
+        github_token: ${{secrets.GITHUB_TOKEN}}
+        repo: ${{github.repository}}
+        owner: ${{github.repository_owner}}
+      run: ./SyncGithubReleaseToGitee.exe

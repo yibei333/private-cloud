@@ -1,0 +1,37 @@
+name: release
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - pack/version.txt
+      
+jobs:
+  build:
+    permissions: write-all
+    runs-on: windows-latest 
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: SetVersion
+      id: SetVersion
+      run: |
+        echo "version=$(cat ./pack/version.txt)" >> $ENV:GITHUB_OUTPUT
+
+    - name: Install .NET Core
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+
+    - name: Invoke
+      run: ./pack/pack.bat
+
+    - name: release
+      uses: ncipollo/release-action@v1
+      with:
+        tag: ${{ steps.SetVersion.outputs.version }}
+        artifacts: "pack/packages/*"
+        bodyFile: "pack/change.md"
