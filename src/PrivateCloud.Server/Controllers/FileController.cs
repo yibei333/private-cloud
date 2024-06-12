@@ -124,7 +124,7 @@ public class FileController(
         });
 
         var count = list.Count;
-        var data = list.OrderByDescending(x => x.IsFolder).ThenBy(x => x.Name).Skip((request.PageIndex - 1) * request.PageSize).Take(request.PageSize).ToList();
+        var data = list.OrderByDescending(x => x.IsFolder).ThenByDescending(x=>x.Time).ThenBy(x => x.Name).Skip((request.PageIndex - 1) * request.PageSize).Take(request.PageSize).ToList();
         SetEntryThumbInfo(data);
         if (!mediaLib.IsEncrypt) thumbTaskService.ScanTaskToWriteAsync(request.IdPath);
         return Result.SucceedPage(data, count, request.PageIndex, request.PageSize);
