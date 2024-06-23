@@ -124,7 +124,18 @@ public class FileController(
         });
 
         var count = list.Count;
-        var data = list.OrderByDescending(x => x.IsFolder).ThenByDescending(x=>x.Time).ThenBy(x => x.Name).Skip((request.PageIndex - 1) * request.PageSize).Take(request.PageSize).ToList();
+        var query = list.OrderByDescending(x => x.IsFolder);
+        if (request.SortField == "名称")
+        {
+            if (request.SortDescending == "是") list = list.OrderByDescending(x => x.IsFolder).ThenByDescending(x => x.Name).ToList();
+            else list = list.OrderByDescending(x => x.IsFolder).ThenBy(x => x.Name).ToList();
+        }
+        if (request.SortField == "时间")
+        {
+            if (request.SortDescending == "是") list = list.OrderByDescending(x => x.IsFolder).ThenByDescending(x => x.Time).ToList();
+            else list = list.OrderByDescending(x => x.IsFolder).ThenBy(x => x.Time).ToList();
+        }
+        var data = list.Skip((request.PageIndex - 1) * request.PageSize).Take(request.PageSize).ToList();
         SetEntryThumbInfo(data);
         if (!mediaLib.IsEncrypt) thumbTaskService.ScanTaskToWriteAsync(request.IdPath);
         return Result.SucceedPage(data, count, request.PageIndex, request.PageSize);

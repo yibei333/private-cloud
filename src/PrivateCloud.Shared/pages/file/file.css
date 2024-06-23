@@ -51,6 +51,39 @@
     grid-row: 2;
 }
 
+.large-layout .file-page .path{
+    display: grid;
+    grid-template-columns: 1fr auto;
+}
+
+.small-layout .file-page .path{
+    display: block;
+}
+
+.file-page .path .paginationInfo {
+    display: inline-block;
+}
+
+.file-page .path .left {
+    display: flex;
+    align-items: center;
+}
+
+.file-page .path .right {
+    display: flex;
+    gap: .3rem;
+    align-items: center;
+}
+
+.file-page .path .right select{
+    padding: .2rem .5rem;
+    outline: none;
+    cursor: pointer;
+    border: 1px solid #ccc;
+    border-radius: .2rem;
+    margin-top: 4px;
+}
+
 .file-page .path .item,
 .file-page .path .content,
 .file-page .path .splitor {

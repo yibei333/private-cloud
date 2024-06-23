@@ -9,6 +9,8 @@ public class GetEntriesRequest : PageRequest
 {
     public string IdPath { get; set; }
     public string Name { get; set; }
+    public string SortField { get; set; }
+    public string SortDescending { get; set; }
 }
 
 public class CreateFolderRequest : NameRequest

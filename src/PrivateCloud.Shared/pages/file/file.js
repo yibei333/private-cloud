@@ -36,7 +36,11 @@ export default {
             downloadingProgress: null,
             keyShow: false,
             key: null,
-            detailShow: false
+            detailShow: false,
+            sortField: '名称',
+            sortDescending: '否',
+            sortFields: ['名称', '时间'],
+            sortDescendings: ['是', '否']
         }
     },
     beforeRouteLeave(to, from) {
@@ -54,6 +58,8 @@ export default {
     mounted() {
         this.api = `${this.http.baseUrl}/api/file`;
         this.idPath = getIdPathByFileId(this.id);
+        this.sortField = localStorage.getItem('sortField') ?? '名称';
+        this.sortDescending = localStorage.getItem('sortDescending') ?? '否';
         this.init();
     },
     methods: {
@@ -64,7 +70,9 @@ export default {
                 idPath: this.idPath,
                 name: name,
                 pageIndex: 1,
-                pageSize: 20
+                pageSize: 20,
+                sortField: this.sortField,
+                sortDescending: this.sortDescending,
             }
             this.items = [];
             this.folderLoaded = false;
@@ -107,6 +115,11 @@ export default {
                 this.request.pageIndex++;
                 return res.data;
             });
+        },
+        sortFieldChanged() {
+            localStorage.setItem('sortField', this.sortField);
+            localStorage.setItem('sortDescending', this.sortDescending);
+            this.init(this.request.name);
         },
         loadMore(state) {
             if (!this.folderLoaded) return;

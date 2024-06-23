@@ -28,18 +28,30 @@
             </field>
         </div>
         <div class="path">
-            <div class="item">
-                <div class="content" v-on:click="jump(true,folder.mediaLibIdPath)"> {{folder.mediaLibName}} </div>
+            <div class="left">
+                <div class="item">
+                    <div class="content" v-on:click="jump(true,folder.mediaLibIdPath)"> {{folder.mediaLibName}} </div>
+                </div>
+                <div v-for="item in folder.parents" class="item">
+                    <div class="splitor">/</div>
+                    <div class="content" v-on:click="jump(true,item.idPath)">{{item.name}}</div>
+                </div>
+                <div v-if="!folder.isRoot" class="item">
+                    <div class="splitor">/</div>
+                    <div class="content disabled">{{folder.name}}</div>
+                </div>
+                <div class="paginationInfo">(分页:{{Math.min(request.pageIndex,pageCount)}}/{{pageCount}})</div>
             </div>
-            <div v-for="item in folder.parents" class="item">
-                <div class="splitor">/</div>
-                <div class="content" v-on:click="jump(true,item.idPath)">{{item.name}}</div>
+            <div class="right">
+                <label>排序字段:</label>
+                <select v-model="sortField" v-on:change="sortFieldChanged">
+                    <option v-for="item in sortFields" v-model:value="item">{{item}}</option>
+                </select>
+                <label>是否倒序:</label>
+                <select v-model="sortDescending" v-on:change="sortFieldChanged">
+                    <option v-for="item in sortDescendings" v-model:value="item">{{item}}</option>
+                </select>
             </div>
-            <div v-if="!folder.isRoot" class="item">
-                <div class="splitor">/</div>
-                <div class="content disabled">{{folder.name}}</div>
-            </div>
-            (分页:{{Math.min(request.pageIndex,pageCount)}}/{{pageCount}})
         </div>
         <div v-if="uploadingProgress" class="progress upload">
             <div class="bar" v-bind:style="{width:uploadingProgress+'%'}"></div>
