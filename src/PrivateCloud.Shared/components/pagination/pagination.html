@@ -13,7 +13,7 @@
         <div class="label" v-if="!isSmall">页码:</div>
         <btn size="small" type="primary" v-on:click='pre' v-bind:disabled="preDisabled">上一页</btn>
         <div>
-            <input name="页码" v-bind:disabled="pageCount==1" type="number" min="1" v-bind:max="pageCount" v-model="index" v-on:input="indexChanged" />
+            <input name="页码" v-bind:disabled="pageCount==1" type="number" min="0" v-bind:max="pageCount" v-model="index" v-on:input="indexChanged" />
             <div class="label">&nbsp;/&nbsp;{{pageCount}}</div>
         </div>
         <btn size="small" type="primary" v-on:click='next' v-bind:disabled="nextDisabled">下一页</btn>

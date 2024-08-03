@@ -2,15 +2,14 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PrivateCloud.Server.Common;
+using PrivateCloud.Server.Data;
 using PrivateCloud.Server.Data.Entity;
 using PrivateCloud.Server.Exceptions;
 using PrivateCloud.Server.Models;
 using SharpDevLib;
-using SharpDevLib.Extensions.Data;
-using SharpDevLib.Extensions.Encryption;
-using SharpDevLib.Extensions.Jwt;
+using SharpDevLib.Cryptography;
 using System.Security.Claims;
-using System.Text;
+using System.Security.Cryptography;
 
 namespace PrivateCloud.Server.Controllers;
 
@@ -23,10 +22,7 @@ public abstract class BaseController : ControllerBase
     protected readonly ILogger _logger;
     protected readonly IMapper _mapper;
     protected readonly IConfiguration _configuration;
-    protected readonly IEncryption _encryption;
-    protected readonly IEncryptionTransform<AesEncryptOption, AesDecryptOption> _aes;
-    protected readonly IJwtService _jwtService;
-    protected readonly IRepository<MediaLibEntity> _mediaLibRepository;
+    protected readonly DataContext _dbContext;
     private bool _userSeted;
     private LocalPaylod _currentUser;
 
@@ -36,10 +32,7 @@ public abstract class BaseController : ControllerBase
         _logger = serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger(GetType());
         _mapper = serviceProvider.GetRequiredService<IMapper>();
         _configuration = serviceProvider.GetRequiredService<IConfiguration>();
-        _encryption = serviceProvider.GetRequiredService<IEncryption>();
-        _aes = _encryption.Symmetric.Aes;
-        _jwtService = serviceProvider.GetRequiredService<IJwtService>();
-        _mediaLibRepository = serviceProvider.GetRequiredService<IRepository<MediaLibEntity>>();
+        _dbContext = serviceProvider.GetRequiredService<DataContext>();
     }
 
     protected LocalPaylod CurrentUser
@@ -65,14 +58,14 @@ public abstract class BaseController : ControllerBase
     protected IdPath BuildIdPathModel(string idPath, out MediaLibEntity mediaLib)
     {
         var idPathModel = new IdPath(idPath);
-        mediaLib = _mediaLibRepository.Get(x => x.Id == idPathModel.MediaLibId) ?? throw new MediaLibNotFoundException();
+        mediaLib = _dbContext.MediaLib.FirstOrDefault(x => x.Id == idPathModel.MediaLibId) ?? throw new MediaLibNotFoundException();
         EnsureMediaLibAuth(mediaLib);
         return idPathModel;
     }
 
     protected void EnsureMediaLibAuth(MediaLibEntity mediaLib)
     {
-        if (mediaLib.AllowedRoles.NotEmpty())
+        if (mediaLib.AllowedRoles.NotNullOrEmpty())
         {
             if (mediaLib.AllowedRoles.StringArrayMatch(CurrentUser?.Roles).Count == 0) throw new MediaLibUnAuthorizedException();
         }
@@ -80,16 +73,19 @@ public abstract class BaseController : ControllerBase
         if (mediaLib.IsEncrypt)
         {
             var token = HttpContext.GetValueFromHeaderOrQueryStringOrCookie(StaticNames.MediaLibTokenHeaderName);
-            if (token.IsEmpty()) throw new MediaLibUnAuthorizedException();
+            if (token.IsNullOrWhiteSpace()) throw new MediaLibUnAuthorizedException();
 
             var jwtKey = _configuration.GetValue<string>(StaticNames.JwtKeyName);
-            var verifyResult = _jwtService.Verify(new JwtVerifyOption(token, jwtKey));
+            var verifyResult = Jwt.Verify(new JwtVerifyWithHMACSHA256Request(token, jwtKey.Utf8Decode()));
             if (!verifyResult.IsVerified) throw new MediaLibUnAuthorizedException();
 
             var payload = verifyResult.Payload?.DeSerialize<MediaLibPayload>() ?? null;
             if (payload is null || payload.MediaLibId != mediaLib.Id) throw new MediaLibUnAuthorizedException();
 
-            var key = Encoding.UTF8.GetString(_encryption.Symmetric.Aes.Decrypt(payload.Key, new AesDecryptOption(jwtKey, CryptoExtension.ZeroAesIVBtyes)));
+            using var aes = Aes.Create();
+            aes.SetIV(CryptoExtension.ZeroAesIVBtyes);
+            aes.SetKey(jwtKey.Utf8Decode());
+            var key = aes.Decrypt(payload.Key.Base64Decode()).Utf8Encode();
             if (key != mediaLib.EncryptedKey) throw new MediaLibUnAuthorizedException();
         }
     }
@@ -98,7 +94,7 @@ public abstract class BaseController : ControllerBase
     {
         var contentType = fileName.GetMimeType();
         if (!contentType.Contains(";charset=")) contentType += ";charset=utf-8";
-        Response.Headers.Append("Content-Disposition", $"inline;filename={fileName.UrlEncode()}");
+        Response.Headers.Append("Content-Disposition", $"inline;filename={fileName.Utf8Decode().UrlEncode()}");
         if (tryOpen) return File(stream, contentType, true);
         return File(stream, contentType, fileName, true);
     }

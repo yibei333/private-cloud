@@ -1,5 +1,3 @@
-using SharpDevLib.Extensions.Data;
-
 namespace PrivateCloud.Server.Data.Entity;
 
 public class ForeverRecordEntity : BaseEntity

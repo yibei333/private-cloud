@@ -5,36 +5,34 @@ using PrivateCloud.Server.Exceptions;
 using PrivateCloud.Server.Models;
 using PrivateCloud.Server.Models.Pages;
 using SharpDevLib;
-using SharpDevLib.Extensions.Data;
-using SharpDevLib.Extensions.Model;
 
 namespace PrivateCloud.Server.Controllers;
 
-public class ForeverRecordController(IServiceProvider serviceProvider, IRepository<ForeverRecordEntity> repository) : BaseController(serviceProvider)
+public class ForeverRecordController(IServiceProvider serviceProvider) : BaseController(serviceProvider)
 {
     [HttpGet]
-    public PageResult<ForeverRecordReply> Get([FromQuery] ForeverRecordRequest request)
+    public PageReply<ForeverRecordDto> Get([FromQuery] ForeverRecordRequest request)
     {
-        var records = repository.GetAll().ToList();
-        var query = _mapper.Map<List<ForeverRecordReply>>(records);
-        if (request.Name.NotEmpty()) query = query.Where(x => x.Name.Contains(request.Name, StringComparison.OrdinalIgnoreCase)).ToList();
+        var records = _dbContext.ForeverRecord.ToList();
+        var query = _mapper.Map<List<ForeverRecordDto>>(records);
+        if (request.Name.NotNullOrEmpty()) query = query.Where(x => x.Name.Contains(request.Name, StringComparison.OrdinalIgnoreCase)).ToList();
 
         var count = query.Count;
-        var data = query.OrderByDescending(x => x.CreateTime).Skip((request.PageIndex - 1) * request.PageSize).Take(request.PageSize).ToList();
-        return Result.SucceedPage(data, count, request.PageIndex, request.PageSize);
+        var data = query.OrderByDescending(x => x.CreateTime).Skip(request.Index * request.Size).Take(request.Size).ToList();
+        return PageReply<ForeverRecordDto>.Succeed(data, count, request);
     }
 
     [HttpGet("{idPath}")]
-    public Result<string> Get(string idPath)
+    public DataReply<string> Get(string idPath)
     {
         var idPathModel = BuildIdPathModel(idPath, out var mediaLib);
         if (idPathModel.IsEncrypt) throw new EncryptFileNotSupportException();
 
-        var entity = repository.Get(x => x.IdPath == idPathModel.Value);
+        var entity = _dbContext.ForeverRecord.FirstOrDefault(x => x.IdPath == idPathModel.Value);
         if (entity is null)
         {
             var salt = Guid.NewGuid();
-            var sinature = $"{mediaLib.Id}{idPathModel.RelativePath}{salt}".SHA256Hash();
+            var sinature = $"{mediaLib.Id}{idPathModel.RelativePath}{salt}".Utf8Decode().Sha256();
             entity = new ForeverRecordEntity
             {
                 MediaLibId = mediaLib.Id,
@@ -43,9 +41,10 @@ public class ForeverRecordController(IServiceProvider serviceProvider, IReposito
                 Salt = salt,
                 Signature = sinature
             };
-            repository.Add(entity);
+            _dbContext.ForeverRecord.Add(entity);
+            _dbContext.SaveChanges();
         }
-        return Result.Succeed<string>(entity.Signature);
+        return DataReply<string>.Succeed(entity.Signature);
     }
 
     [HttpGet]
@@ -53,7 +52,7 @@ public class ForeverRecordController(IServiceProvider serviceProvider, IReposito
     [AllowAnonymous]
     public FileResult GetFile(string signature)
     {
-        var entity = repository.Get(x => x.Signature == signature) ?? throw new DataNotFoundException();
+        var entity = _dbContext.ForeverRecord.FirstOrDefault(x => x.Signature == signature) ?? throw new DataNotFoundException();
         var idPathModel = new IdPath(entity.IdPath);
         if (idPathModel.IsEncrypt) throw new NotSupportedException();
         var fileInfo = new FileInfo(idPathModel.AbsolutePath);
@@ -62,11 +61,12 @@ public class ForeverRecordController(IServiceProvider serviceProvider, IReposito
     }
 
     [HttpDelete("{id}")]
-    public Result Delete(Guid id)
+    public EmptyReply Delete(Guid id)
     {
-        var entity = repository.Get(x => x.Id == id);
-        if (entity is null) return Result.Succeed();
-        repository.Remove(entity);
-        return Result.Succeed();
+        var entity = _dbContext.ForeverRecord.FirstOrDefault(x => x.Id == id);
+        if (entity is null) return EmptyReply.Succeed();
+        _dbContext.ForeverRecord.Remove(entity);
+        _dbContext.SaveChanges();
+        return EmptyReply.Succeed();
     }
 }

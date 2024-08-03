@@ -2,47 +2,44 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PrivateCloud.Server.Common;
-using PrivateCloud.Server.Data.Entity;
 using PrivateCloud.Server.Exceptions;
 using PrivateCloud.Server.Models;
 using PrivateCloud.Server.Models.Pages;
 using SharpDevLib;
-using SharpDevLib.Extensions.Data;
-using SharpDevLib.Extensions.Jwt;
-using SharpDevLib.Extensions.Model;
+using SharpDevLib.Cryptography;
 
 namespace PrivateCloud.Server.Controllers;
 
-public class LoginController(IServiceProvider serviceProvider, IRepository<UserEntity> userRepository, IJwtService jwtService) : BaseController(serviceProvider)
+public class LoginController(IServiceProvider serviceProvider) : BaseController(serviceProvider)
 {
     [HttpGet]
     [AllowAnonymous]
     [Route("notice")]
-    public Result<List<string>> GetNotice()
+    public DataReply<List<string>> GetNotice()
     {
         var result = new List<string>();
 
         if (System.IO.File.Exists(Statics.AdminPasswordPath))
         {
             var initPassword = System.IO.File.ReadAllText(Statics.AdminPasswordPath);
-            var adminUser = userRepository.Get(x => x.Name == StaticNames.AdminName);
+            var adminUser = _dbContext.User.FirstOrDefault(x => x.Name == StaticNames.AdminName);
             if (adminUser is not null)
             {
                 var password = adminUser.Salt.PasswordHash(initPassword);
                 if (password == adminUser.Password) result.Add($"你可以在'{Statics.AdminPasswordPath}'中找到初始用户'Admin'的密码,登录成功后请修改初始密码");
             }
         }
-        return Result.Succeed(result);
+        return DataReply<List<string>>.Succeed(result);
     }
 
     [HttpPost]
     [AllowAnonymous]
-    public Result<LocalPaylod> Post([FromBody] LoginRequest request)
+    public DataReply<LocalPaylod> Post([FromBody] LoginRequest request)
     {
-        if (request.Name.IsEmpty()) throw new ParameterRequiredException(nameof(request.Name));
-        if (request.Password.IsEmpty()) throw new ParameterRequiredException(nameof(request.Password));
+        if (request.Name.IsNullOrWhiteSpace()) throw new ParameterRequiredException(nameof(request.Name));
+        if (request.Password.IsNullOrWhiteSpace()) throw new ParameterRequiredException(nameof(request.Password));
 
-        var user = userRepository.Get(x => x.Name == request.Name) ?? throw new UserNotFoundException();
+        var user = _dbContext.User.FirstOrDefault(x => x.Name == request.Name) ?? throw new UserNotFoundException();
         if (user.IsForbidden) throw new UserForbiddenException();
 
         var password = user.Salt.PasswordHash(request.Password);
@@ -52,34 +49,37 @@ public class LoginController(IServiceProvider serviceProvider, IRepository<UserE
             if (user.LoginFailCount > 5)
             {
                 user.IsForbidden = true;
-                userRepository.Update(user);
+                _dbContext.User.Update(user);
+                _dbContext.SaveChanges();
                 throw new MaliciousRequestException();
             }
             else
             {
-                userRepository.Update(user);
+                _dbContext.User.Update(user);
+                _dbContext.SaveChanges();
                 throw new PasswordErrorException();
             }
         }
         if (user.LoginFailCount > 0)
         {
             user.LoginFailCount = 0;
-            userRepository.Update(user);
+            _dbContext.User.Update(user);
+            _dbContext.SaveChanges();
         }
 
         var expire = DateTime.UtcNow.AddHours(_configuration.GetValue<int>(StaticNames.LoginExpireHourName));
         var cryptoId = Guid.NewGuid().ToString();
         var payload = new LocalPaylod(user.Id, user.Name, cryptoId, user.Roles, expire.ToUtcTimestamp(), null);
-        payload.Token = jwtService.Create(new JwtCreateOption(JwtAlgorithm.HS256, _configuration.GetValue<string>(StaticNames.JwtKeyName), payload));
-        return Result.Succeed(payload);
+        payload.Token = Jwt.Create(new JwtCreateWithHMACSHA256Request(payload, _configuration.GetValue<string>(StaticNames.JwtKeyName).Utf8Decode()));
+        return DataReply<LocalPaylod>.Succeed(payload);
     }
 
     [HttpPost]
     [AllowAnonymous]
     [Route("logout")]
-    public async Task<Result> PostAsync()
+    public async Task<EmptyReply> PostAsync()
     {
         await HttpContext.SignOutAsync(StaticNames.TokenSchemeName);
-        return Result.Succeed();
+        return EmptyReply.Succeed();
     }
 }

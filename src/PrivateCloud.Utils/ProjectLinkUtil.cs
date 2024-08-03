@@ -9,7 +9,7 @@ public static class ProjectLinkUtil
     {
         var sourceDirectory = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory.CombinePath($"../../../../PrivateCloud.Shared"));
         var exceptDirectories = new List<DirectoryInfo>();
-       
+
         var exceptFiles = new List<FileInfo>
         {
             new(sourceDirectory.FullName.CombinePath("/services/httpService.js"))

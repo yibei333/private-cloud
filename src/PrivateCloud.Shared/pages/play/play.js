@@ -86,7 +86,17 @@ export default {
             else if (this.file.current.playType == 'img') this.imgReset();
         },
         query() {
-            return this.http.get({ isEncrypt: true, idPath: this.id, url: `${this.api}/file/${this.id}` }).then(res => this.file = res.data);
+            let option = {
+                url: `${this.api}/file`,
+                data: {
+                    idPath: this.id,
+                    sortField: localStorage.getItem('sortField') ?? '名称',
+                    sortDescending: localStorage.getItem('sortDescending') ?? '否'
+                },
+                isEncrypt: true,
+                idPath: this.id
+            };
+            return this.http.get(option).then(res => this.file = res.data);
         },
         async setSource() {
             if (this.file.current.playType == '') return;

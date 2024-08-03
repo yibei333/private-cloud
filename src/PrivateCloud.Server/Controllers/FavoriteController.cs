@@ -5,29 +5,26 @@ using PrivateCloud.Server.Exceptions;
 using PrivateCloud.Server.Models;
 using PrivateCloud.Server.Models.Pages;
 using SharpDevLib;
-using SharpDevLib.Extensions.Data;
-using SharpDevLib.Extensions.Model;
-using SixLabors.ImageSharp;
 
 namespace PrivateCloud.Server.Controllers;
 
-public class FavoriteController(IServiceProvider serviceProvider, IRepository<FavoriteEntity> repository, IRepository<ThumbEntity> thumbRepository, IRepository<MediaLibEntity> mediaLibRepository) : BaseController(serviceProvider)
+public class FavoriteController(IServiceProvider serviceProvider) : BaseController(serviceProvider)
 {
     [HttpGet]
-    public PageResult<FavoriteReply> Get([FromQuery] FavoriteQueryRequest request)
+    public PageReply<FavoriteDto> Get([FromQuery] FavoriteQueryRequest request)
     {
-        var query = repository.GetAll();
-        if (request.Name.NotEmpty()) query = query.Where(x => x.Name.ToLower().Contains(request.Name.ToLower()));
+        var query = _dbContext.Favorite.AsQueryable();
+        if (request.Name.NotNullOrEmpty()) query = query.Where(x => x.Name.ToLower().Contains(request.Name.ToLower()));
         var count = query.Count();
-        var data = query.OrderByDescending(x => x.IsFolder).ThenBy(x => x.Name).Skip((request.PageIndex - 1) * request.PageSize).Take(request.PageSize).ToList();
-        var result = _mapper.Map<List<FavoriteReply>>(data);
+        var data = query.OrderByDescending(x => x.IsFolder).ThenBy(x => x.Name).Skip(request.Index * request.Size).Take(request.Size).ToList();
+        var result = _mapper.Map<List<FavoriteDto>>(data);
         SetExtraInfo(result);
-        return Result.SucceedPage(result, count, request.PageIndex, request.PageSize);
+        return PageReply<FavoriteDto>.Succeed(result, count, request);
     }
 
-    void SetExtraInfo(List<FavoriteReply> entries)
+    void SetExtraInfo(List<FavoriteDto> entries)
     {
-        if (entries.IsEmpty()) return;
+        if (entries.IsNullOrEmpty()) return;
         entries.ForEach(x =>
         {
             var model = new IdPath(x.IdPath);
@@ -37,9 +34,9 @@ public class FavoriteController(IServiceProvider serviceProvider, IRepository<Fa
             x.MediaLibId = model.MediaLibId;
         });
         var idPathList = entries.Where(x => !x.IsEncrypt).Select(x => x.IdPath).ToList();
-        var thumbs = thumbRepository.GetMany(x => idPathList.Contains(x.IdPath)).ToList();
+        var thumbs = _dbContext.Thumb.Where(x => idPathList.Contains(x.IdPath)).ToList();
         var mediaLibIds = entries.Select(x => x.MediaLibId).Distinct().ToList();
-        var mediaLibs = mediaLibRepository.GetMany(x => mediaLibIds.Contains(x.Id)).ToList();
+        var mediaLibs = _dbContext.MediaLib.Where(x => mediaLibIds.Contains(x.Id)).ToList();
         entries.ForEach(entry =>
         {
             entry.MediaLibName = mediaLibs.FirstOrDefault(x => x.Id == entry.MediaLibId)?.Name;
@@ -63,13 +60,13 @@ public class FavoriteController(IServiceProvider serviceProvider, IRepository<Fa
     }
 
     [HttpPost("{idPath}")]
-    public Result<string> Post(string idPath, [FromBody] FavoriteAddRequest request)
+    public DataReply<string> Post(string idPath, [FromBody] FavoriteAddRequest request)
     {
         var idPathModel = BuildIdPathModel(idPath, out var mediaLib);
-        if (request.Name.IsEmpty()) throw new ParameterRequiredException(nameof(request.Name));
+        if (request.Name.IsNullOrWhiteSpace()) throw new ParameterRequiredException(nameof(request.Name));
 
-        var oldEntities = repository.GetMany(x => x.UserId == CurrentUser.Id && x.IdPath == idPath).ToList();
-        repository.RemoveRange(oldEntities);
+        var oldEntities = _dbContext.Favorite.Where(x => x.UserId == CurrentUser.Id && x.IdPath == idPath).ToList();
+        _dbContext.Favorite.RemoveRange(oldEntities);
 
         var entity = new FavoriteEntity
         {
@@ -79,16 +76,18 @@ public class FavoriteController(IServiceProvider serviceProvider, IRepository<Fa
             IdPath = idPathModel.Value,
             UserId = CurrentUser.Id,
         };
-        repository.Add(entity);
-        return Result.Succeed<string>(entity.Id.ToString());
+        _dbContext.Favorite.Add(entity);
+        _dbContext.SaveChanges();
+        return DataReply<string>.Succeed(entity.Id.ToString());
     }
 
     [HttpDelete("{id}")]
-    public Result Delete(Guid id)
+    public EmptyReply Delete(Guid id)
     {
-        var entity = repository.Get(x => x.Id == id);
-        if (entity is null) return Result.Succeed();
-        repository.Remove(entity);
-        return Result.Succeed();
+        var entity = _dbContext.Favorite.FirstOrDefault(x => x.Id == id);
+        if (entity is null) return EmptyReply.Succeed();
+        _dbContext.Favorite.Remove(entity);
+        _dbContext.SaveChanges();
+        return EmptyReply.Succeed();
     }
 }

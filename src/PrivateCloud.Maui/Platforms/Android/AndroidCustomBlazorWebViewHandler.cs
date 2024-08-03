@@ -1,16 +1,15 @@
 using Android.App;
-using Android.Graphics;
-using Android.Webkit;
-using Android.Views;
-using Microsoft.AspNetCore.Components.WebView.Maui;
-using Android.Widget;
-using Android.OS;
 using Android.Content.Res;
-
-using PM = Android.Content.PM;
-using View = Android.Views.View;
+using Android.Graphics;
+using Android.OS;
+using Android.Views;
+using Android.Webkit;
+using Android.Widget;
+using Microsoft.AspNetCore.Components.WebView.Maui;
 using BuildVersionCodes = Android.OS.BuildVersionCodes;
 using Color = Android.Graphics.Color;
+using PM = Android.Content.PM;
+using View = Android.Views.View;
 
 namespace PrivateCloud.Maui.Platforms.Android;
 

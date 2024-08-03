@@ -1,9 +1,9 @@
 using Microsoft.Extensions.Logging;
-using NLog.Extensions.Logging;
 using NLog;
-using SharpDevLib.Extensions.Http;
+using NLog.Extensions.Logging;
 using NLog.Targets;
 using SharpDevLib;
+using SharpDevLib.Transport;
 using System.Diagnostics;
 
 namespace PrivateCloud.Maui.Extensions;
@@ -48,7 +48,7 @@ public static class AppExtension
 
     public static MauiAppBuilder ConfigServices(this MauiAppBuilder builder)
     {
-        builder.Services.AddHttp();
+        builder.Services.AddHttpService();
         return builder;
     }
 }

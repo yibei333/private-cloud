@@ -22,7 +22,7 @@ public class FfmpegService(ILogger<FfmpegService> logger, IConfiguration configu
         new FileInfo(partFilePath).Directory.Create();
 
         var args = $" -i \"{inputFile}\" -start_number 0 -hls_list_size 0 -f hls -hls_time 20 -hls_base_url \"{partFileBaseUrl}\" -hls_segment_filename \"{partFilePath}\" \"{hlsFilePath}\"";
-        if (keyInfoPath.NotEmpty()) args = $" -i \"{inputFile}\" -start_number 0 -hls_list_size 0 -f hls -hls_time 20 -hls_key_info_file \"{keyInfoPath}\" -hls_base_url \"{partFileBaseUrl}\" -hls_segment_filename \"{partFilePath}\" \"{hlsFilePath}\"";
+        if (keyInfoPath.NotNullOrEmpty()) args = $" -i \"{inputFile}\" -start_number 0 -hls_list_size 0 -f hls -hls_time 20 -hls_key_info_file \"{keyInfoPath}\" -hls_base_url \"{partFileBaseUrl}\" -hls_segment_filename \"{partFilePath}\" \"{hlsFilePath}\"";
         await _engine.ExecuteAsync(args, Statics.AppCancellationTokenSource.Token);
     }
 
@@ -58,7 +58,7 @@ public class FfmpegService(ILogger<FfmpegService> logger, IConfiguration configu
         if (Directory.Exists(folder)) Directory.Delete(folder, true);
         if (File.Exists(thumbPath)) File.Delete(thumbPath);
         if (File.Exists(gifPath)) File.Delete(gifPath);
-        folder.EnsureDirectoryExist();
+        folder.CreateDirectoryIfNotExist();
         var gridImageColumn = configuration.GetValue<int?>("GridImageColumn") ?? 2;
 
         //get thumb list
@@ -136,7 +136,7 @@ public class FfmpegService(ILogger<FfmpegService> logger, IConfiguration configu
 
     private void Check(Guid id)
     {
-        var fullPath = Statics.GetFfmpegPath()?? throw new Exception($"在文件夹'{Statics.FfmpegFolder}'中找不到ffmpeg执行程序"); ;
+        var fullPath = Statics.GetFfmpegPath() ?? throw new Exception($"在文件夹'{Statics.FfmpegFolder}'中找不到ffmpeg执行程序"); ;
         if (_engine is null)
         {
             _engine = new Engine(fullPath);

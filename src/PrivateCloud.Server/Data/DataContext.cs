@@ -1,11 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using PrivateCloud.Server.Data.Entity;
-using SharpDevLib.Extensions.Data;
 
 namespace PrivateCloud.Server.Data;
 
-public class DataContext(DbContextOptions<DataContext> options) : DbContext(options), IDbContext
+public class DataContext(DbContextOptions<DataContext> options) : DbContext(options)
 {
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

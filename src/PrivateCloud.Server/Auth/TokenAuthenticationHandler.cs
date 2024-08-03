@@ -3,14 +3,13 @@ using Microsoft.Extensions.Options;
 using PrivateCloud.Server.Common;
 using PrivateCloud.Server.Models;
 using SharpDevLib;
-using SharpDevLib.Extensions.Jwt;
+using SharpDevLib.Cryptography;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
 
 namespace PrivateCloud.Server.Auth;
 
 public class TokenAuthenticationHandler(
-    IJwtService jwtService,
     IConfiguration configuration,
     IOptionsMonitor<AuthenticationSchemeOptions> options,
     ILoggerFactory logger,
@@ -28,9 +27,9 @@ public class TokenAuthenticationHandler(
         if (!Scheme.Name.Equals(StaticNames.TokenSchemeName)) return noResult;
 
         var token = Context.GetValueFromHeaderOrQueryStringOrCookie(StaticNames.TokenSchemeName);
-        if (token.IsEmpty()) return noResult;
+        if (token.IsNullOrWhiteSpace()) return noResult;
 
-        var jwtResult = jwtService.Verify(new JwtVerifyOption(token, configuration.GetValue<string>(StaticNames.JwtKeyName)));
+        var jwtResult = Jwt.Verify(new JwtVerifyWithHMACSHA256Request(token, configuration.GetValue<string>(StaticNames.JwtKeyName).Utf8Decode()));
         if (!jwtResult.IsVerified) return noResult;
 
         var payload = jwtResult.Payload.DeSerialize<LocalPaylod>();

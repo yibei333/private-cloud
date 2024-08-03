@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization.Infrastructure;
-using PrivateCloud.Server.Common;
 using SharpDevLib;
 using System.Security.Claims;
 
@@ -16,7 +15,7 @@ public class RoleAuthorizeHandler() : AuthorizationHandler<RolesAuthorizationReq
             context.Fail();
             return Task.CompletedTask;
         }
-        if (requirement.AllowedRoles.NotEmpty())
+        if (requirement.AllowedRoles.NotNullOrEmpty())
         {
             var currentRoles = claims.FirstOrDefault(x => x.Type == ClaimTypes.Role)?.Value?.SplitToList() ?? [];
             var isMatch = requirement.AllowedRoles.Any(x => currentRoles.Contains(x, StringComparer.OrdinalIgnoreCase));

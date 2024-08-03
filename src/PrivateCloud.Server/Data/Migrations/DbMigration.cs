@@ -1,16 +1,16 @@
+using Microsoft.EntityFrameworkCore;
 using PrivateCloud.Server.Common;
 using PrivateCloud.Server.Data.Entity;
-using SharpDevLib;
-using SharpDevLib.Extensions.Data;
 
 namespace PrivateCloud.Server.Data.Migrations;
 
-public class DbMigration(DataContext dbContext) : DataMigration<DataContext>(dbContext)
+public class DbMigration(DataContext dbContext)
 {
     private readonly DataContext dbContext = dbContext;
 
-    public override void Seed()
+    public void Migrate()
     {
+        dbContext.Database.Migrate();
         if (!dbContext.User.Any())
         {
             var salt = Guid.NewGuid().ToString();

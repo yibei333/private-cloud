@@ -1,11 +1,11 @@
 using Hangfire;
 using PrivateCloud.Server.Common;
+using PrivateCloud.Server.Data;
 using PrivateCloud.Server.Data.Entity;
 using PrivateCloud.Server.Models;
 using SharpDevLib;
-using SharpDevLib.Extensions.Data;
-using SharpDevLib.Extensions.Encryption;
-using SixLabors.ImageSharp;
+using SharpDevLib.Cryptography;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace PrivateCloud.Server.Services;
@@ -16,21 +16,15 @@ public class CryptoTaskService
     private static bool _running = false;
 
     readonly FfmpegService ffmpegService;
-    readonly IEncryption encryption;
     readonly ILogger<CryptoTaskService> logger;
-    readonly IRepository<EncryptedFileEntity> encryptedFileRepository;
-    readonly IRepository<MediaLibEntity> mediaLibRepository;
-    readonly IRepository<CryptoTaskEntity> cryptoTaskRepository;
+    readonly DataContext dbContext;
 
     public CryptoTaskService(IServiceProvider serviceProvider)
     {
         var provider = serviceProvider.CreateScope().ServiceProvider;
         ffmpegService = provider.GetRequiredService<FfmpegService>();
-        encryption = provider.GetRequiredService<IEncryption>();
         logger = provider.GetRequiredService<ILogger<CryptoTaskService>>();
-        encryptedFileRepository = provider.GetRequiredService<IRepository<EncryptedFileEntity>>();
-        cryptoTaskRepository = provider.GetRequiredService<IRepository<CryptoTaskEntity>>();
-        mediaLibRepository = provider.GetRequiredService<IRepository<MediaLibEntity>>();
+        dbContext = provider.GetRequiredService<DataContext>();
     }
 
     public async Task ScanToProcessCryptoTask()
@@ -41,7 +35,7 @@ public class CryptoTaskService
             _running = true;
         }
 
-        var task = cryptoTaskRepository.GetMany(x => x.HandleCount <= Statics.TaskMaxHandleCount).OrderBy(x => x.Id).FirstOrDefault();
+        var task = dbContext.CryptoTask.Where(x => x.HandleCount <= Statics.TaskMaxHandleCount).OrderBy(x => x.Id).FirstOrDefault();
         if (task is null)
         {
             _running = false;
@@ -49,13 +43,13 @@ public class CryptoTaskService
         }
 
         await ProcessCryptoTask(task);
-        BackgroundJob.Enqueue(() => ScanToAddCryptoTask(mediaLibRepository.Get(x => x.Id == task.MediaLibId), task.Type));
+        BackgroundJob.Enqueue(() => ScanToAddCryptoTask(dbContext.MediaLib.FirstOrDefault(x => x.Id == task.MediaLibId), task.Type));
         _running = false;
     }
 
     public void ScanToAddCryptoTask(MediaLibEntity mediaLib, CryptoTaskType type)
     {
-        if (cryptoTaskRepository.Any(x => x.MediaLibId == mediaLib.Id && x.HandleCount <= Statics.TaskMaxHandleCount))
+        if (dbContext.CryptoTask.Any(x => x.MediaLibId == mediaLib.Id && x.HandleCount <= Statics.TaskMaxHandleCount))
         {
             BackgroundJob.Enqueue(() => ScanToProcessCryptoTask());
             return;
@@ -70,9 +64,9 @@ public class CryptoTaskService
         {
             var idConverters = tasks.Select(x => new { x.TaskId, NameId = Guid.TryParse(x.IsFolder ? new DirectoryInfo(x.FullName).Name : new FileInfo(x.FullName).Name, out var id) ? id : Guid.Empty }).ToList();
             var ids = idConverters.Where(x => x.NameId.NotEmpty()).Select(x => x.NameId).Distinct().ToList();
-            if (ids.NotEmpty())
+            if (ids.NotNullOrEmpty())
             {
-                var exsitedFiles = encryptedFileRepository.GetMany(x => ids.Contains(x.Id)).Select(x => x.Id).ToList();
+                var exsitedFiles = dbContext.EncryptedFile.Where(x => ids.Contains(x.Id)).Select(x => x.Id).ToList();
                 var existedTasks = (from a in tasks join b in idConverters on a.TaskId equals b.TaskId join c in exsitedFiles on b.NameId equals c select a);
                 if (existedTasks.Any()) tasks = tasks.Except(existedTasks).ToList();
             }
@@ -81,17 +75,18 @@ public class CryptoTaskService
         {
             var idConverters = tasks.Select(x => new { x.TaskId, NameId = Guid.TryParse(x.IsFolder ? new DirectoryInfo(x.FullName).Name : new FileInfo(x.FullName).Name, out var id) ? id : Guid.Empty }).ToList();
             var ids = idConverters.Where(x => x.NameId.NotEmpty()).Select(x => x.NameId).Distinct().ToList();
-            if (ids.IsEmpty()) tasks = [];
+            if (ids.IsNullOrEmpty()) tasks = [];
             else
             {
-                var exsitedFiles = encryptedFileRepository.GetMany(x => ids.Contains(x.Id)).Select(x => x.Id).ToList();
+                var exsitedFiles = dbContext.EncryptedFile.Where(x => ids.Contains(x.Id)).Select(x => x.Id).ToList();
                 tasks = (from a in tasks join b in idConverters on a.TaskId equals b.TaskId join c in exsitedFiles on b.NameId equals c select a).ToList();
             }
         }
-        cryptoTaskRepository.AddRange(tasks.OrderBy(x => x.IsFolder).ThenByDescending(x => x.Deepth));
+        dbContext.CryptoTask.AddRange(tasks.OrderBy(x => x.IsFolder).ThenByDescending(x => x.Deepth));
 
-        var failedTasks = cryptoTaskRepository.GetMany(x => x.MediaLibId == mediaLib.Id && x.HandleCount > Statics.TaskMaxHandleCount).ToList();
-        cryptoTaskRepository.RemoveRange(failedTasks);
+        var failedTasks = dbContext.CryptoTask.Where(x => x.MediaLibId == mediaLib.Id && x.HandleCount > Statics.TaskMaxHandleCount).ToList();
+        dbContext.CryptoTask.RemoveRange(failedTasks);
+        dbContext.SaveChanges();
         BackgroundJob.Enqueue(() => ScanToProcessCryptoTask());
     }
 
@@ -113,7 +108,8 @@ public class CryptoTaskService
             if (task.Type == CryptoTaskType.Encrypt) await ProcessEncryptTask(task);
             else if (task.Type == CryptoTaskType.Decrypt) await ProcessDecryptTask(task);
 
-            cryptoTaskRepository.Remove(task);
+            dbContext.CryptoTask.Remove(task);
+            dbContext.SaveChanges();
             logger.LogInformation("处理任务【{taskId}】成功", task.Id);
         }
         catch (Exception ex)
@@ -121,7 +117,8 @@ public class CryptoTaskService
             logger.LogError(ex, "处理任务【{taskId}】失败:{message}", task.Id, ex.Message);
             task.HandleCount += 1;
             task.Message = ex.Message;
-            cryptoTaskRepository.Update(task);
+            dbContext.CryptoTask.Update(task);
+            dbContext.SaveChanges();
         }
     }
 
@@ -131,17 +128,18 @@ public class CryptoTaskService
         {
             var directoryInfo = new DirectoryInfo(task.FullName);
             var folderId = Guid.TryParse(directoryInfo.Name, out var folderNameId) ? folderNameId : Guid.Empty;
-            if (folderId.NotEmpty() && encryptedFileRepository.Any(x => x.Id == folderId)) return;
+            if (folderId.NotEmpty() && dbContext.EncryptedFile.Any(x => x.Id == folderId)) return;
             if (folderId.IsEmpty()) folderId = task.TaskId;
             var newName = directoryInfo.Parent.FullName.CombinePath(folderId.ToString());
-            encryptedFileRepository.Add(new EncryptedFileEntity { Id = folderId, Name = directoryInfo.Name, MediaLibId = task.MediaLibId });
+            dbContext.EncryptedFile.Add(new EncryptedFileEntity { Id = folderId, Name = directoryInfo.Name, MediaLibId = task.MediaLibId });
+            dbContext.SaveChanges();
             Directory.Move(task.FullName, newName);
             return;
         }
 
         var fileInfo = new FileInfo(task.FullName);
         var id = Guid.TryParse(fileInfo.Name, out var nameId) ? nameId : Guid.Empty;
-        if (id.NotEmpty() && encryptedFileRepository.Any(x => x.Id == id)) return;
+        if (id.NotEmpty() && dbContext.EncryptedFile.Any(x => x.Id == id)) return;
         if (id.IsEmpty()) id = task.TaskId;
 
         //0.解析数据
@@ -149,7 +147,9 @@ public class CryptoTaskService
         var key = Guid.NewGuid().ToString();
         var iv = CryptoExtension.GenerateAesIV();
         var ivBytes = Encoding.UTF8.GetBytes(iv);
-        var encryptionOption = new AesEncryptOption(key, ivBytes);
+        using var aes = Aes.Create();
+        aes.SetKey(key.Utf8Decode());
+        aes.SetIV(ivBytes);
         if (!fileInfo.Exists) throw new FileNotFoundException(null, task.FullName);
         var hasTempFolder = true;
 
@@ -165,12 +165,20 @@ public class CryptoTaskService
             var thumbPath = tempPath.CombinePath($"{id}.png");
             var gifPath = tempPath.CombinePath($"{id}.gif");
             var gridImagePath = tempPath.CombinePath($"{id}.grid.png");
-            var encryptedThumbPath = tempPath.CombinePath($"{id}.png.encrypted");
-            var encryptedGifPath = tempPath.CombinePath($"{id}.gif.encrypted");
-            var encryptedGridImagePath = tempPath.CombinePath($"{id}.grid.png.encrypted");
-            encryption.Symmetric.Aes.EncryptFile(thumbPath, encryptedThumbPath, encryptionOption);
-            encryption.Symmetric.Aes.EncryptFile(gifPath, encryptedGifPath, encryptionOption);
-            encryption.Symmetric.Aes.EncryptFile(gridImagePath, encryptedGridImagePath, encryptionOption);
+            using var thumbStream = new FileInfo(thumbPath).OpenOrCreate();
+            using var gifStream = new FileInfo(gifPath).OpenOrCreate();
+            using var gridImageStream = new FileInfo(gridImagePath).OpenOrCreate();
+            using var encryptedThumbStream = new FileInfo(tempPath.CombinePath($"{id}.png.encrypted")).OpenOrCreate();
+            using var encryptedGifStream = new FileInfo(tempPath.CombinePath($"{id}.gif.encrypted")).OpenOrCreate();
+            using var encryptedGridImageStream = new FileInfo(tempPath.CombinePath($"{id}.grid.png.encrypted")).OpenOrCreate();
+
+            aes.Encrypt(thumbStream, encryptedThumbStream);
+            aes.Encrypt(gifStream, encryptedGifStream);
+            aes.Encrypt(gridImageStream, encryptedGridImageStream);
+            thumbStream.Dispose();
+            gifStream.Dispose();
+            gridImageStream.Dispose();
+
             File.Delete(thumbPath);
             File.Delete(gifPath);
             File.Delete(gridImagePath);
@@ -179,16 +187,20 @@ public class CryptoTaskService
         {
             await ffmpegService.GetGifThumbAsync(id, task.FullName);
             var thumbPath = tempPath.CombinePath($"{id}.png");
-            var encryptedThumbPath = tempPath.CombinePath($"{id}.png.encrypted");
-            encryption.Symmetric.Aes.EncryptFile(thumbPath, encryptedThumbPath, encryptionOption);
+            using var thumbStream = new FileInfo(thumbPath).OpenOrCreate();
+            using var encryptedThumbStream = new FileInfo(tempPath.CombinePath($"{id}.png.encrypted")).OpenOrCreate();
+            aes.Encrypt(thumbStream, encryptedThumbStream);
+            thumbStream.Dispose();
             File.Delete(thumbPath);
         }
         else if (task.FullName.IsImage())
         {
             await ffmpegService.GetImageThumbAsync(id, task.FullName);
             var thumbPath = tempPath.CombinePath($"{id}.png");
-            var encryptedThumbPath = tempPath.CombinePath($"{id}.png.encrypted");
-            encryption.Symmetric.Aes.EncryptFile(thumbPath, encryptedThumbPath, encryptionOption);
+            using var thumbStream = new FileInfo(thumbPath).OpenOrCreate();
+            using var encryptedThumbStream = new FileInfo(tempPath.CombinePath($"{id}.png.encrypted")).OpenOrCreate();
+            aes.Encrypt(thumbStream, encryptedThumbStream);
+            thumbStream.Dispose();
             File.Delete(thumbPath);
         }
         else
@@ -204,7 +216,7 @@ public class CryptoTaskService
             var builder = new StringBuilder();
             builder.AppendLine($"/api/file/m3u8/key/{id}.key");
             builder.AppendLine(keyPath);
-            builder.AppendLine(ivBytes.ToHexString());
+            builder.AppendLine(ivBytes.HexStringEncode());
             File.WriteAllText(keyInfoPath, builder.ToString());
             File.WriteAllText(keyPath, key);
             var hlsPath = tempPath.CombinePath($"{id}.m3u8");
@@ -216,9 +228,14 @@ public class CryptoTaskService
 
         //4.加密文件
         var targetPath = tempPath.CombinePath(idString);
-        encryption.Symmetric.Aes.EncryptFile(task.FullName, targetPath, encryptionOption);
+        using var sourceStream = new FileInfo(task.FullName).OpenOrCreate();
+        using var targetStream = new FileInfo(targetPath).OpenOrCreate();
+        aes.Encrypt(sourceStream, targetStream);
+        sourceStream.Dispose();
+        targetStream.Dispose();
         File.Move(targetPath, fileInfo.Directory.FullName.CombinePath(idString), true);
-        encryptedFileRepository.Add(new EncryptedFileEntity { Id = id, IV = iv, Key = key, Name = fileInfo.Name, MediaLibId = task.MediaLibId });
+        dbContext.EncryptedFile.Add(new EncryptedFileEntity { Id = id, IV = iv, Key = key, Name = fileInfo.Name, MediaLibId = task.MediaLibId });
+        dbContext.SaveChanges();
 
         //5.清理
         fileInfo.Delete();
@@ -232,31 +249,39 @@ public class CryptoTaskService
             var directoryInfo = new DirectoryInfo(task.FullName);
             var folderId = Guid.TryParse(directoryInfo.Name, out var folderNameId) ? folderNameId : Guid.Empty;
             if (folderId.IsEmpty()) return;
-            var encryptedFolder = encryptedFileRepository.Get(x => x.Id == folderId);
+            var encryptedFolder = dbContext.EncryptedFile.FirstOrDefault(x => x.Id == folderId);
             if (encryptedFolder is null) return;
             var newPath = directoryInfo.Parent.FullName.CombinePath(encryptedFolder.Name);
             Directory.Move(task.FullName, newPath);
-            encryptedFileRepository.Remove(encryptedFolder);
+            dbContext.EncryptedFile.Remove(encryptedFolder);
+            dbContext.SaveChanges();
             return;
         }
 
         var fileInfo = new FileInfo(task.FullName);
         var id = Guid.TryParse(fileInfo.Name, out var nameId) ? nameId : Guid.Empty;
-        if (id.IsEmpty() || !encryptedFileRepository.Any(x => x.Id == id)) return;
+        if (id.IsEmpty() || !dbContext.EncryptedFile.Any(x => x.Id == id)) return;
 
-        var encryptedFile = encryptedFileRepository.Get(x => x.Id == id);
+        var encryptedFile = dbContext.EncryptedFile.FirstOrDefault(x => x.Id == id);
         if (encryptedFile is null) return;
+        using var aes = Aes.Create();
+        aes.SetKey(encryptedFile.Key.Utf8Decode());
+        aes.SetIV(encryptedFile.IV.Utf8Decode());
 
         //0.解析数据
-        var decryptionOption = new AesDecryptOption(encryptedFile.Key, Encoding.UTF8.GetBytes(encryptedFile.IV));
         if (!fileInfo.Exists) throw new FileNotFoundException(null, task.FullName);
         var targetPath = fileInfo.Directory.FullName.CombinePath(encryptedFile.Name);
 
         //1.解密文件
-        encryption.Symmetric.Aes.DecryptFile(task.FullName, targetPath, decryptionOption);
+        using var sourceStream = new FileInfo(task.FullName).OpenOrCreate();
+        using var targetStream = new FileInfo(targetPath).OpenOrCreate();
+        aes.Decrypt(sourceStream, targetStream);
+        sourceStream.Dispose();
+        targetStream.Dispose();
 
         //2.清理
-        encryptedFileRepository.Remove(encryptedFile);
+        dbContext.EncryptedFile.Remove(encryptedFile);
+        dbContext.SaveChanges();
         var tempPath = Statics.TempPath.CombinePath(encryptedFile.Id.ToString());
         if (Directory.Exists(tempPath)) Directory.Delete(tempPath, true);
         File.Delete(task.FullName);

@@ -1,4 +1,4 @@
-using SharpDevLib.Extensions.Model;
+using SharpDevLib;
 
 namespace PrivateCloud.Maui.Extensions;
 

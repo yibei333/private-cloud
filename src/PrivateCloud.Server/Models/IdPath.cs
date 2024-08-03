@@ -1,8 +1,7 @@
 using PrivateCloud.Server.Common;
+using PrivateCloud.Server.Data;
 using PrivateCloud.Server.Data.Entity;
 using SharpDevLib;
-using SharpDevLib.Extensions.Data;
-using System.Text;
 
 namespace PrivateCloud.Server.Models;
 
@@ -11,7 +10,7 @@ public class IdPath
     public IdPath(string value)
     {
         Value = value;
-        var array = Encoding.UTF8.GetString(value.Trim().FromHexString()).Split(";");
+        var array = value.Trim().HexStringDecode().Utf8Encode().Split(";");
         MediaLibId = array[0].ToGuid();
         IsFolder = array[1].ToBoolean();
         MediaLibPath = array[2].FormatPath();
@@ -28,7 +27,7 @@ public class IdPath
         MediaLibPath = mediaLib.Path.FormatPath();
         AbsolutePath = fullPath.FormatPath();
         RelativePath = new DirectoryInfo(fullPath).FullName.Replace(new DirectoryInfo(mediaLib.Path).FullName, "").FormatPath();
-        Value = Encoding.UTF8.GetBytes($"{mediaLib.Id};{isFolder};{mediaLib.Path};{RelativePath};{mediaLib.IsEncrypt}").ToHexString();
+        Value = $"{mediaLib.Id};{isFolder};{mediaLib.Path};{RelativePath};{mediaLib.IsEncrypt}".Utf8Decode().HexStringEncode();
     }
 
     public string Value { get; }
@@ -40,13 +39,13 @@ public class IdPath
     public bool IsEncrypt { get; }
     public string Name => IsFolder ? new DirectoryInfo(AbsolutePath).Name : new FileInfo(AbsolutePath).Name;
 
-    public string GetThumbPath(int type,bool isGridImage, IRepository<ThumbEntity> thumbRepository)
+    public string GetThumbPath(int type, bool isGridImage, DataContext dataContext)
     {
         var id = Name;
         var extension = ".encrypted";
         if (!IsEncrypt)
         {
-            var thumb = thumbRepository.Get(x => x.IdPath == Value);
+            var thumb = dataContext.Thumb.FirstOrDefault(x => x.IdPath == Value);
             if (thumb is null) return null;
             id = thumb.Id.ToString();
             extension = string.Empty;

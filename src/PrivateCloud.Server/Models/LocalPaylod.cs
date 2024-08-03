@@ -1,8 +1,8 @@
-using SharpDevLib.Extensions.Model;
+using SharpDevLib;
 
 namespace PrivateCloud.Server.Models;
 
-public class LocalPaylod : IdNameDto
+public class LocalPaylod : IdNameDto<Guid>
 {
     public LocalPaylod()
     {

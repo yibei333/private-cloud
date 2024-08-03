@@ -118,7 +118,8 @@
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.2" />
 		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.5" />
 		<PackageReference Include="MimeTypesMap" Version="1.0.8" />
-		<PackageReference Include="SharpDevLib.Extensions" Version="1.0.7.1" />
+		<PackageReference Include="SharpDevLib" Version="2.0.0.7-alpha" />
+		<PackageReference Include="SharpDevLib.Cryptography" Version="2.0.0.5-alpha" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.2" />
 		<PackageReference Include="Serilog.AspNetCore" Version="8.0.1" />
 		<PackageReference Include="Serilog.Enrichers.Span" Version="3.1.0" />
@@ -127,7 +128,10 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="8.0.0" />
-		<PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.2" />
+		<PackageReference Include="SharpDevLib.Transport" Version="2.0.0.7-alpha" />
+		<PackageReference Include="SixLabors.Fonts" Version="2.0.4" />
+		<PackageReference Include="SixLabors.ImageSharp" Version="3.1.5" />
+		<PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.4" />
 		<PackageReference Include="xFFmpeg.NET" Version="7.2.0" />
 		<PackageReference Include="Hangfire.AspNetCore" Version="1.8.11" />
 		<PackageReference Include="Hangfire.Core" Version="1.8.11" />

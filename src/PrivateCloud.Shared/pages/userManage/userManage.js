@@ -3,8 +3,8 @@ export default {
     data() {
         return {
             queryRequest: {
-                pageIndex: 1,
-                pageSize: 20,
+                index: 0,
+                size: 20,
                 name: ''
             },
             items: [],
@@ -32,8 +32,8 @@ export default {
         query() {
             this.http.get({ url: `${this.api}`, data: this.queryRequest }).then(res => {
                 this.items = res.data;
-                this.queryRequest.pageIndex = res.pageIndex;
-                this.queryRequest.pageSize = res.pageSize;
+                this.queryRequest.index = res.index;
+                this.queryRequest.size = res.size;
                 this.pageData.total = res.total;
                 this.pageData.pageCount = res.pageCount;
             });

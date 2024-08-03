@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using SharpDevLib;
-using SharpDevLib.Extensions.Model;
 
 namespace PrivateCloud.Server.Filters;
 
@@ -16,8 +15,8 @@ public class FailFilter(ILogger<FailFilter> logger) : IResultFilter
 
     public void OnResultExecuting(ResultExecutingContext context)
     {
-        var result = (context.Result as ObjectResult)?.Value as Result;
-        if (result.NotNull() && !result!.Success)
+        var result = (context.Result as ObjectResult)?.Value as BaseReply;
+        if (result is not null && !result!.Success)
         {
             context.HttpContext.Response.StatusCode = 500;
             _logger.LogError("result failed:{error}", result.Description);

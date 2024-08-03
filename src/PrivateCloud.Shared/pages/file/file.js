@@ -69,8 +69,8 @@ export default {
             this.request = {
                 idPath: this.idPath,
                 name: name,
-                pageIndex: 1,
-                pageSize: 20,
+                index: 0,
+                size: 20,
                 sortField: this.sortField,
                 sortDescending: this.sortDescending,
             }
@@ -112,7 +112,7 @@ export default {
                 for (let i = 0; i < data.length; i++) {
                     this.items.push(data[i]);
                 }
-                this.request.pageIndex++;
+                this.request.index++;
                 return res.data;
             });
         },
@@ -124,8 +124,8 @@ export default {
         loadMore(state) {
             if (!this.folderLoaded) return;
             this.getEntries().then(data => {
-                if (data.length >= this.request.pageSize) state.loaded();
-                else state.complete();
+                if (this.request.index >= (this.pageCount - 1)) state.complete();
+                else state.loading();
             }).catch(() => state.error());
         },
         showOperation(item) {

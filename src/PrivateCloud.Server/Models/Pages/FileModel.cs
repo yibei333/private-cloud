@@ -1,7 +1,6 @@
 using PrivateCloud.Server.Common;
 using PrivateCloud.Server.Data.Entity;
 using SharpDevLib;
-using SharpDevLib.Extensions.Model;
 
 namespace PrivateCloud.Server.Models.Pages;
 
@@ -9,6 +8,13 @@ public class GetEntriesRequest : PageRequest
 {
     public string IdPath { get; set; }
     public string Name { get; set; }
+    public string SortField { get; set; }
+    public string SortDescending { get; set; }
+}
+
+public class GetFileRequest : BaseRequest
+{
+    public string IdPath { get; set; }
     public string SortField { get; set; }
     public string SortDescending { get; set; }
 }
@@ -23,9 +29,9 @@ public class RenameRequest : NameRequest
     public bool IsFolder { get; set; }
 }
 
-public class FolderReply : IdNameRequest
+public class FolderDto : IdNameRequest<Guid>
 {
-    public FolderReply(MediaLibEntity mediaLib, IdPath idPathModel)
+    public FolderDto(MediaLibEntity mediaLib, IdPath idPathModel)
     {
         MediaLibId = mediaLib.Id;
         MediaLibName = mediaLib.Name;
@@ -34,7 +40,7 @@ public class FolderReply : IdNameRequest
         Id = idPathModel.Name.ToGuid();
         Name = idPathModel.Name;
         IdPath = idPathModel.Value;
-        IsRoot = idPathModel.RelativePath.IsEmpty();
+        IsRoot = idPathModel.RelativePath.IsNullOrWhiteSpace();
     }
 
     public Guid MediaLibId { get; }
@@ -43,12 +49,12 @@ public class FolderReply : IdNameRequest
     public string IdPath { get; }
     public bool IsRoot { get; }
     public bool IsEncrypt { get; }
-    public List<FileParentReply> Parents { get; } = [];
+    public List<FileParentDto> Parents { get; } = [];
 }
 
-public class FileParentReply : IdNameRequest
+public class FileParentDto : IdNameRequest<Guid>
 {
-    public FileParentReply(IdPath idPathModel)
+    public FileParentDto(IdPath idPathModel)
     {
         Id = idPathModel.Name.ToGuid();
         Name = idPathModel.Name;
@@ -60,20 +66,20 @@ public class FileParentReply : IdNameRequest
     public Guid MediaLibId { get; }
 }
 
-public class FileReply
+public class FileDto
 {
     public int Total { get; set; }
     public int Index { get; set; }
     public bool HasNext => Next is not null;
     public bool HasPre => Pre is not null;
-    public EntryReply Current { get; set; }
-    public EntryReply Next { get; set; }
-    public EntryReply Pre { get; set; }
+    public EntryDto Current { get; set; }
+    public EntryDto Next { get; set; }
+    public EntryDto Pre { get; set; }
 }
 
-public class EntryReply : IdNameRequest
+public class EntryDto : IdNameRequest<Guid>
 {
-    public EntryReply(IdPath idPathModel)
+    public EntryDto(IdPath idPathModel)
     {
         var fileInfo = new FileInfo(idPathModel.AbsolutePath);
         var directoryInfo = new DirectoryInfo(idPathModel.AbsolutePath);
@@ -84,7 +90,7 @@ public class EntryReply : IdNameRequest
         MediaLibId = idPathModel.MediaLibId;
         IsFolder = idPathModel.IsFolder;
         IdPath = idPathModel.Value;
-        Time = (IsFolder ? directoryInfo.LastWriteTime : fileInfo.LastWriteTime).ToUtcTimestamp().ToLocalTimeString();
+        Time = (IsFolder ? directoryInfo.LastWriteTime : fileInfo.LastWriteTime).ToTimeString();
         Size = IsFolder ? 0 : fileInfo.Length;
         IsEncrypt = idPathModel.IsEncrypt;
         RelativePath = idPathModel.RelativePath;
@@ -97,8 +103,8 @@ public class EntryReply : IdNameRequest
     public string ParentIdPath { get; set; }
     public string Time { get; }
     public long Size { get; }
-    public string SizeText => Size.GetSize();
-    public string Type => IsFolder ? string.Empty : Name.GetFileExtension();
+    public string SizeText => Size.ToFileSizeString();
+    public string Type => IsFolder ? string.Empty : Name.GetFileExtension(false);
     public string PlayType => IsFolder ? "" : (IsEncrypt && Name.IsVideo() ? "video" : Name.PlayType());
     public bool IsFavorited => FavoritedId.NotEmpty();
     public bool BigFile => Size >= Statics.BigFileSize;
@@ -114,7 +120,7 @@ public class EntryReply : IdNameRequest
     public string AbsolutePath { get; set; }
 }
 
-public class NameIdPathReply
+public class NameIdPathDto
 {
     public string Name { get; set; }
     public string IdPath { get; set; }

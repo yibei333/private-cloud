@@ -5,32 +5,29 @@ using PrivateCloud.Server.Exceptions;
 using PrivateCloud.Server.Models;
 using PrivateCloud.Server.Models.Pages;
 using SharpDevLib;
-using SharpDevLib.Extensions.Data;
-using SharpDevLib.Extensions.Model;
-using SixLabors.ImageSharp;
 
 namespace PrivateCloud.Server.Controllers;
 
-public class HistoryController(IServiceProvider serviceProvider, IRepository<HistoryEntity> repository, IRepository<ThumbEntity> thumbRepository, IRepository<MediaLibEntity> mediaLibRepository) : BaseController(serviceProvider)
+public class HistoryController(IServiceProvider serviceProvider) : BaseController(serviceProvider)
 {
     [HttpGet]
-    public PageResult<HistoryReply> Get([FromQuery] HistoryQueryRequest request)
+    public PageReply<HistoryDto> Get([FromQuery] HistoryQueryRequest request)
     {
-        var query = repository.GetMany(x => x.UserId == CurrentUser.Id);
-        if (request.Name.NotEmpty()) query = query.Where(x => x.Name.ToLower().Contains(request.Name.ToLower()));
+        var query = _dbContext.History.Where(x => x.UserId == CurrentUser.Id);
+        if (request.Name.NotNullOrEmpty()) query = query.Where(x => x.Name.ToLower().Contains(request.Name.ToLower()));
         if (request.StartTimeLong.HasValue) query = query.Where(x => x.CreateTime >= request.StartTimeLong);
         if (request.EndTimeLong.HasValue) query = query.Where(x => x.CreateTime < request.EndTimeLong);
 
         var count = query.Count();
-        var data = query.OrderByDescending(x => x.CreateTime).Skip((request.PageIndex - 1) * request.PageSize).Take(request.PageSize).ToList();
-        var result = _mapper.Map<List<HistoryReply>>(data);
+        var data = query.OrderByDescending(x => x.CreateTime).Skip(request.Index * request.Size).Take(request.Size).ToList();
+        var result = _mapper.Map<List<HistoryDto>>(data);
         SetExtraInfo(result);
-        return Result.SucceedPage(result, count, request.PageIndex, request.PageSize);
+        return PageReply<HistoryDto>.Succeed(result, count, request);
     }
 
-    void SetExtraInfo(List<HistoryReply> entries)
+    void SetExtraInfo(List<HistoryDto> entries)
     {
-        if (entries.IsEmpty()) return;
+        if (entries.IsNullOrEmpty()) return;
         entries.ForEach(x =>
         {
             var model = new IdPath(x.IdPath);
@@ -40,9 +37,9 @@ public class HistoryController(IServiceProvider serviceProvider, IRepository<His
             x.MediaLibId = model.MediaLibId;
         });
         var idPathList = entries.Where(x => !x.IsEncrypt).Select(x => x.IdPath).ToList();
-        var thumbs = thumbRepository.GetMany(x => idPathList.Contains(x.IdPath)).ToList();
+        var thumbs = _dbContext.Thumb.Where(x => idPathList.Contains(x.IdPath)).ToList();
         var mediaLibIds = entries.Select(x => x.MediaLibId).Distinct().ToList();
-        var mediaLibs = mediaLibRepository.GetMany(x => mediaLibIds.Contains(x.Id)).ToList();
+        var mediaLibs = _dbContext.MediaLib.Where(x => mediaLibIds.Contains(x.Id)).ToList();
         entries.ForEach(entry =>
         {
             entry.MediaLibName = mediaLibs.FirstOrDefault(x => x.Id == entry.MediaLibId)?.Name;
@@ -66,13 +63,13 @@ public class HistoryController(IServiceProvider serviceProvider, IRepository<His
     }
 
     [HttpPost("{idPath}")]
-    public Result Post(string idPath, [FromBody] HistoryAddRequest request)
+    public EmptyReply Post(string idPath, [FromBody] HistoryAddRequest request)
     {
-        if (request.Name.IsEmpty()) throw new ParameterRequiredException(nameof(request.Name));
+        if (request.Name.IsNullOrWhiteSpace()) throw new ParameterRequiredException(nameof(request.Name));
         var idPathModel = BuildIdPathModel(idPath, out var mediaLib);
 
-        var oldEntities = repository.GetMany(x => x.IdPath == idPath).ToList();
-        repository.RemoveRange(oldEntities);
+        var oldEntities = _dbContext.History.Where(x => x.IdPath == idPath).ToList();
+        _dbContext.History.RemoveRange(oldEntities);
 
         var entity = new HistoryEntity
         {
@@ -82,26 +79,29 @@ public class HistoryController(IServiceProvider serviceProvider, IRepository<His
             UserId = CurrentUser.Id,
             Position = request.Position,
         };
-        repository.Add(entity);
-        return Result.Succeed();
+        _dbContext.History.Add(entity);
+        _dbContext.SaveChanges();
+        return EmptyReply.Succeed();
     }
 
     [HttpDelete("{id}")]
-    public Result Delete(Guid id)
+    public EmptyReply Delete(Guid id)
     {
-        var entity = repository.Get(x => x.Id == id);
-        if (entity is null) return Result.Succeed();
-        repository.Remove(entity);
-        return Result.Succeed();
+        var entity = _dbContext.History.FirstOrDefault(x => x.Id == id);
+        if (entity is null) return EmptyReply.Succeed();
+        _dbContext.History.Remove(entity);
+        _dbContext.SaveChanges();
+        return EmptyReply.Succeed();
     }
 
     [HttpDelete]
     [Route("clear")]
-    public Result Clear()
+    public EmptyReply Clear()
     {
-        var entityList = repository.GetMany(x => x.UserId == CurrentUser.Id);
-        if (entityList.IsEmpty()) return Result.Succeed();
-        repository.RemoveRange(entityList);
-        return Result.Succeed();
+        var entityList = _dbContext.History.Where(x => x.UserId == CurrentUser.Id);
+        if (entityList.IsNullOrEmpty()) return EmptyReply.Succeed();
+        _dbContext.History.RemoveRange(entityList);
+        _dbContext.SaveChanges();
+        return EmptyReply.Succeed();
     }
 }

@@ -12,7 +12,7 @@
             </field>
         </div>
         <pull-refresh v-on:refresh="init" ref="pullRefresh">
-            <infinite-scroll v-on:load="loadMore" v-bind:identifier="request.pageIndex" v-on:retry="init" ref="infiniteScroll">
+            <infinite-scroll v-on:load="loadMore" v-bind:identifier="request.index" v-on:retry="init" ref="infiniteScroll">
                 <div v-for="item in items" v-bind:class="['file-item',item.encrypting?'encrypting':'']" v-on:click="jump(item.isFolder,item.idPath)" v-bind:key="item.key">
                     <div class="thumb">
                         <vimg v-bind:id-path="item.idPath" v-bind:base-url="http.baseUrl" height="64px" width="64px" v-bind:has-thumb="item.hasThumb" v-bind:has-large-thumb="item.hasLargeThumb" v-bind:is-encrypt="item.isEncrypt" v-bind:icon="item.icon" v-bind:mediaLibName="item.mediaLibName" v-on:mediaLibPasswordCallback="init(request.name)"></vimg>

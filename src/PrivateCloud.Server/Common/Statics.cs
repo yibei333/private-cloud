@@ -19,11 +19,11 @@ public static class Statics
 
     public static void Init()
     {
-        RootPath.EnsureDirectoryExist();
-        DBPath.EnsureDirectoryExist();
-        FfmpegFolder.EnsureDirectoryExist();
-        TempPath.EnsureDirectoryExist();
-        UserPath.EnsureDirectoryExist();
+        RootPath.CreateDirectoryIfNotExist();
+        DBPath.CreateDirectoryIfNotExist();
+        FfmpegFolder.CreateDirectoryIfNotExist();
+        TempPath.CreateDirectoryIfNotExist();
+        UserPath.CreateDirectoryIfNotExist();
     }
 
     public static string GenerateAesIV() => Guid.NewGuid().ToString().Replace("-", "")[..16];

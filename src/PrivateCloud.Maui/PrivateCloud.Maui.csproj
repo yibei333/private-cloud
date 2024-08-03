@@ -19,7 +19,7 @@
 		<ApplicationId>com.yibei.privatecloud</ApplicationId>
 
 		<!-- Versions -->
-		<ApplicationDisplayVersion>1.0.4</ApplicationDisplayVersion>
+		<ApplicationDisplayVersion>1.0.5</ApplicationDisplayVersion>
 		<ApplicationVersion>1</ApplicationVersion>
 
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">14.2</SupportedOSPlatformVersion>
@@ -49,8 +49,8 @@
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
 		<PackageReference Include="NLog.Extensions.Logging" Version="5.3.8" />
 		<PackageReference Include="NLog.Targets.MauiLog" Version="8.0.0" />
-		<PackageReference Include="SharpDevLib.Extensions" Version="1.0.7.1" />
-		<PackageReference Include="SixLabors.ImageSharp" Version="3.1.3" />
+		<PackageReference Include="SharpDevLib" Version="2.0.0.5-alpha" />
+		<PackageReference Include="SharpDevLib.Transport" Version="2.0.0.7-alpha" />
 		<PackageReference Include="System.Drawing.Common" Version="8.0.3" />
 		<PackageReference Include="System.Net.Http" Version="4.3.4" />
 		<PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />

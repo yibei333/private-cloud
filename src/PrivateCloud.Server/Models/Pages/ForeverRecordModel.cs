@@ -1,7 +1,6 @@
 using AutoMapper;
 using PrivateCloud.Server.Data.Entity;
 using SharpDevLib;
-using SharpDevLib.Extensions.Model;
 
 namespace PrivateCloud.Server.Models.Pages;
 
@@ -9,7 +8,7 @@ public class ForeverRecordMap : Profile
 {
     public ForeverRecordMap()
     {
-        CreateMap<ForeverRecordEntity, ForeverRecordReply>();
+        CreateMap<ForeverRecordEntity, ForeverRecordDto>();
     }
 }
 
@@ -18,10 +17,10 @@ public class ForeverRecordRequest : PageRequest
     public string Name { get; set; }
 }
 
-public class ForeverRecordReply : IdRequest
+public class ForeverRecordDto : IdDto<Guid>
 {
     public long CreateTime { get; set; }
-    public string Time => CreateTime.ToLocalTimeString();
+    public string Time => CreateTime.ToUtcTime().ToTimeString();
     public Guid MediaLibId { get; set; }
     public string IdPath { get; set; }
     public Guid UserId { get; set; }

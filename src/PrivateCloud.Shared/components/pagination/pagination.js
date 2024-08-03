@@ -2,7 +2,7 @@ export default {
     props: {
         index: {
             type: Number,
-            default: 1,
+            default: 0,
         },
         size: {
             type: Number,
@@ -28,7 +28,7 @@ export default {
     ],
     watch: {
         index() {
-            if (this.index <= 0) this.index = 1;
+            if (this.index < 0) this.index = 0;
             else if (this.index > this.pageCount) this.index = this.pageCount;
             else this.calc();
         },
@@ -63,8 +63,8 @@ export default {
     methods: {
         indexChanged(e) {
             let value = e.target.value;
-            if (!value || value == '' || value <= 0) {
-                this.$emit('update:index', 1);
+            if (!value || value == '' || value < 0) {
+                this.$emit('update:index', 0);
             }
             else if (value > this.pageCount) {
                 this.$emit('update:index', this.pageCount);
@@ -77,10 +77,10 @@ export default {
             this.$emit('changed');
         },
         calc() {
-            this.start = (this.index - 1) * this.size + 1;
+            this.start = this.index * this.size + 1;
             this.end = (this.index) * this.size;
             if (this.end > this.count) this.end = this.count;
-            this.preDisabled = this.pageCount <= 0 || this.index <= 1;
+            this.preDisabled = this.pageCount <= 0 || this.index <= 0;
             this.nextDisabled = this.pageCount <= 0 || this.index >= this.pageCount;
         },
         pre() {

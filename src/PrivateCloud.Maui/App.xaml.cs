@@ -8,7 +8,7 @@ public partial class App : Application
 
     public static Logger Logger => LogManager.GetCurrentClassLogger();
 
-    public static bool IsWebHandleBack { get;set; }
+    public static bool IsWebHandleBack { get; set; }
 
     public App()
     {

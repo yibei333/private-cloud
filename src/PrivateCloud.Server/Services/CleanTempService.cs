@@ -1,34 +1,28 @@
 using PrivateCloud.Server.Common;
+using PrivateCloud.Server.Data;
 using PrivateCloud.Server.Data.Entity;
 using SharpDevLib;
-using SharpDevLib.Extensions.Data;
 
 namespace PrivateCloud.Server.Services;
 
 public class CleanTempService
 {
-    readonly IRepository<MediaLibEntity> mediaLibRepository;
-    readonly IRepository<ThumbEntity> thumbRepository;
-    readonly IRepository<EncryptedFileEntity> encryptedFileRepository;
-    readonly IRepository<CryptoTaskEntity> cryptoTaskRepository;
     readonly CryptoTaskService cryptoTaskService;
+    readonly DataContext dbContext;
 
     public CleanTempService(IServiceProvider serviceProvider)
     {
         var provider = serviceProvider.CreateScope().ServiceProvider;
-        mediaLibRepository = provider.GetRequiredService<IRepository<MediaLibEntity>>();
-        thumbRepository = provider.GetRequiredService<IRepository<ThumbEntity>>();
-        encryptedFileRepository = provider.GetRequiredService<IRepository<EncryptedFileEntity>>();
-        cryptoTaskRepository = provider.GetRequiredService<IRepository<CryptoTaskEntity>>();
         cryptoTaskService = provider.GetRequiredService<CryptoTaskService>();
+        dbContext = provider.GetRequiredService<DataContext>();
     }
 
     public async void CleanTemp()
     {
         await Task.Factory.StartNew(async () =>
         {
-            var thumbList = thumbRepository.GetAll().ToList();
-            var encryptedFileList = encryptedFileRepository.GetAll().ToList();
+            var thumbList = dbContext.Thumb.ToList();
+            var encryptedFileList = dbContext.EncryptedFile.ToList();
             var directory = new DirectoryInfo(Statics.TempPath);
             var directories = directory.GetDirectories().ToList();
 
@@ -40,30 +34,32 @@ public class CleanTempService
             directories.Except(directories.Where(x => sameIds.Contains(x.Name.ToGuid()))).Where(x => x.Exists).ToList().ForEach(x => x.Delete(true));
 
             //clean thumb table
-            thumbRepository.RemoveRange(thumbList.Except(thumbList.Where(x => sameIds.Contains(x.Id))));
+            dbContext.Thumb.RemoveRange(thumbList.Except(thumbList.Where(x => sameIds.Contains(x.Id))));
 
             //decrypt or remove encrypted file
             var encryptedHandles = encryptedFileList.Except(encryptedFileList.Where(x => sameIds.Contains(x.Id))).ToList();
             if (encryptedHandles.Count != 0)
             {
-                var mediaLibs = mediaLibRepository.GetMany(x => x.IsEncrypt).ToList();
+                var mediaLibs = dbContext.MediaLib.Where(x => x.IsEncrypt).ToList();
                 encryptedHandles.ForEach(x =>
                 {
                     var mediaLib = mediaLibs.FirstOrDefault(y => x.MediaLibId == y.Id);
                     var mediaLibDirectory = new DirectoryInfo(mediaLib.Path);
-                    if (mediaLibDirectory.GetDirectories(x.Id.ToString(), SearchOption.AllDirectories).Any()) return;
+                    if (mediaLibDirectory.GetDirectories(x.Id.ToString(), SearchOption.AllDirectories).Length > 0) return;
                     var files = mediaLibDirectory.GetFiles(x.Id.ToString(), SearchOption.AllDirectories);
                     if (mediaLib is null || !mediaLibDirectory.Exists || files.Length <= 0)
                     {
-                        encryptedFileRepository.Remove(x);
+                        dbContext.EncryptedFile.Remove(x);
                     }
                     else
                     {
-                        cryptoTaskRepository.AddRange(files.Select(y => new CryptoTaskEntity { MediaLibId = x.MediaLibId, FullName = y.FullName, Type = Models.CryptoTaskType.Decrypt, IsFolder = false }));
+                        dbContext.CryptoTask.AddRange(files.Select(y => new CryptoTaskEntity { MediaLibId = x.MediaLibId, FullName = y.FullName, Type = Models.CryptoTaskType.Decrypt, IsFolder = false }));
                     }
                 });
                 await cryptoTaskService.ScanToProcessCryptoTask();
             }
+
+            dbContext.SaveChanges();
         });
     }
 }

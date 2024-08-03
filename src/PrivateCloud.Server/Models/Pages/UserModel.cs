@@ -1,6 +1,6 @@
 using AutoMapper;
 using PrivateCloud.Server.Data.Entity;
-using SharpDevLib.Extensions.Model;
+using SharpDevLib;
 
 namespace PrivateCloud.Server.Models.Pages;
 
@@ -8,7 +8,7 @@ public class UserMap : Profile
 {
     public UserMap()
     {
-        CreateMap<UserEntity, UserReply>();
+        CreateMap<UserEntity, UserDto>();
     }
 }
 
@@ -30,7 +30,7 @@ public class UserModifyRequest : NameRequest
     public bool IsForbidden { get; set; }
 }
 
-public class UserReply : IdNameDto
+public class UserDto : IdNameDto<Guid>
 {
     public string Roles { get; set; }
     public string CreateTime { get; set; }

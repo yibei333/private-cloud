@@ -2,8 +2,9 @@ using Hangfire.Dashboard;
 using PrivateCloud.Server.Common;
 using PrivateCloud.Server.Models;
 using SharpDevLib;
-using SharpDevLib.Extensions.Jwt;
+using SharpDevLib.Cryptography;
 using System.Security.Claims;
+using System.Web;
 
 namespace PrivateCloud.Server.Auth;
 
@@ -25,15 +26,14 @@ public class HangfireAuthFilter : IDashboardAuthorizationFilter
             var httpContext = context.GetHttpContext();
             if (httpContext.Request.Headers.TryGetValue("Referer", out var referer))
             {
-                var token = new Uri(referer).ParseQueryString()[StaticNames.TokenSchemeName];
-                var jwtService = httpContext.RequestServices.GetRequiredService<IJwtService>();
+                var token = HttpUtility.ParseQueryString(referer)[StaticNames.TokenSchemeName];
                 var configuration = httpContext.RequestServices.GetRequiredService<IConfiguration>();
 
-                var jwtResult = jwtService.Verify(new JwtVerifyOption(token, configuration.GetValue<string>(StaticNames.JwtKeyName)));
+                var jwtResult = Jwt.Verify(new JwtVerifyWithHMACSHA256Request(token, configuration.GetValue<string>(StaticNames.JwtKeyName).Utf8Decode()));
                 if (jwtResult.IsVerified)
                 {
                     var payload = jwtResult.Payload.DeSerialize<LocalPaylod>();
-                    if (payload.NotNull() && payload.Expire > DateTime.Now.ToUtcTimestamp()) return payload.Roles;
+                    if (payload is not null && payload.Expire > DateTime.Now.ToUtcTimestamp()) return payload.Roles;
                 }
             }
         }

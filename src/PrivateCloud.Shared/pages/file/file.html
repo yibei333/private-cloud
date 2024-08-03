@@ -40,7 +40,7 @@
                     <div class="splitor">/</div>
                     <div class="content disabled">{{folder.name}}</div>
                 </div>
-                <div class="paginationInfo">(分页:{{Math.min(request.pageIndex,pageCount)}}/{{pageCount}})</div>
+                <div class="paginationInfo">(分页:{{Math.min(request.index,pageCount)}}/{{pageCount}})</div>
             </div>
             <div class="right">
                 <label>排序字段:</label>
@@ -62,7 +62,7 @@
             <div class="txt">下载进度:{{downloadingProgress}}%</div>
         </div>
         <pull-refresh v-on:refresh="init" ref="pullRefresh">
-            <infinite-scroll v-if="folderLoaded" v-on:load="loadMore" v-bind:identifier="request.pageIndex" v-on:retry="init" ref="infiniteScroll">
+            <infinite-scroll v-if="folderLoaded" v-on:load="loadMore" v-bind:identifier="request.index" v-on:retry="init" ref="infiniteScroll">
                 <div v-for="item in items" v-bind:class="['file-item',item.encrypting?'encrypting':'']" v-on:click="jump(item.isFolder,item.idPath,item.encrypting)" v-bind:key="item.key">
                     <div class="thumb">
                         <svg v-if="item.isFavorited" class="favorite" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">

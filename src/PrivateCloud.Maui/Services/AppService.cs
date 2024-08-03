@@ -1,7 +1,6 @@
 using CommunityToolkit.Maui.Alerts;
 using Microsoft.JSInterop;
 using SharpDevLib;
-using SharpDevLib.Extensions.Model;
 using System.Text;
 
 #if WINDOWS
@@ -22,14 +21,14 @@ public static class AppService
     [JSInvokable]
     public static async void SetLoginPassword(KeyValueDto namePassword)
     {
-        if (namePassword.Key.IsEmpty() || namePassword.Value.IsEmpty()) return;
+        if (namePassword.Key.IsNullOrWhiteSpace() || namePassword.Value.IsNullOrWhiteSpace()) return;
         await SecureStorage.Default.SetAsync($"password_{namePassword.Key}", namePassword.Value);
     }
 
     [JSInvokable]
     public static async Task<string> GetLoginPassword(string name)
     {
-        if (name.IsEmpty()) return string.Empty;
+        if (name.IsNullOrWhiteSpace()) return string.Empty;
         return (await SecureStorage.Default.GetAsync($"password_{name}")) ?? string.Empty;
     }
 
@@ -48,16 +47,16 @@ public static class AppService
     }
 
     [JSInvokable]
-    public static async Task<Result> SetClipboard(string text)
+    public static async Task<EmptyReply> SetClipboard(string text)
     {
         try
         {
             await Clipboard.Default.SetTextAsync(text);
-            return Result.Succeed();
+            return EmptyReply.Succeed();
         }
         catch (Exception ex)
         {
-            return Result.Failed(ex.Message);
+            return EmptyReply.Failed(ex.Message);
         }
     }
 

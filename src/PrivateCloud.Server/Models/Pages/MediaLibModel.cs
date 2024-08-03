@@ -1,6 +1,6 @@
 using AutoMapper;
 using PrivateCloud.Server.Data.Entity;
-using SharpDevLib.Extensions.Model;
+using SharpDevLib;
 
 namespace PrivateCloud.Server.Models.Pages;
 
@@ -8,7 +8,7 @@ public class MediaLibMap : Profile
 {
     public MediaLibMap()
     {
-        CreateMap<MediaLibEntity, MediaLibReply>();
+        CreateMap<MediaLibEntity, MediaLibDto>();
     }
 }
 
@@ -42,7 +42,7 @@ public class MediaLibTokenRequest
     public string Token { get; set; }
 }
 
-public class MediaLibReply : IdNameDto
+public class MediaLibDto : IdNameDto<Guid>
 {
     public string Path { get; set; }
     public string CreateTime { get; set; }

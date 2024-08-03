@@ -1,22 +1,17 @@
-using PrivateCloud.Server.Common;
+using SharpDevLib;
 
 namespace PrivateCloud.Server.Models.Pages;
 
-public class VersionReply
+public class VersionDto(string version)
 {
-    public VersionReply(string version)
-    {
-        Version = version;
-    }
-
-    public VersionReply(VersionConfig config, string version, Platforms platform) : this(version)
+    public VersionDto(VersionConfig config, string version, Platforms platform) : this(version)
     {
         GiteeUrl = platform == Platforms.android ? config.GiteeAndroidUrl.Replace("%version%", version) : config.GiteeWindowsUrl.Replace("%version%", version);
         GithubUrl = platform == Platforms.android ? config.GithubAndroidUrl.Replace("%version%", version) : config.GithubWindowsUrl.Replace("%version%", version);
         Name = GiteeUrl.GetFileName();
     }
 
-    public string Version { get; }
+    public string Version { get; } = version;
     public string GiteeUrl { get; }
     public string GithubUrl { get; }
     public string Name { get; }

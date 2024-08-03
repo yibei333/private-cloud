@@ -1,7 +1,7 @@
 using CommunityToolkit.Maui.Storage;
 using Microsoft.JSInterop;
 using SharpDevLib;
-using SharpDevLib.Extensions.Http;
+using SharpDevLib.Transport;
 using System.Diagnostics;
 
 namespace PrivateCloud.Maui.Services;
@@ -9,41 +9,41 @@ namespace PrivateCloud.Maui.Services;
 public static class HttpService
 {
     [JSInvokable]
-    public static async Task<HttpResult<string>> UploadFolder(RequestOptions request)
+    public static async Task<HttpResponse<string>> UploadFolder(RequestOptions request)
     {
         var pickResult = await FolderPicker.Default.PickAsync();
-        if (!pickResult.IsSuccessful) return new HttpResult<string> { IsSuccess = true, Code = System.Net.HttpStatusCode.OK, Message = "cancle" };
+        if (!pickResult.IsSuccessful) return HttpResponse<string>.Succeed(request.Url, null, "cancel");
 
         var directory = new DirectoryInfo(pickResult.Folder.Path) ?? throw new NullReferenceException();
         var rootPath = directory.Parent?.FullName ?? string.Empty;
         var files = GetFolderFiles(rootPath, directory);
-        if (files.IsEmpty()) return new HttpResult<string> { IsSuccess = false, Code = System.Net.HttpStatusCode.InternalServerError, Message = "不支持上传空文件夹" };
+        if (files.IsNullOrEmpty()) return HttpResponse<string>.Failed(request.Url, System.Net.HttpStatusCode.InternalServerError, "不支持上传空文件夹");
 
         request.Method = "post";
-        var option = new FormOption(request.Url, files).SetOptions(request);
-        return await App.ServiceProvider.GetRequiredService<IHttpService>().PostFormAsync<string>(option);
+        var postRequest = new HttpMultiPartFormDataRequest(request.Url, files.ToArray()).SetRequest(request);
+        return await App.ServiceProvider.GetRequiredService<IHttpService>().PostAsync<string>(postRequest);
     }
 
-    private static List<FormFile> GetFolderFiles(string rootPath, DirectoryInfo directory)
+    private static List<HttpFormFile> GetFolderFiles(string rootPath, DirectoryInfo directory)
     {
         var childDirectories = directory.GetDirectories();
         var childDirecotryFiles = childDirectories.SelectMany(x => GetFolderFiles(rootPath, x));
-        var childFiles = directory.GetFiles().Select(x => new FormFile("Files", rootPath.IsEmpty() ? x.FullName : x.FullName.Replace(rootPath, ""), File.OpenRead(x.FullName)));
+        var childFiles = directory.GetFiles().Select(x => new HttpFormFile("Files", rootPath.IsNullOrWhiteSpace() ? x.FullName : x.FullName.Replace(rootPath, ""), File.OpenRead(x.FullName)));
         return childDirecotryFiles.Union(childFiles).ToList();
     }
 
     [JSInvokable]
-    public static async Task<HttpResult<string>> UploadFiles(RequestOptions request)
+    public static async Task<HttpResponse<string>> UploadFiles(RequestOptions request)
     {
         var pickResult = await FilePicker.Default.PickMultipleAsync();
-        if (!pickResult.Any()) return new HttpResult<string> { IsSuccess = true, Code = System.Net.HttpStatusCode.OK, Message = "cancle" };
+        if (!pickResult.Any()) return HttpResponse<string>.Succeed("cancel", null);
 
-        var files = pickResult.Select(x => new FormFile("Files", x.FileName, File.OpenRead(x.FullPath))).ToList();
-        if (files.IsEmpty()) return new HttpResult<string> { IsSuccess = false, Code = System.Net.HttpStatusCode.InternalServerError, Message = "没有需要上传的文件" };
+        var files = pickResult.Select(x => new HttpFormFile("Files", x.FileName, File.OpenRead(x.FullPath))).ToList();
+        if (files.IsNullOrEmpty()) return HttpResponse<string>.Failed(request.Url, System.Net.HttpStatusCode.InternalServerError, "没有需要上传的文件");
 
         request.Method = "post";
-        var option = new FormOption(request.Url, files).SetOptions(request);
-        return await App.ServiceProvider.GetRequiredService<IHttpService>().PostFormAsync<string>(option);
+        var postRequest = new HttpMultiPartFormDataRequest(request.Url, files.ToArray()).SetRequest(request);
+        return await App.ServiceProvider.GetRequiredService<IHttpService>().PostAsync<string>(postRequest);
     }
 
     [JSInvokable]
@@ -60,26 +60,33 @@ public static class HttpService
     }
 
     [JSInvokable]
-    public static async Task<HttpResult<string>> Download(RequestOptions options)
+    public static async Task<HttpResponse<string>> Download(RequestOptions options)
     {
         try
         {
-            var requestOptions = new ParameterOption(options.Url).SetOptions(options);
+            var requestOptions = new HttpKeyValueRequest(options.Url).SetRequest(options);
             var stream = await App.ServiceProvider.GetRequiredService<IHttpService>().GetStreamAsync(requestOptions);
             if (DeviceInfo.Current.Platform == DevicePlatform.Android) return await AndroidDownload(options, stream);
 
             var result = await FileSaver.Default.SaveAsync(options.Name, stream, CancellationToken.None);
             result.EnsureSuccess();
             stream.Close();
-            return new HttpResult<string> { IsSuccess = result.IsSuccessful, Data = result.FilePath, Code = result.IsSuccessful ? System.Net.HttpStatusCode.OK : System.Net.HttpStatusCode.InternalServerError, Message = result.IsSuccessful ? $"已保存在位置:{result.FilePath}" : result.Exception?.Message ?? string.Empty };
+            if (result.IsSuccessful)
+            {
+                return HttpResponse<string>.Succeed(options.Url, null, $"已保存在位置:{result.FilePath}");
+            }
+            else
+            {
+                return HttpResponse<string>.Failed(options.Url, System.Net.HttpStatusCode.InternalServerError, result.Exception?.Message ?? string.Empty);
+            }
         }
         catch (Exception ex)
         {
-            return new HttpResult<string> { IsSuccess = false, Message = ex.Message, Code = System.Net.HttpStatusCode.InternalServerError };
+            return HttpResponse<string>.Failed(options.Url, System.Net.HttpStatusCode.InternalServerError, ex.Message);
         }
     }
 
-    static async Task<HttpResult<string>> AndroidDownload(RequestOptions options, Stream stream)
+    static async Task<HttpResponse<string>> AndroidDownload(RequestOptions options, Stream stream)
     {
         try
         {
@@ -93,77 +100,77 @@ public static class HttpService
             using var fileStream = new FileStream(path, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
             await stream.CopyToAsync(fileStream);
             await fileStream.FlushAsync();
-            return new HttpResult<string> { IsSuccess = true, Data = path, Code = System.Net.HttpStatusCode.OK, Message = $"已保存在位置:{path}" };
+            return HttpResponse<string>.Succeed(options.Url, null, $"已保存在位置:{path}");
         }
         catch (Exception ex)
         {
-            return new HttpResult<string> { IsSuccess = false, Code = System.Net.HttpStatusCode.InternalServerError, Message = ex.Message };
+            return HttpResponse<string>.Failed(options.Url, System.Net.HttpStatusCode.InternalServerError, ex.Message);
         }
     }
 
     [JSInvokable]
-    public static async Task<HttpResult<string>> HttpRequest(RequestOptions options)
+    public static async Task<HttpResponse<string>> HttpRequest(RequestOptions options)
     {
         if (options.Method == "get") return await Get(options);
         else if (options.Method == "post") return await Post(options);
         else if (options.Method == "put") return await Put(options);
         else if (options.Method == "delete") return await Delete(options);
-        else return new HttpResult<string> { IsSuccess = false, Message = $"request '{options.Method}' not supported" };
+        else return HttpResponse<string>.Failed(options.Url, System.Net.HttpStatusCode.InternalServerError, $"request '{options.Method}' not supported");
     }
 
     [JSInvokable]
-    public static async Task<HttpResult<byte[]>> GetBlob(RequestOptions options)
+    public static async Task<HttpResponse<byte[]>> GetBlob(RequestOptions options)
     {
-        var requestOptions = new ParameterOption(options.Url).SetOptions(options);
+        var requestOptions = new HttpKeyValueRequest(options.Url).SetRequest(options);
         return await App.ServiceProvider.GetRequiredService<IHttpService>().GetAsync<byte[]>(requestOptions);
     }
 
-    static async Task<HttpResult<string>> Get(RequestOptions options)
+    static async Task<HttpResponse<string>> Get(RequestOptions options)
     {
-        var requestOptions = new ParameterOption(options.Url).SetOptions(options);
+        var requestOptions = new HttpKeyValueRequest(options.Url).SetRequest(options);
         return await App.ServiceProvider.GetRequiredService<IHttpService>().GetAsync<string>(requestOptions);
     }
 
-    static async Task<HttpResult<string>> Post(RequestOptions options)
+    static async Task<HttpResponse<string>> Post(RequestOptions options)
     {
-        var requestOptions = new JsonOption(options.Url, options.Data).SetOptions(options);
+        var requestOptions = new HttpJsonRequest(options.Url, options.Data).SetRequest(options);
         return await App.ServiceProvider.GetRequiredService<IHttpService>().PostAsync<string>(requestOptions);
     }
 
-    static async Task<HttpResult<string>> Put(RequestOptions options)
+    static async Task<HttpResponse<string>> Put(RequestOptions options)
     {
-        var requestOptions = new JsonOption(options.Url, options.Data).SetOptions(options);
+        var requestOptions = new HttpJsonRequest(options.Url, options.Data).SetRequest(options);
         return await App.ServiceProvider.GetRequiredService<IHttpService>().PutAsync<string>(requestOptions);
     }
 
-    static async Task<HttpResult<string>> Delete(RequestOptions options)
+    static async Task<HttpResponse<string>> Delete(RequestOptions options)
     {
-        var requestOptions = new ParameterOption(options.Url).SetOptions(options);
+        var requestOptions = new HttpKeyValueRequest(options.Url).SetRequest(options);
         return await App.ServiceProvider.GetRequiredService<IHttpService>().DeleteAsync<string>(requestOptions);
     }
 
-    static TOption SetOptions<TOption>(this TOption option, RequestOptions options) where TOption : HttpOption
+    static TRequest SetRequest<TRequest>(this TRequest request, RequestOptions options) where TRequest : HttpRequest
     {
-        option.Headers = options.Headers.ToDictionary(x => x.Key, x => x.Value);
+        request.Headers = options.Headers.ToDictionary(x => x.Key, x => new string[] { x.Value });
         if (options.OptionInstance is not null)
         {
             if (options.Method == "post")
             {
-                option.OnSendProgress = async (p) =>
+                request.OnSendProgress = async (p) =>
                 {
                     await options.OptionInstance.InvokeVoidAsync("progress", p.Progress);
                 };
             }
             else
             {
-                option.OnReceiveProgress = async (p) =>
+                request.OnReceiveProgress = async (p) =>
                 {
                     await options.OptionInstance.InvokeVoidAsync("progress", p.Progress);
                 };
             }
         }
-        if (options.Timeout.HasValue && options.Timeout > 0) option.TimeOut = TimeSpan.FromSeconds(options.Timeout.Value);
-        return option;
+        if (options.Timeout.HasValue && options.Timeout > 0) request.TimeOut = TimeSpan.FromSeconds(options.Timeout.Value);
+        return request;
     }
 }
 

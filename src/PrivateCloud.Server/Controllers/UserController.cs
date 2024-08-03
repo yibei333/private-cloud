@@ -5,58 +5,52 @@ using PrivateCloud.Server.Data.Entity;
 using PrivateCloud.Server.Exceptions;
 using PrivateCloud.Server.Models.Pages;
 using SharpDevLib;
-using SharpDevLib.Extensions.Data;
-using SharpDevLib.Extensions.Model;
 
 namespace PrivateCloud.Server.Controllers;
 
 [Authorize(Roles = StaticNames.AdminName)]
-public class UserController(
-    IServiceProvider serviceProvider,
-    IRepository<UserEntity> repository,
-    IRepository<HistoryEntity> historyRepository,
-    IRepository<FavoriteEntity> favoriteRepository
-    ) : BaseController(serviceProvider)
+public class UserController(IServiceProvider serviceProvider) : BaseController(serviceProvider)
 {
     [HttpGet]
-    public PageResult<UserReply> Get([FromQuery] UserQueryRequest request)
+    public PageReply<UserDto> Get([FromQuery] UserQueryRequest request)
     {
-        var query = repository.GetAll();
-        if (request.Name.NotEmpty()) query = query.Where(x => x.Name.ToLower().Contains(request.Name.ToLower()));
+        var query = _dbContext.User.AsQueryable();
+        if (request.Name.NotNullOrEmpty()) query = query.Where(x => x.Name.ToLower().Contains(request.Name.ToLower()));
         var count = query.Count();
-        var data = query.OrderByDescending(x => x.CreateTime).Skip((request.PageIndex - 1) * request.PageSize).Take(request.PageSize).ToList();
-        var result = _mapper.Map<List<UserReply>>(data);
-        return Result.SucceedPage(result, count, request.PageIndex, request.PageSize);
+        var data = query.OrderByDescending(x => x.CreateTime).Skip(request.Index * request.Size).Take(request.Size).ToList();
+        var result = _mapper.Map<List<UserDto>>(data);
+        return PageReply<UserDto>.Succeed(result, count, request);
     }
 
     [HttpGet("{id}")]
-    public Result<UserReply> Get(Guid id)
+    public DataReply<UserDto> Get(Guid id)
     {
-        var entity = repository.Get(x => x.Id == id) ?? throw new UserNotFoundException();
-        var result = _mapper.Map<UserReply>(entity);
-        return Result.Succeed(result);
+        var entity = _dbContext.User.FirstOrDefault(x => x.Id == id) ?? throw new UserNotFoundException();
+        var result = _mapper.Map<UserDto>(entity);
+        return DataReply<UserDto>.Succeed(result);
     }
 
     [HttpPost]
-    public Result Post([FromBody] UserAddRequest request)
+    public EmptyReply Post([FromBody] UserAddRequest request)
     {
-        if (request.Name.IsEmpty()) throw new ParameterRequiredException(nameof(request.Name));
-        if (request.Password.IsEmpty()) throw new ParameterRequiredException(nameof(request.Password));
-        if (repository.Any(x => x.Name == request.Name)) throw new NameExisteException();
+        if (request.Name.IsNullOrWhiteSpace()) throw new ParameterRequiredException(nameof(request.Name));
+        if (request.Password.IsNullOrWhiteSpace()) throw new ParameterRequiredException(nameof(request.Password));
+        if (_dbContext.User.Any(x => x.Name == request.Name)) throw new NameExisteException();
         var salt = Guid.NewGuid().ToString();
         var password = salt.PasswordHash(request.Password);
         var entity = new UserEntity { Name = request.Name, Password = password, Salt = salt, Roles = request.Roles };
-        repository.Add(entity);
-        return Result.Succeed();
+        _dbContext.User.Add(entity);
+        _dbContext.SaveChanges();
+        return EmptyReply.Succeed();
     }
 
     [HttpPut("{id}")]
-    public Result Put(Guid id, [FromBody] UserModifyRequest request)
+    public EmptyReply Put(Guid id, [FromBody] UserModifyRequest request)
     {
-        if (request.Name.IsEmpty()) throw new ParameterRequiredException(nameof(request.Name));
-        if (repository.Any(x => x.Name == request.Name && x.Id != id)) throw new NameExisteException();
-        var entity = repository.Get(x => x.Id == id) ?? throw new UserNotFoundException();
-        if (request.Password.NotEmpty())
+        if (request.Name.IsNullOrWhiteSpace()) throw new ParameterRequiredException(nameof(request.Name));
+        if (_dbContext.User.Any(x => x.Name == request.Name && x.Id != id)) throw new NameExisteException();
+        var entity = _dbContext.User.FirstOrDefault(x => x.Id == id) ?? throw new UserNotFoundException();
+        if (request.Password.NotNullOrEmpty())
         {
             var salt = Guid.NewGuid().ToString();
             var password = salt.PasswordHash(request.Password); ;
@@ -67,21 +61,23 @@ public class UserController(
         entity.Name = request.Name;
         entity.Roles = request.Roles;
         entity.IsForbidden = request.IsForbidden;
-        repository.Update(entity);
-        return Result.Succeed();
+        _dbContext.User.Update(entity);
+        _dbContext.SaveChanges();
+        return EmptyReply.Succeed();
     }
 
     [HttpDelete("{id}")]
-    public Result Delete(Guid id)
+    public EmptyReply Delete(Guid id)
     {
-        var entity = repository.Get(x => x.Id == id) ?? throw new UserNotFoundException();
-        repository.Remove(entity);
+        var entity = _dbContext.User.FirstOrDefault(x => x.Id == id) ?? throw new UserNotFoundException();
+        _dbContext.User.Remove(entity);
 
-        var favorites = favoriteRepository.GetMany(x => x.UserId == id).ToList();
-        if (favorites.NotEmpty()) favoriteRepository.RemoveRange(favorites);
+        var favorites = _dbContext.Favorite.Where(x => x.UserId == id).ToList();
+        if (favorites.NotNullOrEmpty()) _dbContext.Favorite.RemoveRange(favorites);
 
-        var histories = historyRepository.GetMany(x => x.UserId == id).ToList();
-        if (histories.NotEmpty()) historyRepository.RemoveRange(histories);
-        return Result.Succeed();
+        var histories = _dbContext.Favorite.Where(x => x.UserId == id).ToList();
+        if (histories.NotNullOrEmpty()) _dbContext.Favorite.RemoveRange(histories);
+        _dbContext.SaveChanges();
+        return EmptyReply.Succeed();
     }
 }

@@ -2,8 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using PrivateCloud.Server.Models;
 using PrivateCloud.Server.Models.Pages;
 using SharpDevLib;
-using SharpDevLib.Extensions.Http;
-using SharpDevLib.Extensions.Model;
+using SharpDevLib.Transport;
 
 namespace PrivateCloud.Server.Controllers;
 
@@ -11,14 +10,14 @@ public class VersionController(IServiceProvider serviceProvider, IConfiguration 
 {
     [HttpGet]
     [Route("last/{platform}")]
-    public async Task<Result<VersionReply>> GetLast(string platform)
+    public async Task<DataReply<VersionDto>> GetLast(string platform)
     {
         if (platform == "web")
         {
             var path = AppDomain.CurrentDomain.BaseDirectory.CombinePath("version.txt");
             var serverVersion = "1.0";
-            if(System.IO.File.Exists(path)) serverVersion = System.IO.File.ReadAllText(path);
-            return Result.Succeed(new VersionReply(serverVersion));
+            if (System.IO.File.Exists(path)) serverVersion = System.IO.File.ReadAllText(path);
+            return DataReply<VersionDto>.Succeed(new VersionDto(serverVersion));
         }
 
         var platformEnum = platform.ToPlatform();
@@ -27,9 +26,9 @@ public class VersionController(IServiceProvider serviceProvider, IConfiguration 
         var config = new VersionConfig();
         configuration.GetSection("Version").Bind(config);
         var httpService = _serviceProvider.GetRequiredService<IHttpService>();
-        var version = await httpService.GetAsync<string>(new ParameterOption(config.GiteeVersionUrl));
-        if (!version.IsSuccess) version = await httpService.GetAsync<string>(new ParameterOption(config.GithubVersionUrl));
-        if (!version.IsSuccess) return Result.Failed<VersionReply>(version.Message);
-        return Result.Succeed(new VersionReply(config, version.Data, platformEnum));
+        var version = await httpService.GetAsync<string>(new HttpKeyValueRequest(config.GiteeVersionUrl));
+        if (!version.IsSuccess) version = await httpService.GetAsync<string>(new HttpKeyValueRequest(config.GithubVersionUrl));
+        if (!version.IsSuccess) return DataReply<VersionDto>.Failed(version.Message);
+        return DataReply<VersionDto>.Succeed(new VersionDto(config, version.Data, platformEnum));
     }
 }

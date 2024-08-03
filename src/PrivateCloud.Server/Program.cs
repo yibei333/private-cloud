@@ -14,10 +14,7 @@ using PrivateCloud.Server.Services;
 using Serilog;
 using Serilog.Enrichers.Span;
 using SharpDevLib;
-using SharpDevLib.Extensions.Data;
-using SharpDevLib.Extensions.Encryption;
-using SharpDevLib.Extensions.Http;
-using SharpDevLib.Extensions.Jwt;
+using SharpDevLib.Transport;
 using System.Reflection;
 
 Statics.Init();
@@ -53,12 +50,12 @@ builder.Host.UseSerilog((context, configration) =>
 });
 builder.Host.UseWindowsService();
 builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
-builder.Services.AddData<DataContext, DbMigration>(option => option.UseSqlite(Statics.DbConnectionString));
+builder.Services.AddDbContext<DataContext>(option => option.UseSqlite(Statics.DbConnectionString));
+builder.Services.AddScoped<DbMigration>();
 builder.Services.AddTransient<FfmpegService>();
 builder.Services.AddScoped<ThumbTaskService>();
 builder.Services.AddScoped<CryptoTaskService>();
 builder.Services.AddScoped<CleanTempService>();
-builder.Services.AddEncryption();
 builder.Services.AddHangfire(configuration =>
 {
     configuration.SetDataCompatibilityLevel(CompatibilityLevel.Version_180);
@@ -69,8 +66,7 @@ builder.Services.AddHangfire(configuration =>
 });
 
 builder.Services.AddHangfireServer();
-builder.Services.AddHttp();
-builder.Services.AddJwt();
+builder.Services.AddHttpService();
 builder.Services.AddAuthentication(StaticNames.TokenSchemeName).AddScheme<AuthenticationSchemeOptions, TokenAuthenticationHandler>(StaticNames.TokenSchemeName, null);
 builder.Services.AddAuthorization();
 builder.Services.AddSingleton<IAuthorizationHandler, RoleAuthorizeHandler>();
@@ -96,7 +92,7 @@ app.UseCors(corsConfig =>
     corsConfig.AllowAnyMethod();
     corsConfig.AllowCredentials();
 });
-app.MigrateData<DataContext>();
+app.Services.CreateScope().ServiceProvider.GetRequiredService<DbMigration>().Migrate();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();

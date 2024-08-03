@@ -2,7 +2,6 @@ using AutoMapper;
 using PrivateCloud.Server.Common;
 using PrivateCloud.Server.Data.Entity;
 using SharpDevLib;
-using SharpDevLib.Extensions.Model;
 
 namespace PrivateCloud.Server.Models.Pages;
 
@@ -10,7 +9,7 @@ public class HistoryMap : Profile
 {
     public HistoryMap()
     {
-        CreateMap<HistoryEntity, HistoryReply>();
+        CreateMap<HistoryEntity, HistoryDto>();
     }
 }
 
@@ -28,14 +27,14 @@ public class HistoryAddRequest : NameRequest
     public string Position { get; set; }
 }
 
-public class HistoryReply : IdNameRequest
+public class HistoryDto : IdNameRequest<Guid>
 {
     public long CreateTime { get; set; }
-    public string Time => CreateTime.ToLocalTimeString();
+    public string Time => CreateTime.ToUtcTime().ToTimeString();
     public string IdPath { get; set; }
     public string Position { get; set; }
     public bool IsFolder { get; set; }
-    public string Icon => IsFolder ? "folder" : Name.GetFileExtension().GetIcon();
+    public string Icon => IsFolder ? "folder" : Name.GetFileExtension(false).GetIcon();
     public bool HasThumb { get; set; }
     public bool HasLargeThumb { get; set; }
     public bool IsEncrypt { get; set; }

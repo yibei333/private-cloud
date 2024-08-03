@@ -9,10 +9,9 @@ using PrivateCloud.Server.Models;
 using PrivateCloud.Server.Models.Pages;
 using PrivateCloud.Server.Services;
 using SharpDevLib;
-using SharpDevLib.Extensions.Data;
-using SharpDevLib.Extensions.Encryption;
-using SharpDevLib.Extensions.Model;
+using SharpDevLib.Cryptography;
 using System.Net.Http.Headers;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace PrivateCloud.Server.Controllers;
@@ -21,15 +20,11 @@ public class FileController(
     IServiceProvider serviceProvider,
     CleanTempService cleanTempService,
     ThumbTaskService thumbTaskService,
-    CryptoTaskService cryptoTaskService,
-    IRepository<HistoryEntity> historyRepository,
-    IRepository<EncryptedFileEntity> encryptedFileRepository,
-    IRepository<ThumbEntity> thumbRepository,
-    IRepository<FavoriteEntity> favoriteRepository
+    CryptoTaskService cryptoTaskService
     ) : BaseController(serviceProvider)
 {
 
-    private static readonly Dictionary<string, IdNameDataDto<byte[]>> _staticCache = [];
+    private static readonly Dictionary<string, IdNameDataDto<Guid, byte[]>> _staticCache = [];
 
     #region FileResult
     [HttpGet("statics/{path}")]
@@ -38,11 +33,11 @@ public class FileController(
     {
         if (!_staticCache.TryGetValue(path, out var result))
         {
-            var relativePath = Encoding.UTF8.GetString(path.FromHexString());
+            var relativePath = Encoding.UTF8.GetString(path.HexStringDecode());
             var absolutPath = AppDomain.CurrentDomain.BaseDirectory.CombinePath($"wwwroot/{relativePath}");
             var fileInfo = new FileInfo(absolutPath);
             if (!fileInfo.Exists) throw new FileNotFoundException();
-            result = new IdNameDataDto<byte[]> { Name = fileInfo.Name, Data = System.IO.File.ReadAllBytes(fileInfo.FullName) };
+            result = new IdNameDataDto<Guid, byte[]> { Name = fileInfo.Name, Data = System.IO.File.ReadAllBytes(fileInfo.FullName) };
             _staticCache[path] = result;
         }
         return BuildFileResult(result.Name, result.Data);
@@ -86,8 +81,8 @@ public class FileController(
     public FileResult GetThumb(int type, string idPath)
     {
         var idPathModel = BuildIdPathModel(idPath, out _);
-        var thumbPath = idPathModel.GetThumbPath(type, VideoThumbIsGridImage, thumbRepository);
-        if (thumbPath.IsEmpty() || !System.IO.File.Exists(thumbPath)) throw new DataNotFoundException();
+        var thumbPath = idPathModel.GetThumbPath(type, VideoThumbIsGridImage, _dbContext);
+        if (thumbPath.IsNullOrWhiteSpace() || !System.IO.File.Exists(thumbPath)) throw new DataNotFoundException();
         var fileName = (idPathModel.IsEncrypt ? thumbPath.Replace(".encrypted", "") : thumbPath).GetFileName();
         return BuildFileStreamResult(fileName, System.IO.File.OpenRead(thumbPath));
     }
@@ -95,25 +90,28 @@ public class FileController(
 
     [HttpGet]
     [Route("key/{idPath}")]
-    public Result<EncryptKeyModel> GetKey(string idPath)
+    public DataReply<EncryptKeyModel> GetKey(string idPath)
     {
         var idPathModel = BuildIdPathModel(idPath, out _);
         var id = idPathModel.Name.ToGuid();
-        var encryptedFile = encryptedFileRepository.Get(x => x.Id == id) ?? throw new DataNotFoundOrHandlingException();
-        var key = Convert.ToBase64String(_aes.Encrypt(encryptedFile.Key, new AesEncryptOption(CurrentUser.CryptoId, CryptoExtension.ZeroAesIVBtyes)));
-        return Result.Succeed(new EncryptKeyModel(key, encryptedFile.IV));
+        var encryptedFile = _dbContext.EncryptedFile.FirstOrDefault(x => x.Id == id) ?? throw new DataNotFoundOrHandlingException();
+        using var aes = Aes.Create();
+        aes.SetKey(CurrentUser.CryptoId.Utf8Decode());
+        aes.SetIV(CryptoExtension.ZeroAesIVBtyes);
+        var key = aes.Encrypt(encryptedFile.Key.Utf8Decode()).Base64Encode();
+        return DataReply<EncryptKeyModel>.Succeed(new EncryptKeyModel(key, encryptedFile.IV));
     }
 
     [HttpGet]
     [Route("entries")]
-    public PageResult<EntryReply> GetEntries([FromQuery] GetEntriesRequest request)
+    public PageReply<EntryDto> GetEntries([FromQuery] GetEntriesRequest request)
     {
         var idPathModel = BuildIdPathModel(request.IdPath, out var mediaLib);
         var list = GetEntries(mediaLib, idPathModel, request.Name);
         var encryptedFileIds = list.Select(x => x.Id).Distinct().ToList();
-        var encryptedFileNames = encryptedFileRepository.GetMany(x => encryptedFileIds.Contains(x.Id)).Select(x => new { x.Id, x.Name }).ToList();
+        var encryptedFileNames = _dbContext.EncryptedFile.Where(x => encryptedFileIds.Contains(x.Id)).Select(x => new { x.Id, x.Name }).ToList();
         var idPaths = list.Select(x => x.IdPath).ToList();
-        var favorites = favoriteRepository.GetMany(x => idPaths.Contains(x.IdPath)).Select(x => new { x.Id, x.IdPath }).ToList();
+        var favorites = _dbContext.Favorite.Where(x => idPaths.Contains(x.IdPath)).Select(x => new { x.Id, x.IdPath }).ToList();
         list.ForEach(x =>
         {
             var encryptedFile = encryptedFileNames.FirstOrDefault(y => x.Id == y.Id);
@@ -123,30 +121,30 @@ public class FileController(
             if (!x.IsFolder && x.IsEncrypt && encryptedFile is null) x.Encrypting = true;
         });
 
-        var count = list.Count;
-        var query = list.OrderByDescending(x => x.IsFolder);
         if (request.SortField == "名称")
         {
-            if (request.SortDescending == "是") list = list.OrderByDescending(x => x.IsFolder).ThenByDescending(x => x.Name).ToList();
-            else list = list.OrderByDescending(x => x.IsFolder).ThenBy(x => x.Name).ToList();
+            if (request.SortDescending == "是") list = [.. list.OrderByDescending(x => x.IsFolder).ThenByDescending(x => x.Name)];
+            else list = [.. list.OrderByDescending(x => x.IsFolder).ThenBy(x => x.Name)];
         }
         if (request.SortField == "时间")
         {
-            if (request.SortDescending == "是") list = list.OrderByDescending(x => x.IsFolder).ThenByDescending(x => x.Time).ToList();
-            else list = list.OrderByDescending(x => x.IsFolder).ThenBy(x => x.Time).ToList();
+            if (request.SortDescending == "是") list = [.. list.OrderByDescending(x => x.IsFolder).ThenByDescending(x => x.Time)];
+            else list = [.. list.OrderByDescending(x => x.IsFolder).ThenBy(x => x.Time)];
         }
-        var data = list.Skip((request.PageIndex - 1) * request.PageSize).Take(request.PageSize).ToList();
+
+        var count = list.Count;
+        var data = list.Skip(request.Index * request.Size).Take(request.Size).ToList();
         SetEntryThumbInfo(data);
         if (!mediaLib.IsEncrypt) thumbTaskService.ScanTaskToWriteAsync(request.IdPath);
-        return Result.SucceedPage(data, count, request.PageIndex, request.PageSize);
+        return PageReply<EntryDto>.Succeed(data, count, request);
     }
 
     [HttpGet]
     [Route("folder/{idPath}")]
-    public Result<FolderReply> GetFolder(string idPath)
+    public DataReply<FolderDto> GetFolder(string idPath)
     {
         var idPathModel = BuildIdPathModel(idPath, out var mediaLib);
-        var reply = new FolderReply(mediaLib, idPathModel);
+        var reply = new FolderDto(mediaLib, idPathModel);
 
         //set parents
         if (!reply.IsRoot)
@@ -154,9 +152,9 @@ public class FileController(
             var parent = new DirectoryInfo(idPathModel.AbsolutePath).Parent;
             var parentIdPath = new IdPath(mediaLib, parent.FullName, true);
 
-            while (parentIdPath.RelativePath.NotEmpty())
+            while (parentIdPath.RelativePath.NotNullOrEmpty())
             {
-                reply.Parents.Add(new FileParentReply(parentIdPath));
+                reply.Parents.Add(new FileParentDto(parentIdPath));
                 parent = parent.Parent;
                 parentIdPath = new IdPath(mediaLib, parent.FullName, true);
             }
@@ -167,34 +165,45 @@ public class FileController(
         var ids = reply.Parents.Select(x => x.Id).ToList();
         ids.Add(reply.Id);
         ids = ids.Distinct().ToList();
-        if (ids.NotEmpty() && ids.Any(x => x.NotEmpty()))
+        if (ids.NotNullOrEmpty() && ids.Any(x => x.NotEmpty()))
         {
-            var encryptedFileNames = encryptedFileRepository.GetMany(x => ids.Contains(x.Id)).Select(x => new { x.Id, x.Name }).ToList();
+            var encryptedFileNames = _dbContext.EncryptedFile.Where(x => ids.Contains(x.Id)).Select(x => new { x.Id, x.Name }).ToList();
             reply.Name = encryptedFileNames.FirstOrDefault(x => x.Id == reply.Id)?.Name ?? reply.Name;
             reply.Parents.ForEach(x => x.Name = encryptedFileNames.FirstOrDefault(y => y.Id == x.Id)?.Name ?? x.Name);
         }
-        return Result.Succeed(reply);
+        return DataReply<FolderDto>.Succeed(reply);
     }
 
     [HttpGet]
-    [Route("file/{idPath}")]
-    public Result<FileReply> GetFile(string idPath)
+    [Route("file")]
+    public DataReply<FileDto> GetFile([FromQuery] GetFileRequest request)
     {
-        var idPathModel = BuildIdPathModel(idPath, out var mediaLib);
-        var result = new FileReply { Current = new EntryReply(idPathModel) };
+        var idPathModel = BuildIdPathModel(request.IdPath, out var mediaLib);
+        var result = new FileDto { Current = new EntryDto(idPathModel) };
         result.Current.ParentIdPath = new IdPath(mediaLib, new FileInfo(idPathModel.AbsolutePath).Directory.FullName, true).Value;
         SetEntryThumbInfo([result.Current]);
-        result.Current.Name = encryptedFileRepository.Get(x => x.Id == result.Current.Id)?.Name ?? result.Current.Name;
-        var favorite = favoriteRepository.Get(x => x.IdPath == idPath && x.UserId == CurrentUser.Id);
+        result.Current.Name = _dbContext.EncryptedFile.FirstOrDefault(x => x.Id == result.Current.Id)?.Name ?? result.Current.Name;
+        var favorite = _dbContext.Favorite.FirstOrDefault(x => x.IdPath == request.IdPath && x.UserId == CurrentUser.Id);
         result.Current.FavoritedId = favorite?.Id ?? Guid.Empty;
-        var history = historyRepository.Get(x => x.IdPath == idPath && x.UserId == CurrentUser.Id);
+        var history = _dbContext.History.FirstOrDefault(x => x.IdPath == request.IdPath && x.UserId == CurrentUser.Id);
         result.Current.Position = history?.Position;
 
-        var entries = new FileInfo(idPathModel.AbsolutePath).Directory.GetFiles().OrderBy(x => x.Name).ToList();
+        var entries = new FileInfo(idPathModel.AbsolutePath).Directory.GetFiles().ToList();
+        if (request.SortField == "名称")
+        {
+            if (request.SortDescending == "是") entries = [.. entries.OrderByDescending(x => x.Name)];
+            else entries = [.. entries.OrderBy(x => x.Name)];
+        }
+        if (request.SortField == "时间")
+        {
+            if (request.SortDescending == "是") entries = [.. entries.OrderByDescending(x => x.LastWriteTime)];
+            else entries = [.. entries.OrderBy(x => x.LastWriteTime)];
+        }
+
         if (idPathModel.IsEncrypt)
         {
             var encryptedFileIds = entries.Select(x => x.Name.ToGuid()).Distinct().ToList();
-            var encryptedFileNames = encryptedFileRepository.GetMany(x => encryptedFileIds.Contains(x.Id)).Select(x => new { x.Id, x.Name }).ToList();
+            var encryptedFileNames = _dbContext.EncryptedFile.Where(x => encryptedFileIds.Contains(x.Id)).Select(x => new { x.Id, x.Name }).ToList();
             entries = [.. entries.OrderBy(x => encryptedFileNames.FirstOrDefault(y => x.Name.ToGuid() == y.Id)?.Name)];
         }
         result.Total = entries.Count;
@@ -202,18 +211,18 @@ public class FileController(
         if (entries.Count > 1)
         {
             var currentIndex = entries.IndexOf(entries.First(x => x.Name == idPathModel.Name));
-            if (currentIndex > 0) result.Pre = new EntryReply(new IdPath(mediaLib, entries[currentIndex - 1].FullName, false));
-            if (currentIndex < entries.Count - 1) result.Next = new EntryReply(new IdPath(mediaLib, entries[currentIndex + 1].FullName, false));
+            if (currentIndex > 0) result.Pre = new EntryDto(new IdPath(mediaLib, entries[currentIndex - 1].FullName, false));
+            if (currentIndex < entries.Count - 1) result.Next = new EntryDto(new IdPath(mediaLib, entries[currentIndex + 1].FullName, false));
             result.Index = currentIndex + 1;
         }
-        return Result.Succeed(result);
+        return DataReply<FileDto>.Succeed(result);
     }
 
     [HttpPost]
     [Route("folder")]
-    public Result CreateFolder([FromBody] CreateFolderRequest request)
+    public EmptyReply CreateFolder([FromBody] CreateFolderRequest request)
     {
-        if (request.Name.IsEmpty()) throw new ParameterRequiredException(nameof(request.Name));
+        if (request.Name.IsNullOrWhiteSpace()) throw new ParameterRequiredException(nameof(request.Name));
         var idPathModel = BuildIdPathModel(request.IdPath, out var mediaLib);
         var directoryInfo = new DirectoryInfo(idPathModel.AbsolutePath.CombinePath(request.Name));
         if (!directoryInfo.Exists)
@@ -221,47 +230,49 @@ public class FileController(
             directoryInfo.Create();
             if (idPathModel.IsEncrypt) cryptoTaskService.ScanToAddCryptoTask(mediaLib, CryptoTaskType.Encrypt);
         }
-        return Result.Succeed();
+        return EmptyReply.Succeed();
     }
 
     [HttpPut]
     [Route("rename/{idPath}")]
-    public Result<string> Rename(string idPath, [FromBody] RenameRequest request)
+    public DataReply<string> Rename(string idPath, [FromBody] RenameRequest request)
     {
         var idPathModel = BuildIdPathModel(idPath, out var mediaLib);
         var id = idPathModel.Name.ToGuid();
         if (request.IsFolder)
         {
             var directoryInfo = new DirectoryInfo(idPathModel.AbsolutePath);
-            var encryptedFile = encryptedFileRepository.Get(x => x.Id == id);
+            var encryptedFile = _dbContext.EncryptedFile.FirstOrDefault(x => x.Id == id);
             if (encryptedFile is null)
             {
-                if (request.Name == directoryInfo.Name) return Result.Succeed<string>(idPath);
+                if (request.Name == directoryInfo.Name) return DataReply<string>.Succeed(idPath);
                 directoryInfo.MoveTo(directoryInfo.Parent.FullName.CombinePath(request.Name));
-                return Result.Succeed<string>(new IdPath(mediaLib, directoryInfo.FullName, true).Value);
+                return DataReply<string>.Succeed(new IdPath(mediaLib, directoryInfo.FullName, true).Value);
             }
             else
             {
                 encryptedFile.Name = request.Name;
-                encryptedFileRepository.Update(encryptedFile);
-                return Result.Succeed<string>(idPath);
+                _dbContext.EncryptedFile.Update(encryptedFile);
+                _dbContext.SaveChanges();
+                return DataReply<string>.Succeed(idPath);
             }
         }
         else
         {
             var fileInfo = new FileInfo(idPathModel.AbsolutePath);
-            var encryptedFile = encryptedFileRepository.Get(x => x.Id == id);
+            var encryptedFile = _dbContext.EncryptedFile.FirstOrDefault(x => x.Id == id);
             if (encryptedFile is null)
             {
-                if (request.Name == fileInfo.Name) return Result.Succeed<string>(idPath);
+                if (request.Name == fileInfo.Name) return DataReply<string>.Succeed(idPath);
                 fileInfo.MoveTo(fileInfo.Directory.FullName.CombinePath(request.Name));
-                return Result.Succeed<string>(new IdPath(mediaLib, fileInfo.FullName, false).Value);
+                return DataReply<string>.Succeed(new IdPath(mediaLib, fileInfo.FullName, false).Value);
             }
             else
             {
                 encryptedFile.Name = request.Name;
-                encryptedFileRepository.Update(encryptedFile);
-                return Result.Succeed<string>(idPath);
+                _dbContext.EncryptedFile.Update(encryptedFile);
+                _dbContext.SaveChanges();
+                return DataReply<string>.Succeed(idPath);
             }
         }
     }
@@ -271,21 +282,21 @@ public class FileController(
     [DisableRequestSizeLimit]
     [MultipartFormData]
     [DisableFormValueModelBinding]
-    public async Task<Result<List<NameIdPathReply>>> UploadFile(string idPath)
+    public async Task<DataReply<List<NameIdPathDto>>> UploadFile(string idPath)
     {
         var idPathModel = BuildIdPathModel(idPath, out var mediaLib);
         var contentTypeHeader = MediaTypeHeaderValue.Parse(HttpContext.Request.ContentType).ToString();
         var boundary = contentTypeHeader[(contentTypeHeader.IndexOf(StaticNames.BoundarySymbol) + StaticNames.BoundarySymbol.Length)..];
         var multipartReader = new MultipartReader(boundary, HttpContext.Request.Body);
         var section = await multipartReader.ReadNextSectionAsync();
-        var reply = new List<NameIdPathReply>();
+        var reply = new List<NameIdPathDto>();
 
         while (section != null)
         {
             var fileSection = section.AsFileSection();
             if (fileSection != null)
             {
-                var fullPath = idPathModel.AbsolutePath.CombinePath(fileSection.FileName.UrlDecode());
+                var fullPath = idPathModel.AbsolutePath.CombinePath(fileSection.FileName.UrlDecode().Utf8Encode());
                 var fileInfo = new FileInfo(fullPath);
                 if (fileInfo.Exists) fileInfo.Delete();
 
@@ -297,17 +308,17 @@ public class FileController(
                 await fileSection.FileStream.CopyToAsync(fileStream);
                 await fileStream.FlushAsync();
                 fileStream.Close();
-                reply.Add(new NameIdPathReply { Name = fileSection.FileName.UrlDecode(), IdPath = new IdPath(mediaLib, fullPath, false).Value });
+                reply.Add(new NameIdPathDto { Name = fileSection.FileName.UrlDecode().Utf8Encode(), IdPath = new IdPath(mediaLib, fullPath, false).Value });
             }
             section = await multipartReader.ReadNextSectionAsync();
         }
         if (!mediaLib.IsEncrypt) thumbTaskService.ScanTaskToWriteAsync(idPath);
         else cryptoTaskService.ScanToAddCryptoTask(mediaLib, CryptoTaskType.Encrypt);
-        return Result.Succeed(reply);
+        return DataReply<List<NameIdPathDto>>.Succeed(reply);
     }
 
     [HttpDelete("{idPath}/{isFolder}")]
-    public Result Delete(string idPath, bool isFolder)
+    public EmptyReply Delete(string idPath, bool isFolder)
     {
         var idPathModel = BuildIdPathModel(idPath, out var mediaLib);
 
@@ -324,33 +335,33 @@ public class FileController(
         }
 
         cleanTempService.CleanTemp();
-        return Result.Succeed();
+        return EmptyReply.Succeed();
     }
 
     #region Private
     FileResult GetM3U8Info(Guid id, string path, string name)
     {
         if (id.IsEmpty()) throw new NotSupportedException();
-        var mediaLibId = encryptedFileRepository.Get(x => x.Id == id)?.MediaLibId ?? throw new NotSupportedException();
-        var mediaLib = _mediaLibRepository.Get(x => x.Id == mediaLibId) ?? throw new NotSupportedException();
+        var mediaLibId = _dbContext.EncryptedFile.FirstOrDefault(x => x.Id == id)?.MediaLibId ?? throw new NotSupportedException();
+        var mediaLib = _dbContext.MediaLib.FirstOrDefault(x => x.Id == mediaLibId) ?? throw new NotSupportedException();
         EnsureMediaLibAuth(mediaLib);
         var fileInfo = new FileInfo(path);
         if (!fileInfo.Exists) throw new NotSupportedException();
         return BuildFileStreamResult(name, fileInfo.OpenRead());
     }
 
-    List<EntryReply> GetEntries(MediaLibEntity mediaLib, IdPath idPathModel, string name)
+    List<EntryDto> GetEntries(MediaLibEntity mediaLib, IdPath idPathModel, string name)
     {
         var directory = new DirectoryInfo(idPathModel.AbsolutePath);
-        if (name.IsEmpty()) return (from a in directory.GetDirectories() select new EntryReply(new IdPath(mediaLib, a.FullName, true))).Union(from a in directory.GetFiles() select new EntryReply(new IdPath(mediaLib, a.FullName, false))).ToList();
+        if (name.IsNullOrWhiteSpace()) return (from a in directory.GetDirectories() select new EntryDto(new IdPath(mediaLib, a.FullName, true))).Union(from a in directory.GetFiles() select new EntryDto(new IdPath(mediaLib, a.FullName, false))).ToList();
 
         if (idPathModel.IsEncrypt)
         {
-            var result = new List<EntryReply>();
-            var names = encryptedFileRepository.GetMany(x => x.MediaLibId == idPathModel.MediaLibId && x.Name.ToLower().Contains(name.ToLower())).Select(x => $"*{x.Id}*").ToList();
+            var result = new List<EntryDto>();
+            var names = _dbContext.EncryptedFile.Where(x => x.MediaLibId == idPathModel.MediaLibId && x.Name.ToLower().Contains(name.ToLower())).Select(x => $"*{x.Id}*").ToList();
             names.ForEach(name =>
             {
-                var entries = (from a in directory.GetDirectories(name, SearchOption.AllDirectories) select new EntryReply(new IdPath(mediaLib, a.FullName, true))).Union(from a in directory.GetFiles(name, SearchOption.AllDirectories) select new EntryReply(new IdPath(mediaLib, a.FullName, false))).ToList();
+                var entries = (from a in directory.GetDirectories(name, SearchOption.AllDirectories) select new EntryDto(new IdPath(mediaLib, a.FullName, true))).Union(from a in directory.GetFiles(name, SearchOption.AllDirectories) select new EntryDto(new IdPath(mediaLib, a.FullName, false))).ToList();
                 result.AddRange(entries);
             });
             return result;
@@ -358,15 +369,15 @@ public class FileController(
         else
         {
             var pattern = $"*{name}*";
-            return (from a in directory.GetDirectories(pattern, SearchOption.AllDirectories) select new EntryReply(new IdPath(mediaLib, a.FullName, true))).Union(from a in directory.GetFiles(pattern, SearchOption.AllDirectories) select new EntryReply(new IdPath(mediaLib, a.FullName, false))).ToList();
+            return (from a in directory.GetDirectories(pattern, SearchOption.AllDirectories) select new EntryDto(new IdPath(mediaLib, a.FullName, true))).Union(from a in directory.GetFiles(pattern, SearchOption.AllDirectories) select new EntryDto(new IdPath(mediaLib, a.FullName, false))).ToList();
         }
     }
 
-    void SetEntryThumbInfo(List<EntryReply> entries)
+    void SetEntryThumbInfo(List<EntryDto> entries)
     {
-        if (entries.IsEmpty()) return;
+        if (entries.IsNullOrEmpty()) return;
         var idPathList = entries.Where(x => !x.IsEncrypt).Select(x => x.IdPath).ToList();
-        var thumbs = thumbRepository.GetMany(x => idPathList.Contains(x.IdPath)).ToList();
+        var thumbs = _dbContext.Thumb.Where(x => idPathList.Contains(x.IdPath)).ToList();
         entries.ForEach(entry =>
         {
             if (entry.Name.IsImage() || entry.Name.IsVideo() || entry.Name.IsGif())
@@ -390,19 +401,30 @@ public class FileController(
 
     void DeleteFile(IdPath idPathModel)
     {
-        var thumb = thumbRepository.Get(x => x.IdPath == idPathModel.Value);
-        if (thumb is not null) thumbRepository.Remove(thumb);
+        var thumb = _dbContext.Thumb.FirstOrDefault(x => x.IdPath == idPathModel.Value);
+        if (thumb is not null)
+        {
+            _dbContext.Thumb.Remove(thumb);
+        }
 
         var id = idPathModel.Name.ToGuid();
-        var encryptedFile = id.IsEmpty() ? null : encryptedFileRepository.Get(x => x.Id == id);
-        if (encryptedFile is not null) encryptedFileRepository.Remove(encryptedFile);
+        var encryptedFile = id.IsEmpty() ? null : _dbContext.EncryptedFile.FirstOrDefault(x => x.Id == id);
+        if (encryptedFile is not null)
+        {
+            _dbContext.EncryptedFile.Remove(encryptedFile);
+        }
+        _dbContext.SaveChanges();
     }
 
     void DeleteFolder(IdPath idPathModel, MediaLibEntity mediaLib)
     {
         var id = idPathModel.Name.ToGuid();
-        var encryptedFile = id.IsEmpty() ? null : encryptedFileRepository.Get(x => x.Id == id);
-        if (encryptedFile is not null) encryptedFileRepository.Remove(encryptedFile);
+        var encryptedFile = id.IsEmpty() ? null : _dbContext.EncryptedFile.FirstOrDefault(x => x.Id == id);
+        if (encryptedFile is not null)
+        {
+            _dbContext.EncryptedFile.Remove(encryptedFile);
+            _dbContext.SaveChanges();
+        }
 
         var directoryInfo = new DirectoryInfo(idPathModel.AbsolutePath);
         directoryInfo.GetDirectories().ToList().ForEach(x => DeleteFolder(new IdPath(mediaLib, x.FullName, true), mediaLib));

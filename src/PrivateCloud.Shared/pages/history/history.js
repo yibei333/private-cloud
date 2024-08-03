@@ -18,8 +18,8 @@ export default {
         async init(name = '') {
             this.request = {
                 name: name,
-                pageIndex: 1,
-                pageSize: 20
+                index: 0,
+                size: 20
             }
             this.items = [];
         },
@@ -34,13 +34,13 @@ export default {
                 for (let i = 0; i < data.length; i++) {
                     this.items.push(data[i]);
                 }
-                this.request.pageIndex++;
+                this.request.index++;
                 return res.data;
             });
         },
         loadMore(state) {
             this.getEntries().then(data => {
-                if (data.length >= this.request.pageSize) state.loaded();
+                if (data.length >= this.request.size) state.loaded();
                 else state.complete();
             }).catch(() => state.error());
         },
