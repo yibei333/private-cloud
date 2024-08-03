@@ -126,7 +126,7 @@ public class FileController(
             if (request.SortDescending == "是") list = [.. list.OrderByDescending(x => x.IsFolder).ThenByDescending(x => x.Name)];
             else list = [.. list.OrderByDescending(x => x.IsFolder).ThenBy(x => x.Name)];
         }
-        if (request.SortField == "时间")
+        else if (request.SortField == "时间")
         {
             if (request.SortDescending == "是") list = [.. list.OrderByDescending(x => x.IsFolder).ThenByDescending(x => x.Time)];
             else list = [.. list.OrderByDescending(x => x.IsFolder).ThenBy(x => x.Time)];
@@ -188,31 +188,26 @@ public class FileController(
         var history = _dbContext.History.FirstOrDefault(x => x.IdPath == request.IdPath && x.UserId == CurrentUser.Id);
         result.Current.Position = history?.Position;
 
-        var entries = new FileInfo(idPathModel.AbsolutePath).Directory.GetFiles().ToList();
+        var parentIdPath = new IdPath(mediaLib, new FileInfo(idPathModel.AbsolutePath).Directory.FullName, true);
+        var entries = GetEntries(mediaLib, parentIdPath, string.Empty);
         if (request.SortField == "名称")
         {
             if (request.SortDescending == "是") entries = [.. entries.OrderByDescending(x => x.Name)];
             else entries = [.. entries.OrderBy(x => x.Name)];
         }
-        if (request.SortField == "时间")
+        else if (request.SortField == "时间")
         {
-            if (request.SortDescending == "是") entries = [.. entries.OrderByDescending(x => x.LastWriteTime)];
-            else entries = [.. entries.OrderBy(x => x.LastWriteTime)];
+            if (request.SortDescending == "是") entries = [.. entries.OrderByDescending(x => x.Time)];
+            else entries = [.. entries.OrderBy(x => x.Time)];
         }
 
-        if (idPathModel.IsEncrypt)
-        {
-            var encryptedFileIds = entries.Select(x => x.Name.ToGuid()).Distinct().ToList();
-            var encryptedFileNames = _dbContext.EncryptedFile.Where(x => encryptedFileIds.Contains(x.Id)).Select(x => new { x.Id, x.Name }).ToList();
-            entries = [.. entries.OrderBy(x => encryptedFileNames.FirstOrDefault(y => x.Name.ToGuid() == y.Id)?.Name)];
-        }
         result.Total = entries.Count;
         result.Index = 1;
         if (entries.Count > 1)
         {
             var currentIndex = entries.IndexOf(entries.First(x => x.Name == idPathModel.Name));
-            if (currentIndex > 0) result.Pre = new EntryDto(new IdPath(mediaLib, entries[currentIndex - 1].FullName, false));
-            if (currentIndex < entries.Count - 1) result.Next = new EntryDto(new IdPath(mediaLib, entries[currentIndex + 1].FullName, false));
+            if (currentIndex > 0) result.Pre = new EntryDto(new IdPath(mediaLib, entries[currentIndex - 1].AbsolutePath, false));
+            if (currentIndex < entries.Count - 1) result.Next = new EntryDto(new IdPath(mediaLib, entries[currentIndex + 1].AbsolutePath, false));
             result.Index = currentIndex + 1;
         }
         return DataReply<FileDto>.Succeed(result);
