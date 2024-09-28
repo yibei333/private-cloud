@@ -106,10 +106,10 @@ export class httpService {
         else {
             if (options.notifyError != false) {
                 if (options.method == 'blob') {
-                    this.notify.error(response.message);
+                    //this.notify.error(response.message);
                 } else {
                     let data = (response.data) ? JSON.parse(response.data) : null;
-                    this.notify.error(data?.description ?? response.message);
+                    //this.notify.error(data?.description ?? response.message);
                 }
             }
         }
