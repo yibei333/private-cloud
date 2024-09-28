@@ -124,8 +124,10 @@ export default {
         loadMore(state) {
             if (!this.folderLoaded) return;
             this.getEntries().then(data => {
-                if (this.request.index >= (this.pageCount - 1)) state.complete();
-                else state.loading();
+                if (this.request.index > (this.pageCount - 1)) state.complete();
+                else {
+                    state.loading();
+                }
             }).catch(() => state.error());
         },
         showOperation(item) {
